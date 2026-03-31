@@ -96,8 +96,11 @@ class AnalystAgent(BaseAgent):
         if daily is None:
             return ActionResult(success=False, message="无行情数据，请先拉取数据")
 
+        codes = self.context.read("codes", daily["code"].unique().tolist())
+        daily = daily[daily["code"].isin(codes)]
+
         # 评分
-        data = {"daily_quote": daily, "codes": daily.index.unique().tolist()}
+        data = {"daily_quote": daily, "codes": codes}
         scores = score_fn(data)
 
         # 写入context供其他Agent使用

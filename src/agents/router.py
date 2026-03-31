@@ -18,10 +18,10 @@ class RouterAgent(BaseAgent):
         r"(分析|研究|看看|怎么样|基本面|技术面|财报|新闻).*(\d{6}|[\u4e00-\u9fa5]{2,4})": "analyst",
         r"(市场|大盘|指数|行情|走势)": "analyst",
         r"(北向|资金|主力|融资)": "analyst",
+        r"(评分|排名|Top|选股|推荐)": "analyst",
 
         # 交易类 → TraderAgent
         r"(持仓|组合|买入|卖出|换仓|止[损盈])": "trader",
-        r"(评分|排名|Top|选股|推荐)": "trader",
         r"(净值|收益|盈亏|绩效|回撤)": "trader",
         r"(动量|delta|ΔS|变化)": "trader",
 

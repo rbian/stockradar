@@ -1,10 +1,6 @@
-"""Agent编排器 — 统一创建和管理所有Agent
+"""Agent编排器 — 用户消息处理入口
 
-负责：
-1. 创建Agent实例并注入依赖
-2. 注册工具
-3. 连接消息总线
-4. 提供运行入口
+流程：用户消息 → Router路由 → 目标Agent执行 → 返回结果
 """
 
 import asyncio
@@ -12,79 +8,89 @@ from typing import Optional
 
 from loguru import logger
 
-from src.core.agent_base import BaseAgent, AgentConfig
+from src.core.agent_base import BaseAgent, Observation, ActionResult
 from src.core.message_bus import MessageBus
 from src.core.context import SharedContext
 from src.core.tool_registry import ToolRegistry
 
 
 class AgentOrchestrator:
-    """Agent编排器 — 系统入口"""
+    """Agent编排器"""
 
     def __init__(self, store=None, llm_client=None):
         self.store = store
         self.llm_client = llm_client
-
-        # 核心组件
         self.bus = MessageBus()
         self.context = SharedContext(store=store)
         self.tools = ToolRegistry()
         self.agents: dict[str, BaseAgent] = {}
 
     def register_agent(self, agent: BaseAgent):
-        """注册Agent"""
         self.agents[agent.name] = agent
         self.bus.create_queue(agent.name)
-        logger.info(f"Agent注册: {agent.name} (tools: {list(agent._tools.keys())})")
+        logger.info(f"Agent注册: {agent.name}")
 
-    def get_agent(self, name: str) -> Optional[BaseAgent]:
-        """获取Agent"""
-        return self.agents.get(name)
+    # ──── 工具注册 ────
 
-    # ──── 消息路由 ────
+    def register_tool(self, name: str, func, description: str = "", category: str = ""):
+        """注册工具函数到所有Agent可用"""
+        from src.core.tool_registry import Tool
+        tool = Tool(name=name, func=func, description=description, category=category)
+        self.tools.register(tool)
+        # 注入到所有已注册的Agent
+        for agent in self.agents.values():
+            agent.register_tool(name, func)
+        logger.info(f"工具注册: {name} → {len(self.agents)}个Agent")
 
-    async def send_message(self, sender: str, receiver: str,
-                           msg_type: str, content: dict, **kwargs):
-        """发送消息"""
-        return await self.bus.send(
-            sender=sender, receiver=receiver,
-            msg_type=msg_type, content=content, **kwargs
-        )
+    # ──── 用户消息处理 ────
 
     async def process_user_message(self, text: str, user_id: str = "") -> str:
-        """处理用户消息 → RouterAgent → 对应Agent → 返回结果"""
+        """处理用户消息"""
         router = self.agents.get("router")
-        if router is None:
-            return "系统未就绪：RouterAgent未注册"
+        if not router:
+            return "系统未就绪"
 
-        # Router决定转发给谁
-        from src.core.agent_base import Observation, ActionResult
+        # 注入消息到context
+        self.context.write("user_message", text, writer="user")
+        self.context.write("user_id", user_id, writer="user")
+
+        # Router思考
         obs = Observation(content={"user_message": text, "user_id": user_id}, source="user")
         plan = await router.think(obs)
 
         if not plan.actions:
-            return "抱歉，我无法理解这个请求"
+            return "无法理解您的请求，输入'帮助'查看功能列表"
 
-        # 执行第一个action（通常是将任务转发给某个Agent）
-        target_name = plan.actions[0].get("target", "")
+        action = plan.actions[0]
+
+        # 直接回复（帮助等）
+        if "response" in action:
+            return action["response"]
+
+        # 转发给目标Agent
+        target_name = action.get("target", "")
         target_agent = self.agents.get(target_name)
 
-        if target_agent is None:
-            return f"Agent '{target_name}' 不存在"
+        if not target_agent:
+            return f"Agent '{target_name}' 不可用"
 
-        # 将用户消息注入context
-        self.context.write("user_message", text, writer="router")
-        self.context.write("user_id", user_id, writer="router")
+        # 执行目标Agent
+        try:
+            result = await asyncio.wait_for(
+                target_agent.run(self.context),
+                timeout=60
+            )
+            if result.success:
+                return result.message or "执行成功（无输出）"
+            else:
+                return f"⚠️ {result.message}"
+        except asyncio.TimeoutError:
+            return "⏰ 处理超时，请稍后再试"
+        except Exception as e:
+            logger.error(f"Agent执行失败: {e}")
+            return f"❌ 处理失败: {e}"
 
-        # 运行目标Agent
-        result = await target_agent.run(self.context)
-
-        if result.success:
-            return result.message or str(result.data)[:2000]
-        else:
-            return f"处理失败: {result.message}"
-
-    # ──── 定时任务 ────
+    # ──── 每日流水线 ────
 
     async def run_daily_pipeline(self, date: str = None):
         """每日盘后流水线"""
@@ -92,41 +98,14 @@ class AgentOrchestrator:
         if date is None:
             date = datetime.now().strftime("%Y-%m-%d")
 
-        logger.info(f"=== 每日流水线开始 [{date}] ===")
+        logger.info(f"=== 每日流水线 [{date}] ===")
+        self.context.write("pipeline_date", date, writer="system")
 
-        # 1. 数据采集
-        analyst = self.agents.get("analyst")
-        if analyst:
-            result = await analyst.run(self.context)
-            logger.info(f"分析师: {'✅' if result.success else '❌'} {result.message}")
-
-        # 2. 交易决策
-        trader = self.agents.get("trader")
-        if trader:
-            result = await trader.run(self.context)
-            logger.info(f"交易员: {'✅' if result.success else '❌'} {result.message}")
-
-        # 3. 进化（如果Pro版）
-        evolver = self.agents.get("evolver")
-        if evolver:
-            result = await evolver.run(self.context)
-            logger.info(f"进化器: {'✅' if result.success else '❌'} {result.message}")
-
-        # 4. 报告
-        reporter = self.agents.get("reporter")
-        if reporter:
-            result = await reporter.run(self.context)
-            logger.info(f"报告员: {'✅' if result.success else '❌'} {result.message}")
-
-        logger.info(f"=== 每日流水线完成 [{date}] ===")
-
-    # ──── 状态 ────
-
-    def get_status(self) -> dict:
-        """系统整体状态"""
-        return {
-            "agents": {name: agent.get_status() for name, agent in self.agents.items()},
-            "bus": self.bus.get_stats(),
-            "tools": len(self.tools._tools),
-            "context_keys": len(self.context._blackboard),
-        }
+        for name in ["analyst", "trader", "reporter"]:
+            agent = self.agents.get(name)
+            if agent:
+                try:
+                    result = await asyncio.wait_for(agent.run(self.context), timeout=120)
+                    logger.info(f"{name}: {'✅' if result.success else '❌'} {result.message[:80]}")
+                except Exception as e:
+                    logger.error(f"{name}: ❌ {e}")
