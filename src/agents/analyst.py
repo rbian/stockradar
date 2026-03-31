@@ -9,6 +9,7 @@ from loguru import logger
 import pandas as pd
 
 from src.core.agent_base import BaseAgent, AgentConfig, Observation, Plan, ActionResult
+from src.data.stock_names import stock_name
 
 
 class AnalystAgent(BaseAgent):
@@ -81,7 +82,7 @@ class AnalystAgent(BaseAgent):
         for i, (code, row) in enumerate(top10.iterrows()):
             delta = row.get("delta", 0)
             arrow = "🔺" if delta > 0.01 else "🔻" if delta < -0.01 else "➖"
-            msg += f"  {i+1}. {code} | {row['score_total']:+.2f} {arrow}\n"
+            msg += f"  {i+1}. {stock_name(code)} | {row['score_total']:+.2f} {arrow}\n"
         return ActionResult(success=True, message=msg, data={"scores": scores})
 
     async def _analyze_stock(self, code: str) -> ActionResult:
@@ -93,22 +94,20 @@ class AnalystAgent(BaseAgent):
         try:
             df = fetch_fn(symbol=code)
             if df is None or df.empty:
-                return ActionResult(success=False, message=f"未找到 {code}")
+                return ActionResult(success=False, message=f"未找到 {stock_name(code)}({code})")
 
             df = df.sort_values("date")
             latest = df.iloc[-1]
-            lines = [f"📈 **{code} 个股分析**\n"]
+            name = stock_name(code)
+            lines = [f"📈 **{name}({code})**\n"]
 
-            # 1) 行情摘要
-            lines.append(f"📊 **行情** (最近: {latest['date'].strftime('%m-%d')})")
+            # 1) 行情
+            lines.append(f"📊 **行情** ({latest['date'].strftime('%Y-%m-%d')})")
             lines.append(f"  收盘: ¥{latest.get('close', 0):.2f}")
-            if "change_pct" in latest:
-                chg = latest["change_pct"]
-                lines.append(f"  涨跌: {chg:+.2f}%")
-            if "turnover" in latest and latest["turnover"] > 0:
+            if "change_pct" in latest and pd.notna(latest["change_pct"]):
+                lines.append(f"  涨跌: {latest['change_pct']:+.2f}%")
+            if "turnover" in latest and pd.notna(latest.get("turnover", 0)):
                 lines.append(f"  换手: {latest['turnover']:.2f}%")
-
-            # 5日/20日涨跌
             if len(df) >= 5:
                 chg5 = (df.iloc[-1]["close"] / df.iloc[-5]["close"] - 1) * 100
                 lines.append(f"  5日: {chg5:+.1f}%")
@@ -125,14 +124,13 @@ class AnalystAgent(BaseAgent):
             if len(close) >= 20:
                 ma20 = close[-20:].mean()
                 lines.append(f"  MA20: ¥{ma20:.2f} ({'上方' if close[-1] > ma20 else '下方'})")
-            # 简易RSI
             if len(close) >= 15:
                 delta_c = pd.Series(close).diff()
                 gain = delta_c.where(delta_c > 0, 0).rolling(14).mean()
                 loss = (-delta_c.where(delta_c < 0, 0)).rolling(14).mean()
                 rs = gain / loss.replace(0, 1e-10)
                 rsi = (100 - 100 / (1 + rs)).iloc[-1]
-                tag = "超买" if rsi > 70 else "超卖" if rsi < 30 else "中性"
+                tag = "超买⚠️" if rsi > 70 else "超卖⚠️" if rsi < 30 else "中性"
                 lines.append(f"  RSI(14): {rsi:.1f} ({tag})")
 
             # 3) 基本面
@@ -140,39 +138,28 @@ class AnalystAgent(BaseAgent):
             if financial is not None and not financial.empty:
                 fin = financial[financial["code"] == code]
                 if not fin.empty:
-                    fin_latest = fin.sort_values("end_date").iloc[-1]
-                    lines.append(f"\n💰 **基本面** (截至{fin_latest['end_date'][:10]})")
-                    for label, col, mult in [("ROE", "roe", 100), ("毛利率", "gross_margin", 100),
-                                               ("净利率", "net_margin", 100), ("营收增速", "revenue_yoy", 1),
-                                               ("利润增速", "profit_yoy", 1), ("EPS", "eps", 1)]:
-                        val = fin_latest.get(col)
-                        if val is not None and val != 0:
-                            val_display = val * mult
-                            suffix = "%" if col != "eps" else ""
-                            fmt = f"{val_display:.2f}{suffix}"
-                            lines.append(f"  {label}: {fmt}")
+                    fl = fin.sort_values("end_date").iloc[-1]
+                    lines.append(f"\n💰 **基本面** (截至{fl['end_date'][:10]})")
+                    metrics = [
+                        ("ROE", "roe", 100, "%"), ("毛利率", "gross_margin", 100, "%"),
+                        ("净利率", "net_margin", 100, "%"), ("营收增速", "revenue_yoy", 1, "%"),
+                        ("利润增速", "profit_yoy", 1, "%"), ("EPS", "eps", 1, "元"),
+                        ("负债率", "debt_ratio", 100, "%"),
+                    ]
+                    for label, col, mult, unit in metrics:
+                        val = fl.get(col)
+                        if val is not None and not pd.isna(val) and val != 0:
+                            lines.append(f"  {label}: {val * mult:.2f}{unit}")
 
             # 4) 综合评分
             scores = self.context.get_scores() if self.context else None
             if scores is not None and code in scores.index:
                 s = scores.loc[code]
                 lines.append(f"\n📊 **综合评分: {s['score_total']:.2f}**")
-                # 显示各维度
-                dims = {}
-                for col in s.index:
-                    if col.startswith("cat_"):
-                        cat = col.replace("cat_", "").replace("score_", "")
-                        if "total" not in cat:
-                            dims[cat] = s[col]
-                if dims:
-                    lines.append("  维度:")
-                    for dim, val in sorted(dims.items(), key=lambda x: -x[1]):
-                        bar = "█" * max(1, int(val * 10)) if val > 0 else ""
-                        lines.append(f"    {dim}: {val:+.2f} {bar}")
 
             return ActionResult(success=True, message="\n".join(lines))
         except Exception as e:
-            return ActionResult(success=False, message=f"分析 {code} 失败: {e}")
+            return ActionResult(success=False, message=f"分析失败: {e}")
 
     async def _market_overview(self) -> ActionResult:
         lines = ["📊 **市场概况**\n"]
@@ -182,7 +169,8 @@ class AnalystAgent(BaseAgent):
                 from src.data.qveris_adapter import fetch_index_quote_qv
                 idx = fetch_index_quote_qv("000300")
                 if idx and idx.get("最新(点)", "") not in ("", "---"):
-                    lines.append(f"📈 **沪深300:** {idx.get('最新(点)')} ({idx.get('涨跌幅(%)', '?')}%)")
+                    chg = idx.get("涨跌幅(%)", "?")
+                    lines.append(f"📈 **沪深300:** {idx.get('最新(点)')} ({chg}%)")
                     lines.append(f"   高: {idx.get('最高(点)')} | 低: {idx.get('最低(点)')}")
                     lines.append(f"   成交额: {idx.get('成交额', '?')}")
             except Exception:
@@ -196,8 +184,9 @@ class AnalystAgent(BaseAgent):
             latest_date = q["date"].max()
             day = q[q["date"] == latest_date]
             lines.append(f"\n📋 **关注池 ({latest_date.strftime('%m-%d')})**:")
-            for _, row in day.sort_values("change_pct", ascending=False).head(5).iterrows():
-                lines.append(f"  {row['code']} ¥{row['close']:.2f} ({row['change_pct']:+.2f}%)")
+            for _, row in day.sort_values("change_pct", ascending=False).iterrows():
+                name = stock_name(row["code"])
+                lines.append(f"  {name}({row['code']}) ¥{row['close']:.2f} ({row['change_pct']:+.2f}%)")
         return ActionResult(success=True, message="\n".join(lines))
 
     async def _score_ranking(self) -> ActionResult:
@@ -207,7 +196,7 @@ class AnalystAgent(BaseAgent):
         top10 = scores.head(10)
         msg = "📊 **评分排名Top10:**\n"
         for i, (code, row) in enumerate(top10.iterrows()):
-            msg += f"  {i+1}. {code} | {row['score_total']:.2f}\n"
+            msg += f"  {i+1}. {stock_name(code)} | {row['score_total']:.2f}\n"
         return ActionResult(success=True, message=msg)
 
     def _extract_stock_code(self, text: str) -> str:

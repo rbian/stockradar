@@ -9,6 +9,7 @@ from loguru import logger
 import pandas as pd
 
 from src.core.agent_base import BaseAgent, AgentConfig, Observation, Plan, ActionResult
+from src.data.stock_names import stock_name
 
 
 class ReporterAgent(BaseAgent):
@@ -77,18 +78,18 @@ class ReporterAgent(BaseAgent):
                 if not gains.empty:
                     lines.append("🟢 涨:")
                     for _, r in gains.head(3).iterrows():
-                        lines.append(f"  {r['code']} {r['close']:.2f} ({r['change_pct']:+.2f}%)")
+                        lines.append(f"  {stock_name(r['code'])}({r['code']}) ¥{r['close']:.2f} ({r['change_pct']:+.2f}%)")
                 if not losses.empty:
                     lines.append("🔴 跌:")
                     for _, r in losses.head(3).iterrows():
-                        lines.append(f"  {r['code']} {r['close']:.2f} ({r['change_pct']:+.2f}%)")
+                        lines.append(f"  {stock_name(r['code'])}({r['code']}) ¥{r['close']:.2f} ({r['change_pct']:+.2f}%)")
 
         # 3) 评分Top5
         scores = self.context.get_scores() if self.context else None
         if scores is not None and not scores.empty:
             lines.append("\n📋 **评分Top5:**")
             for i, (code, row) in enumerate(scores.head(5).iterrows()):
-                lines.append(f"  {i+1}. {code} | {row['score_total']:+.2f}")
+                lines.append(f"  {i+1}. {stock_name(code)} | {row['score_total']:+.2f}")
 
         # 4) 持仓
         portfolio = self.context.get_portfolio() if self.context else {}
@@ -116,7 +117,7 @@ class ReporterAgent(BaseAgent):
                     stock = week[week["code"] == code]
                     if len(stock) >= 2:
                         chg = (stock.iloc[-1]["close"] / stock.iloc[0]["close"] - 1) * 100
-                        lines.append(f"  {code}: {chg:+.1f}%")
+                        lines.append(f"  {stock_name(code)}({code}): {chg:+.1f}%")
 
         lines.append("\n*周报功能持续完善中*")
         return ActionResult(success=True, message="\n".join(lines))

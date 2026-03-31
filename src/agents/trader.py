@@ -6,6 +6,7 @@
 from loguru import logger
 
 from src.core.agent_base import BaseAgent, AgentConfig, Observation, Plan, ActionResult
+from src.data.stock_names import stock_name
 
 
 class TraderAgent(BaseAgent):
@@ -142,6 +143,6 @@ class TraderAgent(BaseAgent):
         msg = "🔄 **今日持仓建议:**\n"
         msg += "建议持有:\n"
         for i, (code, row) in enumerate(top10.iterrows()):
-            msg += f"  {i+1}. {code} (评分={row['score_total']:.2f})\n"
+            msg += f"  {i+1}. {stock_name(code)} ({row['score_total']:.2f})\n"
 
         return ActionResult(success=True, message=msg)
