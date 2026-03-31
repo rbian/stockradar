@@ -139,37 +139,47 @@ class AnalystAgent(BaseAgent):
             return ActionResult(success=False, message=f"获取 {code} 数据失败: {e}")
 
     async def _market_overview(self) -> ActionResult:
-        """市场概况 — 沪深300指数 + Watchlist涨跌"""
-        import baostock as bs
-        import pandas as pd
-        from datetime import datetime
-
-        today = datetime.now().strftime("%Y-%m-%d")
+        """市场概况 — QVeris实时指数 + Watchlist涨跌"""
+        import os
         lines = ["📊 **市场概况**\n"]
 
-        # 沪深300
-        try:
-            bs.login()
+        # 尝试QVeris（实时）
+        qveris_key = os.environ.get("QVERIS_API_KEY", "")
+        if qveris_key:
             try:
-                rs = bs.query_history_k_data_plus("sh.000300", "date,close,pctChg",
-                    start_date=(datetime.now().replace(month=1,day=1)).strftime("%Y%m%d"),
-                    end_date=today.replace("-",""), frequency="d")
-                rows = []
-                while rs.error_code=='0' and rs.next():
-                    rows.append(rs.get_row_data())
-                if rows:
-                    idx = pd.DataFrame(rows, columns=rs.fields)
-                    idx["close"] = pd.to_numeric(idx["close"], errors="coerce")
-                    idx["pctChg"] = pd.to_numeric(idx["pctChg"], errors="coerce")
-                    latest = idx.iloc[-1]
-                    chg_5d = (latest["close"]/idx.iloc[-5]["close"]-1)*100 if len(idx)>=5 else 0
-                    chg_20d = (latest["close"]/idx.iloc[-20]["close"]-1)*100 if len(idx)>=20 else 0
-                    lines.append(f"📈 **沪深300:** {latest['close']:.1f} ({latest['pctChg']:+.2f}%)")
-                    lines.append(f"   5日: {chg_5d:+.1f}% | 20日: {chg_20d:+.1f}%")
-            finally:
-                bs.logout()
-        except Exception as e:
-            lines.append(f"沪深300数据获取失败")
+                from src.data.qveris_adapter import fetch_index_quote_qv
+                idx = fetch_index_quote_qv("000300")
+                if idx and idx.get("最新(点)", "") not in ("", "---"):
+                    lines.append(f"📈 **沪深300:** {idx.get('最新(点)')} ({idx.get('涨跌幅(%)', '?')}%)")
+                    lines.append(f"   高: {idx.get('最高(点)')} | 低: {idx.get('最低(点)')}")
+                    lines.append(f"   成交额: {idx.get('成交额', '?')}")
+            except Exception:
+                pass
+
+        # BaoStock备用（历史数据）
+        if len(lines) <= 1:
+            try:
+                import baostock as bs
+                from datetime import datetime
+                bs.login()
+                try:
+                    rs = bs.query_history_k_data_plus("sh.000300", "date,close,pctChg",
+                        start_date=(datetime.now().replace(month=1,day=1)).strftime("%Y%m%d"),
+                        end_date=datetime.now().strftime("%Y%m%d"), frequency="d")
+                    rows = []
+                    while rs.error_code=='0' and rs.next():
+                        rows.append(rs.get_row_data())
+                    if rows:
+                        import pandas as pd
+                        idx = pd.DataFrame(rows, columns=rs.fields)
+                        idx["close"] = pd.to_numeric(idx["close"], errors="coerce")
+                        idx["pctChg"] = pd.to_numeric(idx["pctChg"], errors="coerce")
+                        latest = idx.iloc[-1]
+                        lines.append(f"📈 **沪深300:** {latest['close']:.1f} ({latest['pctChg']:+.2f}%)")
+                finally:
+                    bs.logout()
+            except Exception:
+                pass
 
         # Watchlist涨跌
         quote = self.context.read("data.daily_quote") if self.context else None
@@ -180,7 +190,7 @@ class AnalystAgent(BaseAgent):
             q = quote[quote["code"].isin(codes)]
             latest_date = q["date"].max()
             day = q[q["date"] == latest_date]
-            lines.append(f"\n📋 **持仓池 ({latest_date.strftime('%m-%d')})**:")
+            lines.append(f"\n📋 **关注池 ({latest_date.strftime('%m-%d')})**:")
             for _, row in day.sort_values("change_pct", ascending=False).head(5).iterrows():
                 lines.append(f"  {row['code']} {row['close']:.2f} ({row['change_pct']:+.2f}%)")
 
