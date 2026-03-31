@@ -2,13 +2,21 @@
 
 # 数据源
 data:
-  akshare:
+  primary: "qveris"           # qveris | baostock
+  qveris:
+    api_key: ${QVERIS_API_KEY}
+    base_url: "https://qveris.ai/api/v1"
+    timeout: 30
+    tool_daily: "mcp_gildata.stockdailyquote.v1"
+    tool_live: "mcp_gildata.asharelivequote.v1"
+    tool_index: "mcp_gildata.indexlivequote.v1"
+    cost_per_call: 10          # credits
+    budget_daily: 50           # 每日credits上限
+  baostock:
     timeout: 30
     retry: 3
     retry_delay: 5
-  tushare:
-    token: ${TUSHARE_TOKEN}
-    timeout: 30
+    cache_dir: "data/parquet"
 
 # 存储路径
 storage:
