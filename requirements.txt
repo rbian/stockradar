@@ -1,0 +1,30 @@
+# A股智能盯盘Agent - Dependencies
+# Python 3.11+
+
+# Data
+akshare>=1.14.0
+tushare>=1.4.0
+duckdb>=1.0.0
+pandas>=2.1.0
+pyarrow>=14.0.0
+numpy>=1.24.0
+
+# Factor calculation
+ta>=0.10.0
+scipy>=1.11.0
+
+# LLM
+openai>=1.0.0
+tiktoken>=0.7.0
+
+# Bot
+python-telegram-bot>=20.0
+
+# Scheduler
+apscheduler>=3.10.0
+
+# Infrastructure
+loguru>=0.7.0
+pydantic>=2.0.0
+pyyaml>=6.0
+python-dotenv>=1.0.0

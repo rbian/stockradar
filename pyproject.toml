@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stockradar"
+version = "0.1.0"
+description = "🧠 A股智能盯盘Agent — 多Agent架构 + 五维自我进化 + 36因子评分体系"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.11"
+authors = [
+    {name = "StockRadar Contributors"},
+]
+keywords = ["a-share", "stock", "agent", "quantitative", "multi-agent", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Data
+    "akshare>=1.14.0",
+    "tushare>=1.4.0",
+    "duckdb>=1.0.0",
+    "pandas>=2.1.0",
+    "pyarrow>=14.0.0",
+    "numpy>=1.24.0",
+
+    # Factor calculation
+    "ta>=0.11.0",
+    "scipy>=1.11.0",
+
+    # LLM
+    "openai>=1.0.0",
+    "tiktoken>=0.7.0",
+
+    # Bot
+    "python-telegram-bot>=20.0",
+
+    # Scheduler
+    "apscheduler>=3.10.0",
+
+    # Infrastructure
+    "loguru>=0.7.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+evolution = [
+    "psutil>=5.9.0",
+    "transformers>=4.30.0",
+    "torch>=2.0.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "ruff>=0.1.0",
+    "mypy>=1.5",
+]
+
+[project.scripts]
+astock-init = "scripts.init_data:main"
+astock-daily = "scripts.daily_update:main"
+astock-bot = "scripts.run_bot:main"
+astock-backtest = "scripts.run_backtest:main"
+
+[tool.setuptools.packages.find]
+include = ["src*", "config*", "scripts*", "knowledge*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

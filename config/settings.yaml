@@ -1,0 +1,99 @@
+# A股智能盯盘Agent 全局配置
+
+# 数据源
+data:
+  akshare:
+    timeout: 30
+    retry: 3
+    retry_delay: 5
+  tushare:
+    token: ${TUSHARE_TOKEN}
+    timeout: 30
+
+# 存储路径
+storage:
+  duckdb_path: "data/stockradar.duckdb"
+  parquet_dir: "data/parquet"
+
+# 持仓配置
+portfolio:
+  size: 10
+  watchlist_size: 10
+  max_per_industry: 3
+  max_turnover_monthly: 1.0
+
+# 风控参数
+risk:
+  stop_loss: -0.15
+  reduce_loss: -0.08
+  reduce_ratio: 0.5
+  crisis_reduce_ratio: 0.7
+  max_single_day_drop: -0.08
+
+# 评分动量参数
+scoring:
+  delta_lookback: 5
+  accel_lookback: 5
+  urgent_delta_threshold: -1.5
+  strong_delta_threshold: 1.0
+  buffer_days: 3
+
+# 换仓控制
+rebalance:
+  buffer_rank_start: 11
+  buffer_rank_end: 20
+  max_weekly_change: 2
+
+# 数据生命周期
+data_lifecycle:
+  lookback_years: 10
+  hot_data_days: 30
+
+# 调度
+schedule:
+  data_update: "15:30"
+  scoring: "16:00"
+  strategy: "16:10"
+  trade: "16:20"
+  news: "16:30"
+  report: "16:40"
+  weekly_report: "Sun 20:00"
+
+# LLM
+llm:
+  provider: "openai"
+  base_url: ${LLM_BASE_URL}
+  api_key: ${LLM_API_KEY}
+  model: "glm-4"
+  temperature: 0.1
+  max_tokens: 2000
+  max_concurrent: 10
+  retry_times: 2
+  retry_delay: 2.0
+  cache_ttl_hours:
+    earnings: 999999
+    news_sentiment: 24
+    stock_review: 48
+
+# Telegram Bot
+telegram:
+  bot_token: ${TELEGRAM_BOT_TOKEN}
+  chat_id: ${TELEGRAM_CHAT_ID}
+  enabled: false
+  alert_enabled: true
+  daily_report: true
+
+# 模拟交易
+simulator:
+  initial_capital: 1000000.0
+  commission_rate: 0.00025
+  stamp_tax_rate: 0.001
+  slippage: 0.002
+  min_lot: 100
+
+# 日志
+logging:
+  level: "INFO"
+  rotation: "100 MB"
+  retention: "30 days"
+  log_dir: "logs"
