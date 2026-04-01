@@ -158,11 +158,24 @@ def main():
     app.add_handler(CommandHandler("nav", lambda u, c: _quick_cmd(u, c, "净值")))
     app.add_handler(CommandHandler("report", lambda u, c: _quick_cmd(u, c, "日报")))
 
-    # 定时日报
+    # 定时任务
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
     import asyncio
 
+    async def daily_rebalance():
+        """15:25 自动调仓"""
+        logger.info("定时调仓...")
+        try:
+            result = await asyncio.wait_for(
+                orch.process_user_message("调仓", user_id=list(ALLOWED_USERS)[0] if ALLOWED_USERS else ""), 
+                timeout=120
+            )
+            logger.info(f"调仓完成: {result[:100]}")
+        except Exception as e:
+            logger.error(f"调仓失败: {e}")
+
     async def daily_push():
+        """15:30 日报推送"""
         for uid in ALLOWED_USERS:
             try:
                 result = await asyncio.wait_for(
@@ -175,10 +188,7 @@ def main():
 
     async def post_init(app):
         scheduler = AsyncIOScheduler()
-        # 日报: 周一到周五 15:30
-        scheduler.add_job(daily_push, "cron", hour=15, minute=30,
-                          day_of_week="mon-fri", timezone="Asia/Shanghai")
-        # 数据更新: 周一到周五 15:10 (日报前)
+        # 数据更新: 15:10
         async def data_update():
             logger.info("定时数据更新...")
             try:
@@ -188,8 +198,14 @@ def main():
                 logger.error(f"数据更新失败: {e}")
         scheduler.add_job(data_update, "cron", hour=15, minute=10,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # 调仓: 15:25
+        scheduler.add_job(daily_rebalance, "cron", hour=15, minute=25,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # 日报: 15:30
+        scheduler.add_job(daily_push, "cron", hour=15, minute=30,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
         scheduler.start()
-        logger.info("Scheduler: 数据更新15:10 + 日报15:30 Mon-Fri")
+        logger.info("Scheduler: 数据更新15:10 + 调仓15:25 + 日报15:30 Mon-Fri")
 
     app.post_init = post_init
 
