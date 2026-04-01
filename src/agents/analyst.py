@@ -207,7 +207,20 @@ class AnalystAgent(BaseAgent):
                             marker = " ◀" if row.name == code else ""
                             lines.append(f"  {stock_name(row.name)} {row['score_total']:+.2f}{marker}")
 
-            # 8) LLM估值研判
+            # 8) 个股新闻情绪
+            try:
+                from src.data.news_sentiment import get_stock_news
+                ns = get_stock_news(code, stock_name(code))
+                if ns["news_count"] > 0:
+                    emoji_map = {"positive": "🟢利好", "negative": "🔴利空", "neutral": "⚪中性"}
+                    lines.append(f"\n📰 **新闻情绪**: {emoji_map.get(ns['label'], ns['label'])} ({ns['score']:+.2f})")
+                    lines.append(f"  相关新闻 {ns['news_count']} 条")
+                    for n in ns.get("top_news", [])[:3]:
+                        lines.append(f"  • {n['title'][:35]} ({n['sentiment_score']:+.1f})")
+            except Exception:
+                pass
+
+            # 9) LLM估值研判
             lines.append(f"\n🧠 **LLM估值研判**")
             try:
                 from src.llm.client import LLMClient

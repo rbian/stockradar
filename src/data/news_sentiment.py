@@ -182,3 +182,42 @@ def get_market_sentiment_report() -> str:
         lines.append("  (当前使用演示数据，实际数据待API接入)")
     
     return "\n".join(lines)
+
+
+def get_stock_news(code: str, stock_name_str: str = "") -> dict:
+    """个股新闻 — Google News RSS搜索"""
+    import feedparser
+    
+    name = stock_name_str or code
+    # 中文股票名用中文搜索，代码用英文
+    is_cn = any('\u4e00' <= c <= '\u9fff' for c in name)
+    query = f"{name} 股票" if is_cn else f"{name} stock"
+    
+    try:
+        from urllib.parse import quote
+        url = f"https://news.google.com/rss/search?q={quote(query)}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+        feed = feedparser.parse(url)
+        
+        news = []
+        for entry in feed.entries[:10]:
+            news.append({
+                "title": entry.get("title", ""),
+                "content": entry.get("summary", "")[:150],
+                "source": "google_news",
+                "url": entry.get("link", ""),
+                "pub_date": entry.get("published", ""),
+            })
+        
+        if news:
+            analyzed = analyze_sentiment(news)
+            avg = sum(n["sentiment_score"] for n in analyzed) / len(analyzed)
+            return {
+                "score": avg,
+                "label": "positive" if avg > 0.1 else "negative" if avg < -0.1 else "neutral",
+                "news_count": len(analyzed),
+                "top_news": analyzed[:5],
+            }
+    except Exception as e:
+        logger.warning(f"个股新闻失败: {e}")
+    
+    return {"score": 0, "label": "neutral", "news_count": 0, "top_news": []}
