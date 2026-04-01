@@ -170,9 +170,8 @@ def main():
         async def data_update():
             logger.info("定时数据更新...")
             try:
-                from scripts.daily_update import qveris_topup
-                qveris_topup()
-                logger.info("数据更新完成")
+                from scripts.incremental_update import incremental_update
+                incremental_update()
             except Exception as e:
                 logger.error(f"数据更新失败: {e}")
         scheduler.add_job(data_update, "cron", hour=15, minute=10,

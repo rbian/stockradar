@@ -115,28 +115,91 @@ class ReporterAgent(BaseAgent):
         return ActionResult(success=True, message="\n".join(lines))
 
     async def _weekly_report(self) -> ActionResult:
-        """周报 — 本周评分变化 + 涨跌汇总"""
+        """周报 — 净值+持仓+交易统计"""
         lines = ["📰 **StockRadar 周报**\n"]
 
-        quote = self.context.read("data.daily_quote") if self.context else None
-        if quote is not None and not quote.empty:
-            # 最近5个交易日涨跌
-            latest_date = quote["date"].max()
-            week_start = latest_date - pd.Timedelta(days=7)
-            week = quote[(quote["date"] >= week_start) & (quote["date"] <= latest_date)]
-            if not week.empty and "change_pct" in week.columns:
-                lines.append("📈 **本周涨跌:**")
-                for code in sorted(week["code"].unique())[:10]:
-                    stock = week[week["code"] == code]
-                    if len(stock) >= 2:
-                        chg = (stock.iloc[-1]["close"] / stock.iloc[0]["close"] - 1) * 100
-                        lines.append(f"  {stock_name(code)}({code}): {chg:+.1f}%")
+        # 净值统计
+        import json
+        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        if nav_file.exists():
+            try:
+                from src.simulator.nav_tracker import NAVTracker
+                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                if len(nav.nav_history) >= 5:
+                    nav_df = pd.DataFrame(nav.nav_history)
+                    nav_df["date"] = pd.to_datetime(nav_df["date"])
+                    # 本周数据
+                    latest = nav_df["date"].max()
+                    week_ago = latest - pd.Timedelta(days=7)
+                    week = nav_df[nav_df["date"] >= week_ago]
+                    if len(week) >= 2:
+                        week_return = (week["nav"].iloc[-1] / week["nav"].iloc[0] - 1) * 100
+                        lines.append(f"📊 **本周收益:** {week_return:+.2f}%")
+                        lines.append(f"  净值: {week['nav'].iloc[0]:.4f} → {week['nav'].iloc[-1]:.4f}")
+            except Exception:
+                pass
 
-        lines.append("\n*周报功能持续完善中*")
+        # 本周交易
+        if nav_file.exists():
+            try:
+                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                recent_trades = [t for t in nav.trade_log 
+                                if pd.Timestamp(t["date"]) >= pd.Timestamp.now() - pd.Timedelta(days=7)]
+                if recent_trades:
+                    lines.append(f"\n📋 **本周交易:** {len(recent_trades)}笔")
+                    buys = sum(1 for t in recent_trades if t["action"] == "buy")
+                    sells = sum(1 for t in recent_trades if t["action"] == "sell")
+                    lines.append(f"  买入{buys}笔 卖出{sells}笔")
+                    for t in recent_trades[-5:]:
+                        action = "买入" if t["action"] == "buy" else "卖出"
+                        lines.append(f"  {t['date'][:10]} {action} {stock_name(t['code'])} {t['shares']}股@¥{t['price']:.2f}")
+            except Exception:
+                pass
+
+        # 当前持仓
+        if nav_file.exists():
+            try:
+                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                if nav.holdings:
+                    lines.append(f"\n📦 **当前持仓:** {len(nav.holdings)}只")
+                    for code, h in sorted(nav.holdings.items()):
+                        lines.append(f"  {stock_name(code)} {h['shares']}股@¥{h['cost_price']:.2f}")
+            except Exception:
+                pass
+
+        if len(lines) <= 2:
+            lines.append("本周暂无数据，发送'持仓建议'开始模拟交易")
+        
         return ActionResult(success=True, message="\n".join(lines))
 
     async def _monthly_report(self) -> ActionResult:
         """月报"""
         lines = ["📰 **StockRadar 月报**\n"]
-        lines.append("*月报需配合净值追踪功能，计划下版本支持*")
+        
+        import json
+        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        if nav_file.exists():
+            try:
+                from src.simulator.nav_tracker import NAVTracker
+                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                info = nav.get_nav()
+                lines.append(f"💰 **净值:** {info['nav']:.4f}")
+                lines.append(f"📈 **总收益:** {info['total_return']:+.2f}%")
+                lines.append(f"📉 **回撤:** {info['drawdown']:+.2f}%")
+                lines.append(f"📋 **交易:** {info['trades']}笔")
+                
+                # 月度收益分布
+                if len(nav.nav_history) >= 20:
+                    nav_df = pd.DataFrame(nav.nav_history)
+                    nav_df["date"] = pd.to_datetime(nav_df["date"])
+                    nav_df["month"] = nav_df["date"].dt.to_period("M")
+                    monthly = nav_df.groupby("month")["nav"].last()
+                    monthly_ret = monthly.pct_change().dropna() * 100
+                    lines.append(f"\n📅 **月度收益:**")
+                    for m, r in monthly_ret.tail(6).items():
+                        emoji = "🟢" if r > 0 else "🔴"
+                        lines.append(f"  {m} {emoji} {r:+.1f}%")
+            except Exception:
+                pass
+        
         return ActionResult(success=True, message="\n".join(lines))
