@@ -46,7 +46,7 @@ def load_financial_data() -> pd.DataFrame:
         growth = load_growth_cache(2024, 4, max_age_days=9999)
         if not growth.empty:
             g_map = dict(zip(growth['code'], growth['YOYNI']))
-            financial['profit_yoy'] = financial['code'].map(g_map).fillna(financial['profit_yoy'])
+            financial['profit_yoy'] = financial['code'].map(g_map).mul(100).fillna(financial['profit_yoy'])
     
     return financial
 

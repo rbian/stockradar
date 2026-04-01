@@ -220,28 +220,53 @@ class AnalystAgent(BaseAgent):
             except Exception:
                 pass
 
-            # 9) LLM估值研判
+            # 9) LLM估值研判（带缓存）
             lines.append(f"\n🧠 **LLM估值研判**")
             try:
                 from src.llm.client import LLMClient
-                client = LLMClient()
-                cur_price = latest.get("close", 0)
-                fin_text = ""
-                financial = self.context.read("financial_data") if self.context else None
-                if financial is not None and not financial.empty:
-                    fin = financial[financial["code"] == code]
-                    if not fin.empty:
-                        fl = fin.sort_values("end_date").iloc[-1]
-                        fin_text = f"ROE={fl.get('roe',0)*100:.1f}% 毛利率={fl.get('gross_margin',0)*100:.1f}% 营收增速={fl.get('revenue_yoy',0):.1f}% 利润增速={fl.get('profit_yoy',0):.1f}% EPS={fl.get('eps',0):.1f}元"
-                system_prompt = "你是A股估值分析专家。基于基本面数据给出估值判断。严格按要求格式输出。"
-                user_prompt = f"""分析{stock_name(code)}({code})，当前股价¥{cur_price:.2f}。
+                import hashlib, json as _json
+                from pathlib import Path as _Path
+                from datetime import datetime as _dt, timedelta as _td
+                
+                # 缓存文件: data/cache/llm_valuation/{code}.json
+                cache_dir = _Path(__file__).resolve().parent.parent.parent / "data" / "cache" / "llm_valuation"
+                cache_dir.mkdir(parents=True, exist_ok=True)
+                cache_file = cache_dir / f"{code}.json"
+                
+                # 缓存24小时
+                use_cache = False
+                if cache_file.exists():
+                    age_hours = (_dt.now() - _dt.fromtimestamp(cache_file.stat().st_mtime)).total_seconds() / 3600
+                    if age_hours < 24:
+                        cached = _json.loads(cache_file.read_text())
+                        if cached.get("price") == cur_price:
+                            use_cache = True
+                            raw = cached.get("response", "")
+                
+                if not use_cache:
+                    client = LLMClient()
+                    cur_price = latest.get("close", 0)
+                    fin_text = ""
+                    financial = self.context.read("financial_data") if self.context else None
+                    if financial is not None and not financial.empty:
+                        fin = financial[financial["code"] == code]
+                        if not fin.empty:
+                            fl = fin.sort_values("end_date").iloc[-1]
+                            fin_text = f"ROE={fl.get('roe',0)*100:.1f}% 毛利率={fl.get('gross_margin',0)*100:.1f}% 营收增速={fl.get('revenue_yoy',0):.1f}% 利润增速={fl.get('profit_yoy',0):.1f}% EPS={fl.get('eps',0):.1f}元"
+                    system_prompt = "你是A股估值分析专家。基于基本面数据给出估值判断。严格按要求格式输出。"
+                    user_prompt = f"""分析{stock_name(code)}({code})，当前股价¥{cur_price:.2f}。
 基本面: {fin_text}
 请严格按以下格式输出（每项一行，不要其他内容）：
 【估值】: 高估/合理/低估
 【目标价】: ¥xxx-xxx
 【逻辑】: 2-3句核心支撑
 【风险】: 1-2句核心风险"""
-                raw = await client._call_api(system_prompt, user_prompt)
+                    raw = await client._call_api(system_prompt, user_prompt)
+                    
+                    # 保存缓存
+                    if raw:
+                        cache_file.write_text(_json.dumps({"price": cur_price, "response": raw}, ensure_ascii=False))
+                
                 if raw:
                     for line in raw.strip().split("\n"):
                         line = line.strip()

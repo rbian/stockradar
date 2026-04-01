@@ -69,8 +69,9 @@ class ReporterAgent(BaseAgent):
                         mood = ""
                     lines.append(f"{mood} **沪深300:** {idx.get('最新(点)')} ({chg}%)")
                     lines.append(f"   成交额: {idx.get('成交额', '?')}")
-            except Exception:
-                pass
+            except Exception as e:
+                lines.append("   (实时行情暂不可用)")
+                logger.warning(f"QVeris失败: {e}")
 
         # 2) 关注池涨跌
         quote = self.context.read("data.daily_quote") if self.context else None
@@ -111,6 +112,17 @@ class ReporterAgent(BaseAgent):
                 lines.append("  模拟模式")
         else:
             lines.append("  尚未建仓，发送'持仓建议'开始")
+
+        # 5) 新闻情绪
+        try:
+            from src.data.news_sentiment import get_market_sentiment_report
+            report = get_market_sentiment_report()
+            # 提取情绪指标（只取前5行）
+            for line in report.split("\n")[1:5]:
+                if line.strip():
+                    lines.append(line)
+        except Exception:
+            pass
 
         return ActionResult(success=True, message="\n".join(lines))
 
