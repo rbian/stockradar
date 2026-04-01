@@ -120,16 +120,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         result = await asyncio.wait_for(
             orch.process_user_message(text, user_id=user_id),
-            timeout=60,
+            timeout=90,
         )
         if len(result) > 4000:
             result = result[:4000] + "\n..."
         await update.message.reply_text(result, reply_markup=get_keyboard())
     except asyncio.TimeoutError:
-        await update.message.reply_text("⏰ 超时，请稍后再试")
+        await update.message.reply_text("⏰ 分析超时（90秒），LLM或数据源响应慢，请稍后重试", reply_markup=get_keyboard())
+    except ConnectionError:
+        await update.message.reply_text("📡 网络连接失败，请检查网络后重试", reply_markup=get_keyboard())
     except Exception as e:
         logger.error(f"处理失败: {e}")
-        await update.message.reply_text(f"❌ {e}")
+        await update.message.reply_text(f"❌ 处理失败，请重试或输入'帮助'", reply_markup=get_keyboard())
 
 
 def main():
@@ -152,6 +154,17 @@ def main():
     logger.info(f"System ready: {len(orch.agents)} agents")
 
     app = Application.builder().token(token).build()
+    
+    # 注册Telegram命令菜单
+    async def set_commands(app):
+        from telegram import BotCommand
+        await app.bot.set_my_commands([
+            BotCommand("top", "📊 评分Top10"),
+            BotCommand("nav", "💰 净值+收益"),
+            BotCommand("report", "📰 今日日报"),
+            BotCommand("help", "❓ 功能列表"),
+        ])
+    
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(CommandHandler("top", lambda u, c: _quick_cmd(u, c, "评分排名")))
@@ -187,6 +200,7 @@ def main():
                 logger.error(f"日报推送失败 {uid}: {e}")
 
     async def post_init(app):
+        await set_commands(app)
         scheduler = AsyncIOScheduler()
         # 数据更新: 15:10
         async def data_update():
