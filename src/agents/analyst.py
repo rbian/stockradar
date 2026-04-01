@@ -207,6 +207,44 @@ class AnalystAgent(BaseAgent):
                             marker = " ◀" if row.name == code else ""
                             lines.append(f"  {stock_name(row.name)} {row['score_total']:+.2f}{marker}")
 
+            # 8) LLM估值研判
+            lines.append(f"\n🧠 **LLM估值研判**")
+            try:
+                from src.llm.client import LLMClient
+                client = LLMClient()
+                cur_price = latest.get("close", 0)
+                fin_text = ""
+                financial = self.context.read("financial_data") if self.context else None
+                if financial is not None and not financial.empty:
+                    fin = financial[financial["code"] == code]
+                    if not fin.empty:
+                        fl = fin.sort_values("end_date").iloc[-1]
+                        fin_text = f"ROE={fl.get('roe',0)*100:.1f}% 毛利率={fl.get('gross_margin',0)*100:.1f}% 营收增速={fl.get('revenue_yoy',0):.1f}% 利润增速={fl.get('profit_yoy',0):.1f}% EPS={fl.get('eps',0):.1f}元"
+                system_prompt = "你是A股估值分析专家。基于基本面数据给出估值判断。严格按要求格式输出。"
+                user_prompt = f"""分析{stock_name(code)}({code})，当前股价¥{cur_price:.2f}。
+基本面: {fin_text}
+请严格按以下格式输出（每项一行，不要其他内容）：
+【估值】: 高估/合理/低估
+【目标价】: ¥xxx-xxx
+【逻辑】: 2-3句核心支撑
+【风险】: 1-2句核心风险"""
+                raw = await client._call_api(system_prompt, user_prompt)
+                if raw:
+                    for line in raw.strip().split("\n"):
+                        line = line.strip()
+                        if line:
+                            if "低估" in line:
+                                line = "🟢 " + line
+                            elif "高估" in line:
+                                line = "🔴 " + line
+                            elif "合理" in line:
+                                line = "⚪ " + line
+                            lines.append(f"  {line}")
+                else:
+                    lines.append("  (LLM未返回结果)")
+            except Exception as e:
+                lines.append(f"  (LLM暂不可用: {e})")
+
             return ActionResult(success=True, message="\n".join(lines))
         except Exception as e:
             return ActionResult(success=False, message=f"分析失败: {e}")
