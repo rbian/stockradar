@@ -15,7 +15,7 @@ class RouterAgent(BaseAgent):
     # 意图 → Agent映射规则
     ROUTES = {
         # 分析类 → AnalystAgent
-        r"(分析|研究|看看|怎么样|基本面|技术面|财报|新闻).*(\d{6}|[\u4e00-\u9fa5]{2,4})": "analyst",
+        r"(分析|研究|看看|怎么样|基本面|技术面|财报).*(\d{6}|[\u4e00-\u9fa5]{2,4})": "analyst",
         r"(市场|大盘|指数|行情|走势)": "analyst",
         r"(北向|资金|主力|融资)": "analyst",
         r"(评分|排名|Top|选股|推荐)": "analyst",
@@ -33,7 +33,7 @@ class RouterAgent(BaseAgent):
         r"(诊断|体检|复盘|失败)": "evolver",
 
         # 报告类 → ReporterAgent
-        r"(报告|日报|周报|月报|总结)": "reporter",
+        r"(报告|日报|周报|月报|总结|新闻|情绪|舆情)": "reporter",
         r"(涨停|跌停|热点|板块|概念)": "reporter",
 
         # 帮助
