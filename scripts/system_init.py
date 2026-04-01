@@ -11,7 +11,7 @@ from loguru import logger
 from src.infra.logger import setup_logger
 from src.factors.engine import FactorEngine
 from src.data.baostock_adapter import fetch_daily_quote_batch_bs
-from src.data.cache import load_financial_cache
+from src.data.cache import load_financial_cache, load_growth_cache
 from src.core.orchestrator import AgentOrchestrator
 from src.agents import RouterAgent, AnalystAgent, TraderAgent, ReporterAgent
 
@@ -39,7 +39,16 @@ def load_financial_data() -> pd.DataFrame:
             f = load_financial_cache(y, q, max_age_days=9999)
             if not f.empty:
                 fin_list.append(f)
-    return pd.concat(fin_list, ignore_index=True) if fin_list else pd.DataFrame()
+    financial = pd.concat(fin_list, ignore_index=True) if fin_list else pd.DataFrame()
+    
+    # 合并成长数据: BaoStock YOY覆盖profit_yoy
+    if not financial.empty:
+        growth = load_growth_cache(2024, 4, max_age_days=9999)
+        if not growth.empty:
+            g_map = dict(zip(growth['code'], growth['YOYNI']))
+            financial['profit_yoy'] = financial['code'].map(g_map).fillna(financial['profit_yoy'])
+    
+    return financial
 
 
 def create_system(mode: str = "full"):
