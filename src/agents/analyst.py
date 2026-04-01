@@ -203,23 +203,28 @@ class AnalystAgent(BaseAgent):
                         bar = "█" * int(abs(val) * 10) + "░" * (10 - int(abs(val) * 10))
                         lines.append(f"  {labels.get(cat, cat)}: {bar} {val:+.3f}")
 
-            # 7) 同业对比 (从评分排名中找)
-            if scores is not None and code in scores.index:
+            # 7) 行业对比
+            from src.data.industry import get_industry, get_industry_peers
+            industry = get_industry(code)
+            if industry:
+                industry_short = industry.split("和")[-1] if "和" in industry else industry[:8]
+                lines.append(f"\n🏭 **行业对比** ({industry_short})")
+                peers = get_industry_peers(code, limit=5)
+                if peers and scores is not None:
+                    # 本股
+                    if code in scores.index:
+                        my_score = scores.loc[code, "score_total"]
+                        lines.append(f"  {stock_name(code)} {my_score:+.2f} ◀")
+                    # 同行
+                    for p in peers:
+                        if p in scores.index:
+                            lines.append(f"  {stock_name(p)} {scores.loc[p, 'score_total']:+.2f}")
+                else:
+                    lines.append(f"  ({industry_short})")
+            elif scores is not None and code in scores.index:
+                # 无行业数据时用评分排名对比
                 rank = (scores["score_total"] > scores.loc[code, "score_total"]).sum() + 1
-                # 前3名和后3名
-                top3 = scores.head(3)
-                lines.append(f"\n🏭 **评分对比** (Top3 vs 本股)")
-                for _, row in top3.iterrows():
-                    marker = " ◀" if row.name == code else ""
-                    lines.append(f"  {stock_name(row.name)} {row['score_total']:+.2f}{marker}")
-                if rank > 3:
-                    lines.append(f"  ... (排名{rank})")
-                    # 前后各1名
-                    if rank > 1 and rank <= len(scores):
-                        nearby = scores.iloc[max(0,rank-2):min(len(scores),rank+1)]
-                        for _, row in nearby.iterrows():
-                            marker = " ◀" if row.name == code else ""
-                            lines.append(f"  {stock_name(row.name)} {row['score_total']:+.2f}{marker}")
+                lines.append(f"\n📊 **排名: {rank}/{len(scores)}**")
 
             # 8) 个股新闻情绪
             try:
