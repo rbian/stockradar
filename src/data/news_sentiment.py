@@ -19,13 +19,21 @@ NEWS_DB = Path.home() / ".agents" / "skills" / "alphaear-news" / "data" / "news.
 
 
 def fetch_financial_news(sources: list = None, count: int = 20) -> list:
-    """拉取财经热点新闻"""
+    """拉取财经热点新闻 — 国际RSS源"""
+    import feedparser
+    
+    RSS_FEEDS = {
+        "cnbc": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147",
+        "wsj": "https://feeds.content.dowjones.io/public/rss/RSSWorldNews",
+        "yahoo": "https://finance.yahoo.com/news/rssindex",
+    }
+    
     if sources is None:
-        sources = ["cls", "wallstreetcn"]
+        sources = ["cnbc"]
     
     all_news = []
     
-    # 1) 尝试本地DB
+    # 1) 尝试alphaear-news本地DB
     db = _get_news_db()
     if db:
         try:
@@ -33,10 +41,9 @@ def fetch_financial_news(sources: list = None, count: int = 20) -> list:
             rows = conn.execute(
                 "SELECT id, source, title, url, content, publish_time FROM daily_news "
                 "ORDER BY publish_time DESC LIMIT ?",
-                (count * 2,)
+                (count,)
             ).fetchall()
             conn.close()
-            
             if rows:
                 for r in rows:
                     all_news.append({
@@ -45,45 +52,29 @@ def fetch_financial_news(sources: list = None, count: int = 20) -> list:
                         "pub_date": r[5] or "",
                     })
                 logger.info(f"本地DB: {len(all_news)}条")
-                
-                if len(all_news) >= count:
-                    return all_news[:count]
         except Exception as e:
-            logger.warning(f"本地DB读取失败: {e}")
+            logger.warning(f"本地DB: {e}")
     
-    # 2) 尝试API
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-    
-    # 财联社电报
-    try:
-        resp = requests.get(
-            "https://www.cls.cn/telegraph",
-            headers={**headers, "Referer": "https://www.cls.cn/"},
-            timeout=10
-        )
-        if resp.status_code == 200:
-            # 尝试从页面提取JSON数据
-            for line in resp.text.split("\n"):
-                if "telegraphData" in line and '"title"' in line:
-                    try:
-                        start = line.find('"telegraphData"')
-                        data = json.loads(line[start + 16:line.find(";", start)])
-                        if isinstance(data, list):
-                            for item in data[:count]:
-                                all_news.append({
-                                    "title": item.get("title", ""),
-                                    "content": item.get("content", item.get("summary", "")),
-                                    "source": "cls", "url": "", "pub_date": item.get("ctime", ""),
-                                })
-                            logger.info(f"财联社电报: {len(all_news)}条")
-                            break
-                    except (json.JSONDecodeError, KeyError):
-                        continue
-    except Exception as e:
-        logger.warning(f"财联社API失败: {e}")
+    # 2) RSS feeds
+    for source in sources:
+        url = RSS_FEEDS.get(source)
+        if not url:
+            continue
+        try:
+            feed = feedparser.parse(url)
+            for entry in feed.entries[:count]:
+                all_news.append({
+                    "title": entry.get("title", ""),
+                    "content": entry.get("summary", entry.get("description", ""))[:200],
+                    "source": source,
+                    "url": entry.get("link", ""),
+                    "pub_date": entry.get("published", ""),
+                })
+            logger.info(f"RSS [{source}]: {len(feed.entries)}条")
+        except Exception as e:
+            logger.warning(f"RSS [{source}]: {e}")
     
     if not all_news:
-        # 3) 用测试数据演示
         logger.info("无新闻数据，使用演示数据")
         all_news = _demo_news()
     
@@ -122,13 +113,20 @@ def analyze_sentiment(news_list: list) -> list:
     if not news_list:
         return []
     
-    # 关键词情绪分析
+    # 关键词情绪分析（中英文）
     pos_words = {"涨", "涨超", "大涨", "利好", "增长", "突破", "新高", "盈利", "超预期",
                  "回购", "增持", "复苏", "强劲", "暴增", "翻倍", "涨停", "降准", "降息",
-                 "看好", "乐观", "回暖", "反弹", "拉升", "净流入", "加仓", "新高", "支撑"}
+                 "看好", "乐观", "回暖", "反弹", "拉升", "净流入", "加仓", "新高", "支撑",
+                 "soar", "surge", "jump", "climb", "gain", "rise", "rally", "boom", "beat",
+                 "exceed", "strong", "record", "high", "approve", "approve", "bullish",
+                 "profit", "growth", "optimis", "rebound", "recover"}
     neg_words = {"跌", "跌超", "大跌", "利空", "下降", "跌破", "新低", "亏损", "不及预期",
                  "减持", "抛售", "衰退", "疲软", "暴跌", "跌停", "暴雷", "风险", "收缩",
-                 "看空", "悲观", "承压", "下行", "杀跌", "净流出", "清仓", "压力", "制裁"}
+                 "看空", "悲观", "承压", "下行", "杀跌", "净流出", "清仓", "压力", "制裁",
+                 "fall", "drop", "plunge", "slide", "decline", "loss", "cut", "slump",
+                 "crash", "sink", "tumble", "weak", "low", "bearish", "fear", "risk",
+                 "pessimis", "recession", "deficit", "debt", "sanction", "tariff", "war",
+                 "crisis", "warning", "downgrade", "miss", "disappoint", "concern"}
     
     for item in news_list:
         text = f"{item.get('title', '')} {item.get('content', '')}"
