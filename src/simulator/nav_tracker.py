@@ -60,19 +60,11 @@ class NAVTracker:
         return result
 
     def rebalance(self, date, scores: pd.DataFrame, prices: dict, reason: str = "定期调仓"):
-        """调仓
-        
-        Args:
-            date: 当前日期
-            scores: 评分DataFrame (index=code, has score_total)
-            prices: {code: close_price}
-            reason: 调仓原因
-        """
         if scores.empty:
             return
 
-        # 目标持仓: Top N
         target_codes = set(scores.head(self.top_n).index.tolist())
+        watchlist = set(scores.head(self.top_n + 10).index.tolist()) - target_codes  # 11-20名缓冲区
         current_codes = set(self.holdings.keys())
 
         # 止损检查
@@ -83,23 +75,34 @@ class NAVTracker:
                 if pnl <= self.stop_loss:
                     self._sell(code, prices[code], date, f"止损({pnl:+.1f}%)")
 
-        # 卖出: 不在目标的
+        # 卖出: 不在目标也不在缓冲区的
         for code in list(self.holdings.keys()):
-            if code not in target_codes:
+            if code not in target_codes and code not in watchlist:
                 if code in prices and prices[code] > 0:
                     self._sell(code, prices[code], date, reason)
 
         # 买入: 新进目标的
         new_codes = target_codes - set(self.holdings.keys())
         if new_codes and self.cash > 0:
-            # 等权重分配
+            # 如果超持仓数，先卖掉排名最低的
+            while len(self.holdings) + len(new_codes) > self.top_n:
+                # 卖掉不在目标中的
+                sold = False
+                for code in list(self.holdings.keys()):
+                    if code not in target_codes:
+                        if code in prices and prices[code] > 0:
+                            self._sell(code, prices[code], date, "腾位")
+                            sold = True
+                            break
+                if not sold:
+                    break
+
             per_stock = self.cash / max(len(new_codes), 1)
             for code in new_codes:
                 if code in prices and prices[code] > 0:
-                    price = prices[code]
-                    shares = int(per_stock / price / 100) * 100  # 整手
+                    shares = int(per_stock / prices[code] / 100) * 100
                     if shares >= 100:
-                        self._buy(code, shares, price, date, reason)
+                        self._buy(code, shares, prices[code], date, reason)
 
     def _buy(self, code: str, shares: int, price: float, date, reason: str):
         cost = shares * price * (1 + self.commission_rate)
