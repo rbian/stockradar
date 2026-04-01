@@ -152,10 +152,22 @@ def main():
 
     async def post_init(app):
         scheduler = AsyncIOScheduler()
+        # 日报: 周一到周五 15:30
         scheduler.add_job(daily_push, "cron", hour=15, minute=30,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # 数据更新: 周一到周五 15:10 (日报前)
+        async def data_update():
+            logger.info("定时数据更新...")
+            try:
+                from scripts.daily_update import qveris_topup
+                qveris_topup()
+                logger.info("数据更新完成")
+            except Exception as e:
+                logger.error(f"数据更新失败: {e}")
+        scheduler.add_job(data_update, "cron", hour=15, minute=10,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
         scheduler.start()
-        logger.info("Scheduler: 日报 15:30 CST Mon-Fri")
+        logger.info("Scheduler: 数据更新15:10 + 日报15:30 Mon-Fri")
 
     app.post_init = post_init
 
