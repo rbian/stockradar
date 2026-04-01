@@ -151,7 +151,28 @@ class AnalystAgent(BaseAgent):
                         if val is not None and not pd.isna(val) and val != 0:
                             lines.append(f"  {label}: {val * mult:.2f}{unit}")
 
-            # 4) 综合评分
+            # 4) 资金面
+            lines.append(f"\n💵 **资金面**")
+            if "volume" in df.columns and len(df) >= 20:
+                vol = df["volume"].values
+                vol_ma5 = vol[-5:].mean() if len(vol) >= 5 else vol[-1]
+                vol_ma20 = vol[-20:].mean()
+                vol_ratio = vol_ma5 / max(vol_ma20, 1)
+                lines.append(f"  量比(5/20): {vol_ratio:.2f} ({'放量📈' if vol_ratio > 1.5 else '缩量📉' if vol_ratio < 0.7 else '正常'})")
+            if "amount" in df.columns and len(df) >= 5:
+                amt_avg = df["amount"].tail(5).mean()
+                lines.append(f"  5日均额: ¥{amt_avg/1e8:.1f}亿" if amt_avg > 1e8 else f"  5日均额: ¥{amt_avg/1e4:.1f}万")
+
+            # 5) 历史分位
+            if len(df) >= 120:
+                price_pct = (close[-1] - close[-120:].min()) / (close[-120:].max() - close[-120:].min() + 1e-10) * 100
+                lines.append(f"\n📍 **位置** (近120日)")
+                lines.append(f"  价格分位: {price_pct:.0f}% ({'高位⚠️' if price_pct > 80 else '低位✅' if price_pct < 20 else '中性'})")
+                high120 = close[-120:].max()
+                low120 = close[-120:].min()
+                lines.append(f"  区间: ¥{low120:.2f} ~ ¥{high120:.2f}")
+
+            # 6) 综合评分
             scores = self.context.get_scores() if self.context else None
             if scores is not None and code in scores.index:
                 s = scores.loc[code]
@@ -193,10 +214,32 @@ class AnalystAgent(BaseAgent):
         scores = self.context.get_scores() if self.context else None
         if scores is None:
             return await self._full_analysis()
+
         top10 = scores.head(10)
-        msg = "📊 **评分排名Top10:**\n"
+        msg = "📊 **评分排名Top10:**\n\n"
+        
+        # 查找当前持仓
+        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        holdings = set()
+        if nav_file.exists():
+            try:
+                import json
+                from src.simulator.nav_tracker import NAVTracker
+                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                holdings = set(nav.holdings.keys())
+            except Exception:
+                pass
+
         for i, (code, row) in enumerate(top10.iterrows()):
-            msg += f"  {i+1}. {stock_name(code)} | {row['score_total']:.2f}\n"
+            name = stock_name(code)
+            tag = "📦" if code in holdings else "  "
+            # 分类标签
+            score = row["score_total"]
+            signal = "🟢" if score > 0.5 else "🟡" if score > 0.2 else "⚪"
+            msg += f"{signal}{tag} {i+1}. {name}({code}) | {score:+.2f}\n"
+
+        if holdings:
+            msg += f"\n📦 = 当前持仓"
         return ActionResult(success=True, message=msg)
 
     def _extract_stock_code(self, text: str) -> str:
