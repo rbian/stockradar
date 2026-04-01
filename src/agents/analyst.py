@@ -78,11 +78,25 @@ class AnalystAgent(BaseAgent):
         if self.context:
             self.context.set_scores(scores)
         top10 = scores.head(10)
+        
+        # 持仓标记
+        from pathlib import Path as _Path
+        import json as _json
+        holdings = set()
+        nav_dir = _Path(__file__).resolve().parent.parent.parent / "data"
+        for f in sorted(nav_dir.glob("nav_state*.json"), key=lambda x: x.stat().st_mtime, reverse=True)[:1]:
+            try:
+                d = _json.loads(f.read_text())
+                holdings = set(d.get("holdings", {}).keys())
+            except Exception:
+                pass
+        
         msg = "📊 **今日评分Top10:**\n"
         for i, (code, row) in enumerate(top10.iterrows()):
             delta = row.get("delta", 0)
             arrow = "🔺" if delta > 0.01 else "🔻" if delta < -0.01 else "➖"
-            msg += f"  {i+1}. {stock_name(code)} | {row['score_total']:+.2f} {arrow}\n"
+            held = " 📦" if code in holdings else ""
+            msg += f"  {i+1}. {stock_name(code)} | {row['score_total']:+.2f} {arrow}{held}\n"
         return ActionResult(success=True, message=msg, data={"scores": scores})
 
     async def _analyze_stock(self, code: str) -> ActionResult:
