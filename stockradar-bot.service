@@ -1,0 +1,17 @@
+[Unit]
+Description=StockRadar Telegram Bot
+After=network-online.target
+
+[Service]
+Type=simple
+User=node
+WorkingDirectory=/home/node/.openclaw/workspace/research/stockradar
+ExecStart=/usr/bin/python3 scripts/run_bot.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
