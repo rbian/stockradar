@@ -91,13 +91,26 @@ class ReporterAgent(BaseAgent):
             for i, (code, row) in enumerate(scores.head(5).iterrows()):
                 lines.append(f"  {i+1}. {stock_name(code)} | {row['score_total']:+.2f}")
 
-        # 4) 持仓
-        portfolio = self.context.get_portfolio() if self.context else {}
-        holdings = portfolio.get("holdings", [])
-        if holdings:
-            lines.append(f"\n📦 **持仓:** {len(holdings)}只")
+        # 4) 持仓+净值
+        lines.append("\n📦 **模拟持仓:**")
+        # 从TraderAgent获取NAV
+        from src.simulator.nav_tracker import NAVTracker
+        import json
+        from pathlib import Path
+        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        if nav_file.exists():
+            try:
+                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                info = nav.get_nav()
+                lines.append(f"  净值: {info['nav']:.4f} | 收益: {info['total_return']:+.2f}%")
+                lines.append(f"  持仓: {info['holdings_count']}只 | 交易: {info['trades']}笔")
+                for code, h in sorted(nav.holdings.items()):
+                    name = stock_name(code)
+                    lines.append(f"  {name}({code}) {h['shares']}股@¥{h['cost_price']:.2f}")
+            except Exception:
+                lines.append("  模拟模式")
         else:
-            lines.append("\n📦 **持仓:** 模拟模式暂无持仓")
+            lines.append("  尚未建仓，发送'持仓建议'开始")
 
         return ActionResult(success=True, message="\n".join(lines))
 

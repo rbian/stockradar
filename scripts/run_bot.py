@@ -127,12 +127,38 @@ def main():
         ALLOWED_USERS = set(allowed.split(","))
 
     logger.info("Starting StockRadar Bot...")
+
     orch = create_system()
     logger.info(f"System ready: {len(orch.agents)} agents")
 
     app = Application.builder().token(token).build()
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
+
+    # 定时日报
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    import asyncio
+
+    async def daily_push():
+        for uid in ALLOWED_USERS:
+            try:
+                result = await asyncio.wait_for(
+                    orch.process_user_message("日报", user_id=uid), timeout=60
+                )
+                await app.bot.send_message(chat_id=uid, text=result, reply_markup=get_keyboard())
+                logger.info(f"日报推送: {uid}")
+            except Exception as e:
+                logger.error(f"日报推送失败 {uid}: {e}")
+
+    async def post_init(app):
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(daily_push, "cron", hour=15, minute=30,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
+        scheduler.start()
+        logger.info("Scheduler: 日报 15:30 CST Mon-Fri")
+
+    app.post_init = post_init
+
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     logger.info("Bot polling...")
