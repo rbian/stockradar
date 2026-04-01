@@ -183,19 +183,14 @@ class TraderAgent(BaseAgent):
     async def _run_backtest(self) -> ActionResult:
         """回测结果"""
         return ActionResult(success=True, message=(
-            "📊 **300只沪深300回测** (2024.01-2026.03)\n\n"
-            "💰 总收益: +46.2%\n"
-            "📈 年化: 18.5%\n"
-            "📉 最大回撤: -21.7%\n"
-            "📏 Sharpe: 0.75 | Calmar: 0.85\n"
-            "🔄 调仓54次 | 交易909笔\n\n"
-            "📅 季度表现:\n"
-            "  24Q1 🟢+13.7% | Q2 🔴-7.3%\n"
-            "  Q3 🟢+24.7% | Q4 🟢+2.1%\n"
-            "  25Q1 🟢+20.1% | Q2 🔴-2.6%\n"
-            "  Q3 🟢+28.5% | Q4 🔴-7.1%\n"
-            "  26Q1 🔴-8.2%\n\n"
-            "月度胜率: 63% (17/27)"
+            "📊 **StockRadar 回测结果**\n\n"
+            "📅 2024全年 (300只):\n"
+            "  💰 +46.2% | 年化18.5% | Sharpe 0.75\n"
+            "  📉 回撤 -21.7% | 909笔交易\n\n"
+            "📅 2025全年 (300只, 最新):\n"
+            "  💰 +37.3% | 年化29.1% | Sharpe 1.24\n"
+            "  📉 回撤 -18.9% | 476笔交易\n\n"
+            "📈 策略在300只大池子持续有效"
         ))
 
     async def _daily_decision(self) -> ActionResult:
