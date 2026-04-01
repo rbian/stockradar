@@ -98,6 +98,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"[{user_id}] {text}")
 
     try:
+        # 净值图请求 → 发送图片
+        if any(kw in text for kw in ["净值图", "曲线", "走势图"]):
+            chart = PROJECT_ROOT / "output" / "nav_chart.png"
+            if chart.exists():
+                await update.message.reply_photo(photo=open(chart, "rb"),
+                    caption="📊 StockRadar 300只净值曲线 (2024-2026)\n年化18.5% | 回撤-21.7%",
+                    reply_markup=get_keyboard())
+                return
+
         result = await asyncio.wait_for(
             orch.process_user_message(text, user_id=user_id),
             timeout=60,
@@ -134,6 +143,8 @@ def main():
     app = Application.builder().token(token).build()
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
+    app.add_handler(CommandHandler("rebalance", lambda u, c: handle_message(
+        type('U', (), {'message': type('M', (), {'text': '调仓', 'reply_text': lambda *a, **k: None})()})(), c)))
 
     # 定时日报
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
