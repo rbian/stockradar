@@ -172,11 +172,40 @@ class AnalystAgent(BaseAgent):
                 low120 = close[-120:].min()
                 lines.append(f"  区间: ¥{low120:.2f} ~ ¥{high120:.2f}")
 
-            # 6) 综合评分
+            # 6) 综合评分 + 排名
             scores = self.context.get_scores() if self.context else None
             if scores is not None and code in scores.index:
                 s = scores.loc[code]
-                lines.append(f"\n📊 **综合评分: {s['score_total']:.2f}**")
+                rank = (scores["score_total"] > s["score_total"]).sum() + 1
+                total = len(scores)
+                lines.append(f"\n📊 **综合评分: {s['score_total']:+.2f}** (排名 {rank}/{total})")
+                # 因子分类得分
+                for cat in ["fundamental", "technical", "capital_flow", "market_sentiment"]:
+                    col = f"score_{cat}"
+                    if col in s.index and pd.notna(s[col]):
+                        labels = {"fundamental": "基本面", "technical": "技术面",
+                                  "capital_flow": "资金流", "market_sentiment": "情绪"}
+                        val = s[col]
+                        bar = "█" * int(abs(val) * 10) + "░" * (10 - int(abs(val) * 10))
+                        lines.append(f"  {labels.get(cat, cat)}: {bar} {val:+.3f}")
+
+            # 7) 同业对比 (从评分排名中找)
+            if scores is not None and code in scores.index:
+                rank = (scores["score_total"] > scores.loc[code, "score_total"]).sum() + 1
+                # 前3名和后3名
+                top3 = scores.head(3)
+                lines.append(f"\n🏭 **评分对比** (Top3 vs 本股)")
+                for _, row in top3.iterrows():
+                    marker = " ◀" if row.name == code else ""
+                    lines.append(f"  {stock_name(row.name)} {row['score_total']:+.2f}{marker}")
+                if rank > 3:
+                    lines.append(f"  ... (排名{rank})")
+                    # 前后各1名
+                    if rank > 1 and rank <= len(scores):
+                        nearby = scores.iloc[max(0,rank-2):min(len(scores),rank+1)]
+                        for _, row in nearby.iterrows():
+                            marker = " ◀" if row.name == code else ""
+                            lines.append(f"  {stock_name(row.name)} {row['score_total']:+.2f}{marker}")
 
             return ActionResult(success=True, message="\n".join(lines))
         except Exception as e:
