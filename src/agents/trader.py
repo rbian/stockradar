@@ -28,12 +28,20 @@ class TraderAgent(BaseAgent):
 
     def _load_nav(self) -> NAVTracker:
         """加载或创建NAVTracker"""
-        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
-        if nav_file.exists():
+        data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+        # 尝试加载最近的策略状态
+        nav_files = sorted(data_dir.glob("nav_state_*.json"), key=lambda f: f.stat().st_mtime, reverse=True)
+        if not nav_files:
+            # 兼容旧文件
+            old = data_dir / "nav_state.json"
+            if old.exists():
+                nav_files = [old]
+        
+        if nav_files:
             try:
-                d = json.loads(nav_file.read_text())
+                d = json.loads(nav_files[0].read_text())
                 tracker = NAVTracker.from_dict(d)
-                logger.info(f"NAV加载: 净值{tracker.get_nav()['nav']:.4f}")
+                logger.info(f"NAV加载({nav_files[0].name}): 净值{tracker.get_nav()['nav']:.4f}")
                 return tracker
             except Exception:
                 pass
@@ -41,7 +49,7 @@ class TraderAgent(BaseAgent):
 
     def _save_nav(self):
         """保存NAV状态"""
-        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / f"nav_state_{self.nav.strategy}.json"
         nav_file.parent.mkdir(parents=True, exist_ok=True)
         nav_file.write_text(json.dumps(self.nav.to_dict(), ensure_ascii=False, default=str))
 
@@ -174,6 +182,7 @@ class TraderAgent(BaseAgent):
             desc = "均衡配置，基本面35%，10天调仓"
         
         self.nav = NAVTracker(strategy=strategy)
+        self._save_nav()
         return ActionResult(success=True, message=(
             "✅ 已切换到 **" + name + "**\n"
             "  " + desc + "\n"
