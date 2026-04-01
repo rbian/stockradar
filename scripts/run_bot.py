@@ -77,9 +77,16 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "📰 日报 — 每日总结\n"
         "📉 回测 — 历史表现\n"
         "🔍 个股 — 600519 或 茅台\n\n"
+        "命令: /top /nav /report\n\n"
         "数据: QVeris(实时) + BaoStock(历史)",
         reply_markup=get_keyboard(),
     )
+
+
+async def _quick_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE, msg: str):
+    """快捷命令"""
+    update.message.text = msg
+    await handle_message(update, context)
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -143,8 +150,9 @@ def main():
     app = Application.builder().token(token).build()
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
-    app.add_handler(CommandHandler("rebalance", lambda u, c: handle_message(
-        type('U', (), {'message': type('M', (), {'text': '调仓', 'reply_text': lambda *a, **k: None})()})(), c)))
+    app.add_handler(CommandHandler("top", lambda u, c: _quick_cmd(u, c, "评分排名")))
+    app.add_handler(CommandHandler("nav", lambda u, c: _quick_cmd(u, c, "净值")))
+    app.add_handler(CommandHandler("report", lambda u, c: _quick_cmd(u, c, "日报")))
 
     # 定时日报
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
