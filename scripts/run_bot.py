@@ -15,10 +15,20 @@ from telegram.ext import (
     filters, ContextTypes,
 )
 from src.infra.logger import setup_logger
-from scripts.e2e_test import create_system
+from scripts.system_init import create_system
 
 orch = None
 ALLOWED_USERS = set()
+
+# 按钮文字 → Agent消息映射
+BUTTON_MAP = {
+    "📊 市场概况": "市场怎么样",
+    "🏆 评分排名": "评分排名",
+    "📈 持仓建议": "当前持仓建议",
+    "📰 日报": "日报",
+    "📉 回测结果": "回测",
+    "❓ 帮助": "帮助",
+}
 
 
 def load_env():
@@ -46,31 +56,28 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if ALLOWED_USERS and user_id not in ALLOWED_USERS:
         await update.message.reply_text("⛔ 未授权")
         return
-
     await update.message.reply_text(
         "📡 **StockRadar 已上线！**\n\n"
-        "我可以帮你:\n"
-        "• 查看市场行情（实时数据）\n"
-        "• A股智能评分排名\n"
-        "• 持仓建议和回测\n"
-        "• 个股分析（输入6位代码）\n\n"
-        "点击下方按钮或直接输入问题 👇",
-        parse_mode="Markdown",
+        "功能:\n"
+        "• 实时沪深300行情\n"
+        "• 36因子智能评分\n"
+        "• 个股分析（输入代码或名称）\n"
+        "• 持仓建议和回测\n\n"
+        "点击按钮或直接输入 👇",
         reply_markup=get_keyboard(),
     )
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📡 **StockRadar 使用指南**\n\n"
-        "📊 **市场** — 实时沪深300 + 涨跌\n"
-        "🏆 **评分** — 36因子智能排名\n"
-        "📈 **持仓** — Top10建议\n"
-        "📰 **日报** — 每日市场总结\n"
-        "📉 **回测** — 历史回测结果\n"
-        "🔍 **个股** — 输入代码如 600519\n\n"
-        "数据源: QVeris(实时) + BaoStock(历史)",
-        parse_mode="Markdown",
+        "📡 **StockRadar**\n\n"
+        "📊 市场 — 实时沪深300\n"
+        "🏆 评分 — 36因子排名\n"
+        "📈 持仓 — Top10建议\n"
+        "📰 日报 — 每日总结\n"
+        "📉 回测 — 历史表现\n"
+        "🔍 个股 — 600519 或 茅台\n\n"
+        "数据: QVeris(实时) + BaoStock(历史)",
         reply_markup=get_keyboard(),
     )
 
@@ -78,13 +85,15 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global orch
     user_id = str(update.effective_user.id)
-
     if ALLOWED_USERS and user_id not in ALLOWED_USERS:
         return
 
     text = update.message.text.strip()
     if not text:
         return
+
+    # 按钮映射
+    text = BUTTON_MAP.get(text, text)
 
     logger.info(f"[{user_id}] {text}")
 
@@ -118,7 +127,6 @@ def main():
         ALLOWED_USERS = set(allowed.split(","))
 
     logger.info("Starting StockRadar Bot...")
-
     orch = create_system()
     logger.info(f"System ready: {len(orch.agents)} agents")
 

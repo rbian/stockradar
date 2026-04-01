@@ -200,5 +200,15 @@ class AnalystAgent(BaseAgent):
         return ActionResult(success=True, message=msg)
 
     def _extract_stock_code(self, text: str) -> str:
+        """提取股票代码，支持数字代码和中文简称"""
+        # 先尝试6位数字
         match = re.search(r'\d{6}', text)
-        return match.group() if match else ""
+        if match:
+            return match.group()
+        # 再尝试中文简称
+        from src.data.stock_names import _load
+        names = _load()
+        for code, name in names.items():
+            if name and name in text:
+                return code
+        return ""
