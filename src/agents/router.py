@@ -23,7 +23,7 @@ class RouterAgent(BaseAgent):
         # 交易类 → TraderAgent
         r"(持仓|组合|买入|卖出|换仓|止[损盈])": "trader",
         r"(净值|收益|盈亏|绩效|回撤)": "trader",
-        r"(动量|delta|ΔS|变化)": "trader",
+        r"(激进|稳健|防御|保守|策略)": "trader",
 
         # 回测类 → TraderAgent（backtest子功能）
         r"(回测|测试|验证|策略效果)": "trader",

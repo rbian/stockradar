@@ -1,0 +1,47 @@
+# 多组合策略配置
+
+strategies:
+  aggressive:
+    name: "激进组合"
+    description: "高Beta，追求超额收益"
+    top_n: 10
+    rebalance_days: 5
+    stop_loss: -0.18
+    commission: 0.001
+    weights:
+      fundamental: 0.20
+      technical: 0.30
+      capital_flow: 0.25
+      market_sentiment: 0.15
+      llm: 0.10
+    min_score: 0.3
+
+  balanced:
+    name: "稳健组合"
+    description: "均衡配置，风险可控"
+    top_n: 10
+    rebalance_days: 10
+    stop_loss: -0.15
+    commission: 0.001
+    weights:
+      fundamental: 0.35
+      technical: 0.20
+      capital_flow: 0.20
+      market_sentiment: 0.15
+      llm: 0.10
+    min_score: 0.2
+
+  defensive:
+    name: "防御组合"
+    description: "低波动，重视基本面"
+    top_n: 10
+    rebalance_days: 15
+    stop_loss: -0.12
+    commission: 0.001
+    weights:
+      fundamental: 0.45
+      technical: 0.10
+      capital_flow: 0.15
+      market_sentiment: 0.10
+      llm: 0.20
+    min_score: 0.1

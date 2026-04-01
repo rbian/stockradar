@@ -15,7 +15,8 @@ from loguru import logger
 class NAVTracker:
     """净值追踪器"""
 
-    def __init__(self, initial_capital: float = 1_000_000):
+    def __init__(self, initial_capital: float = 1_000_000, strategy: str = "balanced"):
+        self.strategy = strategy
         self.initial_capital = initial_capital
         self.cash = initial_capital
         self.holdings = {}  # code -> {shares, cost_price}

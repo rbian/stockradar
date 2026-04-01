@@ -62,6 +62,9 @@ class TraderAgent(BaseAgent):
     async def think(self, observation: Observation) -> Plan:
         msg = observation.content.get("user_message", "")
 
+        if "激进" in msg or "稳进" in msg or "防御" in msg or "保守" in msg:
+            return Plan(actions=[{"action": "switch_strategy"}])
+
         if "净值" in msg or "收益" in msg or "盈亏" in msg:
             return Plan(actions=[{"action": "show_nav"}])
 
@@ -98,6 +101,7 @@ class TraderAgent(BaseAgent):
             "show_trades": self._show_trades,
             "run_backtest": self._run_backtest,
             "daily_decision": self._daily_decision,
+            "switch_strategy": self._switch_strategy,
         }
 
         handler = handlers.get(action)
@@ -152,6 +156,29 @@ class TraderAgent(BaseAgent):
             except Exception:
                 pass
         return ActionResult(success=True, message="暂无交易记录")
+
+    async def _switch_strategy(self) -> ActionResult:
+        """切换策略组合"""
+        msg = self.context.read("user_message", "") if self.context else ""
+        if "激进" in msg:
+            strategy = "aggressive"
+            name = "激进组合"
+            desc = "高Beta，技术面30%，5天调仓"
+        elif "防御" in msg or "保守" in msg:
+            strategy = "defensive"
+            name = "防御组合"
+            desc = "低波动，基本面45%，15天调仓"
+        else:
+            strategy = "balanced"
+            name = "稳健组合"
+            desc = "均衡配置，基本面35%，10天调仓"
+        
+        self.nav = NAVTracker(strategy=strategy)
+        return ActionResult(success=True, message=(
+            "✅ 已切换到 **" + name + "**\n"
+            "  " + desc + "\n"
+            "  发送持仓建议开始建仓"
+        ))
 
     async def _run_backtest(self) -> ActionResult:
         """回测结果"""
