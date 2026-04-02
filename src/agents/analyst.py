@@ -44,6 +44,8 @@ class AnalystAgent(BaseAgent):
             return Plan(actions=[{"action": "factor_status"}])
         if "诊断" in msg or "健康" in msg:
             return Plan(actions=[{"action": "diagnose"}])
+        if "假设" in msg:
+            return Plan(actions=[{"action": "hypothesis"}])
         return Plan(actions=[{"action": "score_ranking"}])
 
     async def act(self, plan: Plan) -> ActionResult:
@@ -58,6 +60,7 @@ class AnalystAgent(BaseAgent):
             elif t == "score_ranking": return await self._score_ranking()
             elif t == "factor_status": return await self._factor_status()
             elif t == "diagnose": return await self._diagnose()
+            elif t == "hypothesis": return await self._hypothesis()
             return ActionResult(success=False, message=f"未知类型: {t}")
         except Exception as e:
             logger.error(f"分析失败: {e}")
@@ -435,3 +438,39 @@ class AnalystAgent(BaseAgent):
             return ActionResult(success=True, message="📭 当前无持仓数据")
         except Exception as e:
             return ActionResult(success=False, message=f"诊断失败: {e}")
+
+    async def _hypothesis(self) -> ActionResult:
+        """因子假设生成"""
+        try:
+            from src.evolution.hypothesis_gen import HypothesisGenerator
+            from src.llm.client import LLMClient
+            from datetime import datetime
+            
+            data = {
+                "daily_quote": self.context.read("data.daily_quote") if self.context else None,
+                "financial": self.context.read("financial_data") if self.context else None,
+            }
+            
+            gen = HypothesisGenerator(LLMClient())
+            result = await gen.weekly_run(data, datetime.now().strftime("%Y-%m-%d"))
+            
+            lines = ["🧬 **因子假设生成**\n"]
+            hypotheses = result.get("hypotheses", [])
+            if hypotheses:
+                for i, h in enumerate(hypotheses):
+                    name = h.get("name", f"假设{i+1}")
+                    desc = h.get("description", "")
+                    ic = h.get("ic", "N/A")
+                    status = "✅有效" if isinstance(ic, (int, float)) and ic > 0.03 else "❌无效" if isinstance(ic, (int, float)) else "⏳待验证"
+                    lines.append(f"{i+1}. **{name}**: {desc}")
+                    lines.append(f"   IC={ic} {status}\n")
+            else:
+                lines.append("暂无新假设，数据不足")
+            
+            insight = result.get("market_insight", "")
+            if insight:
+                lines.append(f"💡 **市场洞察**: {insight[:200]}")
+            
+            return ActionResult(success=True, message="\n".join(lines))
+        except Exception as e:
+            return ActionResult(success=False, message=f"假设生成失败: {e}")
