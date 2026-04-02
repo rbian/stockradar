@@ -215,12 +215,12 @@ def main():
     async def post_init(app):
         await set_commands(app)
         scheduler = AsyncIOScheduler()
-        # 数据更新: 15:10 BaoStock免费更新
+        # 数据更新: 15:10 mootdx实时更新
         async def data_update():
-            logger.info("定时数据更新(BaoStock)...")
+            logger.info("定时数据更新(mootdx)...")
             try:
-                from scripts.daily_update_bs import daily_update_bs
-                daily_update_bs()
+                from src.data.mootdx_adapter import daily_update_mootdx
+                daily_update_mootdx()
             except Exception as e:
                 logger.error(f"数据更新失败: {e}")
         scheduler.add_job(data_update, "cron", hour=15, minute=10,
