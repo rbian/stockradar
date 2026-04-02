@@ -355,13 +355,14 @@ class AnalystAgent(BaseAgent):
         msg = "📊 **评分排名Top10:**\n\n"
         
         # 查找当前持仓
-        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        from pathlib import Path as _Path2
+        import json as _json2
+        nav_dir = _Path2(__file__).resolve().parent.parent.parent / "data"
         holdings = set()
-        if nav_file.exists():
+        for f in sorted(nav_dir.glob("nav_state*.json"), key=lambda x: x.stat().st_mtime, reverse=True)[:1]:
             try:
-                import json
                 from src.simulator.nav_tracker import NAVTracker
-                nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
+                nav = NAVTracker.from_dict(_json2.loads(f.read_text()))
                 holdings = set(nav.holdings.keys())
             except Exception:
                 pass
