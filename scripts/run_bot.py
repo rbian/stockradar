@@ -272,8 +272,28 @@ def main():
         # 日报: 15:30
         scheduler.add_job(daily_push, "cron", hour=15, minute=30,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # D4 周度假设生成: 周六10:00
+        async def weekly_evolution():
+            logger.info("周度进化: 假设生成...")
+            try:
+                from src.evolution.hypothesis_gen import HypothesisGenerator
+                from src.llm.client import LLMClient
+                gen = HypothesisGenerator(LLMClient())
+                dq = orch.context.read("data.daily_quote")
+                data = {"daily_quote": dq, "codes": orch.context.read("codes", []),
+                        "financial": orch.context.read("financial_data"), "northbound": None}
+                import pandas as pd
+                dates = sorted(pd.to_datetime(dq["date"]).unique())
+                calc_date = pd.Timestamp(dates[-6]).strftime("%Y-%m-%d")
+                result = await gen.weekly_run(data, calc_date)
+                n = len(result.get("hypotheses", []))
+                logger.info(f"周度进化完成: {n}个新假设")
+            except Exception as e:
+                logger.error(f"周度进化失败: {e}")
+        scheduler.add_job(weekly_evolution, "cron", day_of_week="sat", hour=10, minute=0,
+                          timezone="Asia/Shanghai")
         scheduler.start()
-        logger.info("Scheduler: 数据更新15:10 + 调仓15:25 + 日报15:30 Mon-Fri")
+        logger.info("Scheduler: 数据15:10 + 调仓15:25 + IC15:27 + 日报15:30 + 周六进化10:00")
 
     app.post_init = post_init
 
