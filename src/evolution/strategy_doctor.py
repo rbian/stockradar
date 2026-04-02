@@ -85,13 +85,23 @@ def diagnose_holdings(nav_data: dict, daily_quote: pd.DataFrame = None,
     if warnings:
         lines.append(f"\n⚠️ **需关注**: {', '.join(names.get(c, c) for c in warnings)}")
         lines.append("建议检查基本面是否有变化，考虑止损")
-        # 自动写入知识库
-        try:
-            _log_warning(warnings, names, nav_data)
-        except Exception:
-            pass
     elif len(holdings) > 0:
         lines.append("\n✅ 持仓整体健康")
+    
+    # 风控检查
+    try:
+        from src.simulator.risk_control import check_risk, format_risk_alerts
+        prices = {}
+        for code in holdings:
+            if daily_quote is not None and not daily_quote.empty:
+                sd = daily_quote[daily_quote["code"] == code]
+                if not sd.empty:
+                    prices[code] = sd["close"].iloc[-1]
+        risk_alerts = check_risk(holdings, prices)
+        if risk_alerts:
+            lines.append("\n" + format_risk_alerts(risk_alerts))
+    except Exception:
+        pass
     
     return "\n".join(lines)
 

@@ -109,6 +109,7 @@ class TraderAgent(BaseAgent):
             "show_trades": self._show_trades,
             "run_backtest": self._run_backtest,
             "trade_stats": self._trade_stats,
+            "risk_check": self._risk_check,
             "daily_decision": self._daily_decision,
             "switch_strategy": self._switch_strategy,
         }
@@ -287,3 +288,31 @@ class TraderAgent(BaseAgent):
                 lines.append(f"  {t['date']} {action} {t['code']} {t['shares']}@{t['price']}")
         
         return ActionResult(success=True, message="\n".join(lines))
+
+    async def _risk_check(self) -> ActionResult:
+        """风控检查"""
+        from src.simulator.risk_control import check_risk, format_risk_alerts
+        import json as _json
+        from pathlib import Path as _Path
+        
+        nav_dir = _Path(__file__).resolve().parent.parent.parent / "data"
+        nav_files = sorted(nav_dir.glob("nav_state*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
+        if not nav_files:
+            return ActionResult(success=True, message="📭 无持仓数据")
+        
+        nav_data = _json.loads(nav_files[0].read_text())
+        holdings = nav_data.get("holdings", {})
+        if not holdings:
+            return ActionResult(success=True, message="📭 当前无持仓")
+        
+        # 获取当前价格
+        daily_quote = self.context.read("data.daily_quote") if self.context else None
+        prices = {}
+        if daily_quote is not None and not daily_quote.empty:
+            for code in holdings:
+                sd = daily_quote[daily_quote["code"] == code]
+                if not sd.empty:
+                    prices[code] = sd["close"].iloc[-1]
+        
+        alerts = check_risk(holdings, prices)
+        return ActionResult(success=True, message=format_risk_alerts(alerts))
