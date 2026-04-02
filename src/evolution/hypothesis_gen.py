@@ -51,10 +51,10 @@ def _safe_execute_pandas(expr: str, local_vars: dict) -> pd.Series | None:
     Returns:
         计算结果（pd.Series），失败返回None
     """
-    # 静态检查：禁止危险名称
-    expr_lower = expr.lower()
+    # 静态检查：禁止危险名称（用词边界匹配，避免误杀close等）
+    import re
     for forbidden in _FORBIDDEN_NAMES:
-        if forbidden in expr_lower:
+        if re.search(r'\b' + forbidden + r'\b', expr):
             logger.warning(f"安全拒绝：表达式包含禁止名称 '{forbidden}'")
             return None
 
