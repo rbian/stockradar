@@ -108,6 +108,7 @@ class TraderAgent(BaseAgent):
             "show_nav": self._show_nav,
             "show_trades": self._show_trades,
             "run_backtest": self._run_backtest,
+            "trade_stats": self._trade_stats,
             "daily_decision": self._daily_decision,
             "switch_strategy": self._switch_strategy,
         }
@@ -259,3 +260,30 @@ class TraderAgent(BaseAgent):
                 msg += f"  {action} {stock_name(t['code'])} {t['shares']}股@¥{t['price']:.2f}\n"
 
         return ActionResult(success=True, message=msg)
+
+    async def _trade_stats(self) -> ActionResult:
+        """交易统计"""
+        from src.simulator.trade_log import get_trade_stats, get_recent_trades
+        
+        stats = get_trade_stats()
+        if stats["total"] == 0:
+            return ActionResult(success=True, message="📊 暂无交易记录")
+        
+        lines = ["📊 **交易统计**\n"]
+        lines.append(f"💰 总交易: {stats['total']}笔 (买{stats.get('buys',0)}/卖{stats.get('sells',0)})")
+        if stats.get('sells', 0) > 0:
+            lines.append(f"🏆 胜率: {stats['win_rate']:.0f}% ({stats['wins']}胜/{stats['losses']}负)")
+            lines.append(f"📈 盈亏比: {stats.get('profit_factor', 0):.2f}")
+            lines.append(f"💵 累计盈亏: ¥{stats['pnl_total']:+,.0f}")
+            lines.append(f"   平均盈利: ¥{stats['avg_win']:+,.0f}")
+            lines.append(f"   平均亏损: ¥{stats['avg_loss']:+,.0f}")
+        
+        # 最近5笔
+        recent = get_recent_trades(5)
+        if recent:
+            lines.append("\n📋 **最近交易:**")
+            for t in recent[-5:]:
+                action = "买入" if t["action"] == "buy" else f"卖出(PnL:{t.get('pnl',0):+.0f})"
+                lines.append(f"  {t['date']} {action} {t['code']} {t['shares']}@{t['price']}")
+        
+        return ActionResult(success=True, message="\n".join(lines))

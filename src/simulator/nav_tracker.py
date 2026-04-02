@@ -126,17 +126,31 @@ class NAVTracker:
             "date": str(date)[:10], "code": code, "action": "buy",
             "shares": shares, "price": price, "reason": reason,
         })
+        # 记录到JSON交易日志
+        try:
+            from src.simulator.trade_log import log_trade
+            log_trade(code, "buy", price, shares, reason)
+        except Exception:
+            pass
 
     def _sell(self, code: str, price: float, date, reason: str):
         h = self.holdings.get(code)
         if not h:
             return
+        cost_price = h.get("cost_price", price)
+        pnl = (price - cost_price) * h["shares"]
         proceeds = h["shares"] * price * (1 - self.commission_rate)
         self.cash += proceeds
         self.trade_log.append({
             "date": str(date)[:10], "code": code, "action": "sell",
             "shares": h["shares"], "price": price, "reason": reason,
         })
+        # 记录到JSON交易日志(含盈亏)
+        try:
+            from src.simulator.trade_log import log_trade
+            log_trade(code, "sell", price, h["shares"], reason, pnl)
+        except Exception:
+            pass
         del self.holdings[code]
 
     def update_nav(self, date, prices: dict):
