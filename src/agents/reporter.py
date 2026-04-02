@@ -124,6 +124,19 @@ class ReporterAgent(BaseAgent):
         except Exception:
             pass
 
+        # 6) 持仓诊断
+        try:
+            from src.evolution.strategy_doctor import diagnose_holdings
+            import json as _json
+            nav_f = Path(__file__).resolve().parent.parent.parent / "data"
+            for f in sorted(nav_f.glob("nav_state*.json"), key=lambda x: x.stat().st_mtime, reverse=True)[:1]:
+                nav_data = _json.loads(f.read_text())
+                if nav_data.get("holdings"):
+                    diag = diagnose_holdings(nav_data)
+                    lines.append("\n" + diag)
+        except Exception:
+            pass
+
         return ActionResult(success=True, message="\n".join(lines))
 
     async def _weekly_report(self) -> ActionResult:

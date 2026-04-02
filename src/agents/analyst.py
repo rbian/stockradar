@@ -42,6 +42,8 @@ class AnalystAgent(BaseAgent):
             return Plan(actions=[{"action": "market_overview"}])
         if "IC" in msg or "因子" in msg:
             return Plan(actions=[{"action": "factor_status"}])
+        if "诊断" in msg or "健康" in msg:
+            return Plan(actions=[{"action": "diagnose"}])
         return Plan(actions=[{"action": "score_ranking"}])
 
     async def act(self, plan: Plan) -> ActionResult:
@@ -55,6 +57,7 @@ class AnalystAgent(BaseAgent):
             elif t == "market_overview": return await self._market_overview()
             elif t == "score_ranking": return await self._score_ranking()
             elif t == "factor_status": return await self._factor_status()
+            elif t == "diagnose": return await self._diagnose()
             return ActionResult(success=False, message=f"未知类型: {t}")
         except Exception as e:
             logger.error(f"分析失败: {e}")
@@ -414,3 +417,21 @@ class AnalystAgent(BaseAgent):
             return ActionResult(success=True, message="\n".join(lines))
         except Exception as e:
             return ActionResult(success=False, message=f"IC追踪暂不可用: {e}")
+
+    async def _diagnose(self) -> ActionResult:
+        """持仓诊断"""
+        try:
+            from src.evolution.strategy_doctor import diagnose_holdings
+            import json as _json
+            from pathlib import Path as _Path
+            nav_dir = _Path(__file__).resolve().parent.parent.parent / "data"
+            for f in sorted(nav_dir.glob("nav_state*.json"), key=lambda x: x.stat().st_mtime, reverse=True)[:1]:
+                nav_data = _json.loads(f.read_text())
+                # 获取行情数据
+                daily_quote = self.context.read("data.daily_quote") if self.context else None
+                scores = self.context.get_scores() if self.context else None
+                result = diagnose_holdings(nav_data, daily_quote, scores)
+                return ActionResult(success=True, message=result)
+            return ActionResult(success=True, message="📭 当前无持仓数据")
+        except Exception as e:
+            return ActionResult(success=False, message=f"诊断失败: {e}")
