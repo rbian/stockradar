@@ -37,7 +37,7 @@ def daily_update_bs():
         prefix = "sh." if code.startswith("6") else "sz."
         rs = bs.query_history_k_data_plus(
             prefix + code,
-            "date,code,open,high,low,close,volume,amount,turnover,change_pct",
+            "date,code,open,high,low,close,volume,amount,turn,pctChg",
             start_date=latest,
             frequency="d",
         )
@@ -52,8 +52,8 @@ def daily_update_bs():
                     "close": float(row[5]) if row[5] else None,
                     "volume": float(row[6]) if row[6] else None,
                     "amount": float(row[7]) if row[7] else None,
-                    "turnover": float(row[8]) if row[8] else None,
-                    "change_pct": float(row[9]) if row[9] else None,
+                    "turn": float(row[8]) if row[8] else None,
+                    "pctChg": float(row[9]) if row[9] else None,
                 })
         
         if (i + 1) % 50 == 0:
