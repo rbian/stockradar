@@ -392,32 +392,36 @@ class AnalystAgent(BaseAgent):
     async def _factor_status(self) -> ActionResult:
         """因子IC追踪状态"""
         try:
-            from src.evolution.factor_tracker import FactorTracker
-            tracker = FactorTracker()
-            df = tracker.get_status()
-            if df is None or (hasattr(df, 'empty') and df.empty):
-                return ActionResult(success=True, message="暂无IC数据")
+            import json as _json
+            from pathlib import Path as _Path
             
-            lines = ["📊 **因子IC追踪**\n"]
+            # 读取缓存的IC状态
+            ic_file = _Path(__file__).resolve().parent.parent.parent / "data" / "cache" / "factor_ic_state.json"
+            if ic_file.exists():
+                state = _json.loads(ic_file.read_text())
+                lines = ["📊 **因子IC追踪** (20日基线)\n"]
+                
+                sorted_factors = sorted(state.items(), key=lambda x: x[1].get("ic_20d_avg", 0), reverse=True)
+                
+                lines.append("🟢 **IC最高(最有效):**")
+                for name, s in sorted_factors[:8]:
+                    ic = s.get("ic_20d_avg", 0)
+                    ic_t = s.get("ic_today", 0)
+                    wt = s.get("current_weight", 0)
+                    ow = s.get("original_weight", 0)
+                    changed = f" ({ow:.2f}→{wt:.2f})" if abs(wt - ow) > 0.01 else ""
+                    lines.append(f"  {name}: IC={ic:+.3f} 今日={ic_t:+.3f}{changed}")
+                
+                lines.append("\n🔴 **IC最低(需关注):**")
+                for name, s in sorted_factors[-5:]:
+                    ic = s.get("ic_20d_avg", 0)
+                    ic_t = s.get("ic_today", 0)
+                    susp = " ⚠️暂停" if s.get("is_suspended") else ""
+                    lines.append(f"  {name}: IC={ic:+.3f} 今日={ic_t:+.3f}{susp}")
+                
+                return ActionResult(success=True, message="\n".join(lines))
             
-            if hasattr(df, 'sort_values'):
-                # DataFrame格式
-                top = df.nlargest(5, 'ic_20d_avg') if 'ic_20d_avg' in df.columns else df.head(5)
-                bot = df.nsmallest(5, 'ic_20d_avg') if 'ic_20d_avg' in df.columns else df.tail(5)
-                lines.append("🟢 **IC最高:**")
-                for _, r in top.iterrows():
-                    ic = r.get('ic_20d_avg', 0)
-                    wt = r.get('current_weight', 0)
-                    lines.append(f"  {r['factor']}: IC={ic:+.3f} 权重={wt:.2f}")
-                lines.append("\n🔴 **IC最低:**")
-                for _, r in bot.iterrows():
-                    ic = r.get('ic_20d_avg', 0)
-                    wt = r.get('current_weight', 0)
-                    lines.append(f"  {r['factor']}: IC={ic:+.3f} 权重={wt:.2f}")
-            else:
-                lines.append(f"  {len(tracker.factor_statuses)}个因子追踪中")
-            
-            return ActionResult(success=True, message="\n".join(lines))
+            return ActionResult(success=True, message="暂无IC数据，等待首次定时计算")
         except Exception as e:
             return ActionResult(success=False, message=f"IC追踪暂不可用: {e}")
 

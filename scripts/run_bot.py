@@ -233,22 +233,38 @@ def main():
             logger.info("因子IC追踪...")
             try:
                 from src.evolution.factor_tracker import FactorTracker
+                from src.factors.engine import FactorEngine
                 tracker = FactorTracker()
-                # 用当前数据跑IC
+                engine = FactorEngine()
+                dq = orch.context.read("data.daily_quote")
                 data = {
-                    "daily_quote": orch.context.read("data.daily_quote"),
+                    "daily_quote": dq,
                     "codes": orch.context.read("codes", []),
                     "financial": orch.context.read("financial_data"),
-                    "northbound": pd.DataFrame(),
+                    "northbound": None,
                 }
                 from datetime import datetime as _dt
-                tracker.daily_update(data, date=_dt.now().strftime("%Y-%m-%d"))
-                status = tracker.get_status()
-                if status:
-                    top3 = sorted(status.items(), key=lambda x: x[1].ic_20d_avg, reverse=True)[:3]
-                    bot3 = sorted(status.items(), key=lambda x: x[1].ic_20d_avg)[:3]
-                    logger.info(f"IC Top3: {[(n, f'{s.ic_20d_avg:.3f}') for n,s in top3]}")
-                    logger.info(f"IC Bot3: {[(n, f'{s.ic_20d_avg:.3f}') for n,s in bot3]}")
+                # 用T-5日期确保有未来收益数据
+                import pandas as pd
+                dq_dates = sorted(pd.to_datetime(dq["date"]).unique())
+                if len(dq_dates) >= 6:
+                    calc_date = pd.Timestamp(dq_dates[-6]).strftime("%Y-%m-%d")
+                else:
+                    calc_date = _dt.now().strftime("%Y-%m-%d")
+                
+                result = tracker.daily_update(data, date=calc_date, factor_engine=engine, daily_quote=dq)
+                n_adjusted = len(result)
+                
+                # 保存IC状态
+                import json as _json
+                state = {}
+                for name, s in tracker.factor_statuses.items():
+                    state[name] = {"ic_today": round(s.ic_today, 4), "ic_20d_avg": round(s.ic_20d_avg, 4),
+                                   "current_weight": round(s.current_weight, 3), "is_suspended": s.is_suspended}
+                from pathlib import Path as _Path
+                _Path("data/cache/factor_ic_state.json").write_text(_json.dumps(state, indent=2))
+                
+                logger.info(f"IC追踪完成: {calc_date}, {n_adjusted}个因子调整")
             except Exception as e:
                 logger.error(f"IC追踪失败: {e}")
         scheduler.add_job(ic_track, "cron", hour=15, minute=27,
