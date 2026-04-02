@@ -38,14 +38,16 @@ class AnalystAgent(BaseAgent):
         code = self._extract_stock_code(msg)
         if code:
             return Plan(actions=[{"action": "analyze_stock", "code": code}])
-        if any(kw in msg for kw in ["市场", "大盘", "行情", "指数"]):
-            return Plan(actions=[{"action": "market_overview"}])
+        if "市场状态" in msg or "regime" in msg.lower():
+            return Plan(actions=[{"action": "regime"}])
         if "IC" in msg or "因子" in msg:
             return Plan(actions=[{"action": "factor_status"}])
         if "诊断" in msg or "健康" in msg:
             return Plan(actions=[{"action": "diagnose"}])
         if "假设" in msg:
             return Plan(actions=[{"action": "hypothesis"}])
+        if any(kw in msg for kw in ["市场", "大盘", "行情", "指数"]):
+            return Plan(actions=[{"action": "market_overview"}])
         return Plan(actions=[{"action": "score_ranking"}])
 
     async def act(self, plan: Plan) -> ActionResult:
@@ -61,6 +63,7 @@ class AnalystAgent(BaseAgent):
             elif t == "factor_status": return await self._factor_status()
             elif t == "diagnose": return await self._diagnose()
             elif t == "hypothesis": return await self._hypothesis()
+            elif t == "regime": return await self._regime()
             return ActionResult(success=False, message=f"未知类型: {t}")
         except Exception as e:
             logger.error(f"分析失败: {e}")
@@ -478,3 +481,52 @@ class AnalystAgent(BaseAgent):
             return ActionResult(success=True, message="\n".join(lines))
         except Exception as e:
             return ActionResult(success=False, message=f"假设生成失败: {e}")
+
+    async def _regime(self) -> ActionResult:
+        """市场状态检测"""
+        try:
+            from src.evolution.regime_detector import RegimeDetector
+            detector = RegimeDetector()
+            
+            daily_quote = self.context.read("data.daily_quote") if self.context else None
+            financial = self.context.read("financial_data") if self.context else None
+            codes = self.context.read("codes", []) if self.context else []
+            
+            data = {"daily_quote": daily_quote, "codes": codes, "financial": financial, "northbound": None}
+            
+            from datetime import datetime
+            alerts = detector.check_structural_change(data, datetime.now().strftime("%Y-%m-%d"))
+            
+            lines = ["🌐 **市场状态检测**\n"]
+            
+            if alerts:
+                alert_text = detector.format_alerts(alerts)
+                lines.append(alert_text)
+            else:
+                lines.append("✅ 未检测到结构性变化")
+            
+            # 附加IC摘要判断市场类型
+            import json as _json
+            from pathlib import Path as _Path
+            ic_file = _Path(__file__).resolve().parent.parent.parent / "data" / "cache" / "factor_ic_state.json"
+            if ic_file.exists():
+                state = _json.loads(ic_file.read_text())
+                trend_ics = [state[f]["ic_20d_avg"] for f in ["ma20_slope", "momentum_20d", "price_vs_ma60"] if f in state]
+                reversal_ics = [state[f]["ic_20d_avg"] for f in ["max_drawdown_60d", "bollinger_width", "amplitude"] if f in state]
+                avg_trend = sum(trend_ics) / len(trend_ics) if trend_ics else 0
+                avg_reversal = sum(reversal_ics) / len(reversal_ics) if reversal_ics else 0
+                
+                if avg_trend > 0.1 and avg_reversal < 0:
+                    lines.append("\n📊 **当前市场: 趋势市**")
+                    lines.append(f"  趋势IC={avg_trend:+.3f} | 反转IC={avg_reversal:+.3f}")
+                    lines.append("  → 趋势跟踪策略有效，动量因子加强")
+                elif avg_reversal > avg_trend:
+                    lines.append("\n📊 **当前市场: 震荡/反转市**")
+                    lines.append(f"  趋势IC={avg_trend:+.3f} | 反转IC={avg_reversal:+.3f}")
+                    lines.append("  → 均值回归策略可能更有效")
+                else:
+                    lines.append(f"\n📊 趋势IC={avg_trend:+.3f} | 反转IC={avg_reversal:+.3f}")
+            
+            return ActionResult(success=True, message="\n".join(lines))
+        except Exception as e:
+            return ActionResult(success=False, message=f"市场状态检测失败: {e}")

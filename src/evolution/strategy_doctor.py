@@ -85,6 +85,11 @@ def diagnose_holdings(nav_data: dict, daily_quote: pd.DataFrame = None,
     if warnings:
         lines.append(f"\n⚠️ **需关注**: {', '.join(names.get(c, c) for c in warnings)}")
         lines.append("建议检查基本面是否有变化，考虑止损")
+        # 自动写入知识库
+        try:
+            _log_warning(warnings, names, nav_data)
+        except Exception:
+            pass
     elif len(holdings) > 0:
         lines.append("\n✅ 持仓整体健康")
     
@@ -106,3 +111,22 @@ def _simple_diagnose(holdings: dict, nav_data: dict) -> str:
         lines.append(f"  {name}: {weight:.1f}%")
     
     return "\n".join(lines)
+
+def _log_warning(warnings: list, names: dict, nav_data: dict):
+    """记录持仓异常到知识库"""
+    from datetime import datetime
+    log_file = DATA_DIR.parent / "knowledge" / "failure_patterns.md"
+    if not log_file.exists():
+        return
+    
+    content = log_file.read_text()
+    date = datetime.now().strftime("%Y-%m-%d")
+    stocks = ", ".join(names.get(c, c) for c in warnings)
+    nav = nav_data.get("nav", 1.0)
+    
+    entry = f"\n### {date} 持仓预警\n- 异常股票: {stocks}\n- 净值: {nav:.4f}\n- 原因: 5日跌幅>5%\n- 状态: 待观察\n"
+    
+    # 避免重复
+    if date not in content[-500:]:
+        content += entry
+        log_file.write_text(content)
