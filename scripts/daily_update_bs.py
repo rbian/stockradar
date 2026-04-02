@@ -45,7 +45,7 @@ def daily_update_bs():
             row = rs.get_row_data()
             if row[0] > latest:  # 只取新数据
                 rows.append({
-                    "date": row[0], "code": code,
+                    "date": row[0], "code": code,  # 用纯数字code
                     "open": float(row[2]) if row[2] else None,
                     "high": float(row[3]) if row[3] else None,
                     "low": float(row[4]) if row[4] else None,
