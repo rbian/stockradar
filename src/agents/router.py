@@ -21,7 +21,7 @@ class RouterAgent(BaseAgent):
         r"(评分|排名|Top|选股|推荐|IC|因子|诊断|健康|假设|市场状态|regime)": "analyst",
 
         # 交易类 → TraderAgent
-        r"(持仓|组合|买入|卖出|换仓|止[损盈]|风控)": "trader",
+        r"(持仓|组合|买入|卖出|换仓|止[损盈]|风控|调仓|建议|建仓)": "trader",
         r"(净值|收益|盈亏|绩效|回撤)": "trader",
         r"(激进|稳健|防御|保守|策略)": "trader",
 
