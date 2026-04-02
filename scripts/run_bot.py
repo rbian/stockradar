@@ -303,6 +303,16 @@ def main():
     max_retries = 5
     for attempt in range(max_retries):
         try:
+            # 每次重试都重建Application（event loop关闭后无法复用）
+            if attempt > 0:
+                app = Application.builder().token(token).build()
+                app.add_handler(CommandHandler("start", cmd_start))
+                app.add_handler(CommandHandler("help", cmd_help))
+                app.add_handler(CommandHandler("top", lambda u, c: _quick_cmd(u, c, "评分排名")))
+                app.add_handler(CommandHandler("nav", lambda u, c: _quick_cmd(u, c, "净值")))
+                app.add_handler(CommandHandler("report", lambda u, c: _quick_cmd(u, c, "日报")))
+                app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+            
             app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
         except KeyboardInterrupt:
             break
@@ -310,7 +320,7 @@ def main():
             logger.error(f"Bot崩溃 (attempt {attempt+1}/{max_retries}): {e}")
             if attempt < max_retries - 1:
                 import time; time.sleep(10)
-                logger.info("重启中...")
+                logger.info("重建Application重试...")
             else:
                 logger.error("达到最大重试次数，退出")
 
