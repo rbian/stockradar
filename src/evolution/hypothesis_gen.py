@@ -219,29 +219,37 @@ class HypothesisGenerator:
         """构建市场概况文本"""
         parts = []
 
-        # 大盘指数
-        market_index = data.get("market_index", pd.DataFrame())
-        if market_index is not None and not market_index.empty:
+        # 用daily_quote构建市场概况
+        dq = data.get("daily_quote", pd.DataFrame())
+        if dq is not None and not dq.empty:
             date_ts = pd.Timestamp(date)
-            recent = market_index[market_index["date"] <= date_ts].sort_values("date").tail(5)
-            if not recent.empty:
-                week_return = (recent["close"].iloc[-1] / recent["close"].iloc[0] - 1) * 100
-                parts.append(f"大盘近5日涨跌幅: {week_return:.2f}%")
-
-        # 行业表现
-        industry_index = data.get("industry_index", pd.DataFrame())
-        if industry_index is not None and not industry_index.empty:
-            date_ts = pd.Timestamp(date)
-            recent = industry_index[industry_index["date"] <= date_ts].sort_values("date").tail(5)
-            if not recent.empty:
-                industry_returns = recent.groupby("industry_code").apply(
-                    lambda g: (g["close"].iloc[-1] / g["close"].iloc[0] - 1) * 100
-                    if len(g) >= 2 else 0
-                ).sort_values(ascending=False)
-                top3 = industry_returns.head(3)
-                bottom3 = industry_returns.tail(3)
-                parts.append(f"领涨行业: {dict(top3.round(2))}")
-                parts.append(f"领跌行业: {dict(bottom3.round(2))}")
+            dq_copy = dq.copy()
+            dq_copy["date"] = pd.to_datetime(dq_copy["date"])
+            recent = dq_copy[dq_copy["date"] <= date_ts].sort_values("date")
+            
+            if len(recent) >= 5:
+                latest_5d = recent.groupby("code").tail(5)
+                ret_5d = latest_5d.groupby("code").apply(
+                    lambda g: (g["close"].iloc[-1] / g["close"].iloc[0] - 1) * 100 if len(g) >= 2 else 0
+                )
+                avg_ret = ret_5d.mean()
+                pos_ratio = (ret_5d > 0).sum() / len(ret_5d) * 100
+                top3 = ret_5d.nlargest(3)
+                bot3 = ret_5d.nsmallest(3)
+                parts.append(f"沪深300近5日: 均值{avg_ret:+.1f}%, 上涨比例{pos_ratio:.0f}%")
+                
+                from src.data.industry import _load_industry
+                names_df = _load_industry()
+                names = dict(zip(names_df["code"], names_df["name"])) if not names_df.empty else {}
+                
+                top_names = [(names.get(c, c), f"{r:+.1f}%") for c, r in top3.items()]
+                bot_names = [(names.get(c, c), f"{r:+.1f}%") for c, r in bot3.items()]
+                parts.append(f"领涨: {top_names}")
+                parts.append(f"领跌: {bot_names}")
+            
+            # 可用数据说明
+            parts.append(f"可用数据: daily_quote({len(dq)}条), financial({len(data.get('financial', pd.DataFrame()))}条)")
+            parts.append("注意: northbound/industry_index数据不可用，请只用daily_quote和financial")
 
         if not parts:
             return "暂无足够的市场数据"
@@ -391,6 +399,8 @@ class HypothesisGenerator:
         financial = data.get("financial", pd.DataFrame())
         if financial is not None and not financial.empty:
             local_vars["financial"] = financial
+        else:
+            local_vars["financial"] = pd.DataFrame()
 
         northbound = data.get("northbound_stock", pd.DataFrame())
         if northbound is None:
@@ -398,10 +408,14 @@ class HypothesisGenerator:
         if northbound is not None and not northbound.empty:
             nb_recent = northbound[northbound["date"] <= date_ts].copy()
             local_vars["northbound"] = nb_recent
+        else:
+            local_vars["northbound"] = pd.DataFrame()
 
         industry_index = data.get("industry_index", pd.DataFrame())
         if industry_index is not None and not industry_index.empty:
             local_vars["industry_index"] = industry_index
+        else:
+            local_vars["industry_index"] = pd.DataFrame()
 
         result = _safe_execute_pandas(expr, local_vars)
         if result is not None and isinstance(result, pd.Series):
