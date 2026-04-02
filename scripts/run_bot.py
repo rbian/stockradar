@@ -215,6 +215,31 @@ def main():
         # 调仓: 15:25
         scheduler.add_job(daily_rebalance, "cron", hour=15, minute=25,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # IC追踪: 15:27 (调仓后)
+        async def ic_track():
+            logger.info("因子IC追踪...")
+            try:
+                from src.evolution.factor_tracker import FactorTracker
+                tracker = FactorTracker()
+                # 用当前数据跑IC
+                data = {
+                    "daily_quote": orch.context.read("data.daily_quote"),
+                    "codes": orch.context.read("codes", []),
+                    "financial": orch.context.read("financial_data"),
+                    "northbound": pd.DataFrame(),
+                }
+                from datetime import datetime as _dt
+                tracker.daily_update(data, date=_dt.now().strftime("%Y-%m-%d"))
+                status = tracker.get_status()
+                if status:
+                    top3 = sorted(status.items(), key=lambda x: x[1].ic_20d_avg, reverse=True)[:3]
+                    bot3 = sorted(status.items(), key=lambda x: x[1].ic_20d_avg)[:3]
+                    logger.info(f"IC Top3: {[(n, f'{s.ic_20d_avg:.3f}') for n,s in top3]}")
+                    logger.info(f"IC Bot3: {[(n, f'{s.ic_20d_avg:.3f}') for n,s in bot3]}")
+            except Exception as e:
+                logger.error(f"IC追踪失败: {e}")
+        scheduler.add_job(ic_track, "cron", hour=15, minute=27,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
         # 日报: 15:30
         scheduler.add_job(daily_push, "cron", hour=15, minute=30,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")

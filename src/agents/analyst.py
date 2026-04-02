@@ -40,6 +40,8 @@ class AnalystAgent(BaseAgent):
             return Plan(actions=[{"action": "analyze_stock", "code": code}])
         if any(kw in msg for kw in ["市场", "大盘", "行情", "指数"]):
             return Plan(actions=[{"action": "market_overview"}])
+        if "IC" in msg or "因子" in msg:
+            return Plan(actions=[{"action": "factor_status"}])
         return Plan(actions=[{"action": "score_ranking"}])
 
     async def act(self, plan: Plan) -> ActionResult:
@@ -52,6 +54,7 @@ class AnalystAgent(BaseAgent):
             elif t == "analyze_stock": return await self._analyze_stock(action.get("code", ""))
             elif t == "market_overview": return await self._market_overview()
             elif t == "score_ranking": return await self._score_ranking()
+            elif t == "factor_status": return await self._factor_status()
             return ActionResult(success=False, message=f"未知类型: {t}")
         except Exception as e:
             logger.error(f"分析失败: {e}")
@@ -379,3 +382,35 @@ class AnalystAgent(BaseAgent):
             if name and name in text:
                 return code
         return ""
+
+    async def _factor_status(self) -> ActionResult:
+        """因子IC追踪状态"""
+        try:
+            from src.evolution.factor_tracker import FactorTracker
+            tracker = FactorTracker()
+            df = tracker.get_status()
+            if df is None or (hasattr(df, 'empty') and df.empty):
+                return ActionResult(success=True, message="暂无IC数据")
+            
+            lines = ["📊 **因子IC追踪**\n"]
+            
+            if hasattr(df, 'sort_values'):
+                # DataFrame格式
+                top = df.nlargest(5, 'ic_20d_avg') if 'ic_20d_avg' in df.columns else df.head(5)
+                bot = df.nsmallest(5, 'ic_20d_avg') if 'ic_20d_avg' in df.columns else df.tail(5)
+                lines.append("🟢 **IC最高:**")
+                for _, r in top.iterrows():
+                    ic = r.get('ic_20d_avg', 0)
+                    wt = r.get('current_weight', 0)
+                    lines.append(f"  {r['factor']}: IC={ic:+.3f} 权重={wt:.2f}")
+                lines.append("\n🔴 **IC最低:**")
+                for _, r in bot.iterrows():
+                    ic = r.get('ic_20d_avg', 0)
+                    wt = r.get('current_weight', 0)
+                    lines.append(f"  {r['factor']}: IC={ic:+.3f} 权重={wt:.2f}")
+            else:
+                lines.append(f"  {len(tracker.factor_statuses)}个因子追踪中")
+            
+            return ActionResult(success=True, message="\n".join(lines))
+        except Exception as e:
+            return ActionResult(success=False, message=f"IC追踪暂不可用: {e}")
