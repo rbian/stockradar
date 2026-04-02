@@ -29,19 +29,12 @@ class TraderAgent(BaseAgent):
     def _load_nav(self) -> NAVTracker:
         """加载或创建NAVTracker"""
         data_dir = Path(__file__).resolve().parent.parent.parent / "data"
-        # 尝试加载最近的策略状态
-        nav_files = sorted(data_dir.glob("nav_state_*.json"), key=lambda f: f.stat().st_mtime, reverse=True)
-        if not nav_files:
-            # 兼容旧文件
-            old = data_dir / "nav_state.json"
-            if old.exists():
-                nav_files = [old]
-        
-        if nav_files:
+        nav_file = data_dir / "nav_state_balanced.json"
+        if nav_file.exists():
             try:
-                d = json.loads(nav_files[0].read_text())
+                d = json.loads(nav_file.read_text())
                 tracker = NAVTracker.from_dict(d)
-                logger.info(f"NAV加载({nav_files[0].name}): 净值{tracker.get_nav()['nav']:.4f}")
+                logger.info(f"NAV加载: 净值{tracker.get_nav()['nav']:.4f}")
                 return tracker
             except Exception:
                 pass
@@ -49,7 +42,7 @@ class TraderAgent(BaseAgent):
 
     def _save_nav(self):
         """保存NAV状态"""
-        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / f"nav_state_{self.nav.strategy}.json"
+        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state_balanced.json"
         nav_file.parent.mkdir(parents=True, exist_ok=True)
         nav_file.write_text(json.dumps(self.nav.to_dict(), ensure_ascii=False, default=str))
 
@@ -239,6 +232,24 @@ class TraderAgent(BaseAgent):
         # 调仓
         self.nav.rebalance(latest_date, scores, prices, "评分调仓")
         self.nav.update_nav(latest_date, prices)
+        
+        # 风控检查 — 调仓后再检查一遍持仓
+        risk_msgs = []
+        try:
+            from src.simulator.risk_control import check_risk
+            alerts = check_risk(self.nav.holdings, prices)
+            for a in alerts:
+                if a["action"] == "sell":
+                    # 自动止损
+                    cost = self.nav.holdings[a["code"]]["cost_price"]
+                    self.nav._sell(a["code"], prices.get(a["code"], 0), latest_date, a["reason"])
+                    risk_msgs.append(f"🔴 止损 {stock_name(a['code'])}: {a['reason']}")
+                elif a["action"] == "reduce":
+                    risk_msgs.append(f"🟡 {stock_name(a['code'])}: {a['reason']}")
+        except Exception:
+            pass
+        
+        self.nav.update_nav(latest_date, prices)
         self._save_nav()
 
         # 生成报告
@@ -262,6 +273,12 @@ class TraderAgent(BaseAgent):
             for t in recent:
                 action = "买入" if t["action"] == "buy" else "卖出"
                 msg += f"  {action} {stock_name(t['code'])} {t['shares']}股@¥{t['price']:.2f}\n"
+
+        # 风控提示
+        if risk_msgs:
+            msg += f"\n🛡️ **风控:**\n"
+            for rm in risk_msgs:
+                msg += f"  {rm}\n"
 
         return ActionResult(success=True, message=msg)
 
