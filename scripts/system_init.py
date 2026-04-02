@@ -69,6 +69,9 @@ def create_system(mode: str = "full"):
         orch.register_agent(agent)
 
     # 加载数据
+    quote = pd.DataFrame()
+    codes = []
+    
     if mode == "full":
         quote, codes = load_hs300_data()
         if quote.empty:
