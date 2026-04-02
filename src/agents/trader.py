@@ -79,6 +79,9 @@ class TraderAgent(BaseAgent):
         if "交易" in msg or "记录" in msg:
             return Plan(actions=[{"action": "show_trades"}])
 
+        if "风控" in msg or "风险" in msg:
+            return Plan(actions=[{"action": "risk_check"}])
+
         if "回测" in msg:
             return Plan(actions=[{"action": "run_backtest"}])
 
