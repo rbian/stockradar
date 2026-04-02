@@ -139,6 +139,19 @@ def main():
     setup_logger()
     load_env()
 
+    # Pidfile锁 — 防止多实例
+    import fcntl
+    PIDFILE = Path(__file__).resolve().parent.parent / "data" / "bot.pid"
+    PIDFILE.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        pid_fd = open(PIDFILE, "w")
+        fcntl.flock(pid_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        pid_fd.write(str(os.getpid()))
+        pid_fd.flush()
+    except IOError:
+        logger.error("❌ Bot已在运行，退出")
+        return
+
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     if not token:
         print("TELEGRAM_BOT_TOKEN not set")
@@ -250,8 +263,20 @@ def main():
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    logger.info("Bot polling...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    logger.info("Bot polling (with auto-restart)...")
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            logger.error(f"Bot崩溃 (attempt {attempt+1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time; time.sleep(10)
+                logger.info("重启中...")
+            else:
+                logger.error("达到最大重试次数，退出")
 
 
 if __name__ == "__main__":
