@@ -88,18 +88,21 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def _quick_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE, msg: str):
-    """快捷命令"""
-    update.message.text = msg
-    await handle_message(update, context)
+    """快捷命令 — 直接处理，不修改不可变的message.text"""
+    await _process_text(update, msg)
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _process_text(update, update.message.text.strip())
+
+
+async def _process_text(update: Update, text: str):
+    """统一消息处理"""
     global orch
     user_id = str(update.effective_user.id)
     if ALLOWED_USERS and user_id not in ALLOWED_USERS:
         return
 
-    text = update.message.text.strip()
     if not text:
         return
 
@@ -140,17 +143,28 @@ def main():
     load_env()
 
     # Pidfile锁 — 防止多实例
-    import fcntl
     PIDFILE = Path(__file__).resolve().parent.parent / "data" / "bot.pid"
     PIDFILE.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        pid_fd = open(PIDFILE, "w")
-        fcntl.flock(pid_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        pid_fd.write(str(os.getpid()))
-        pid_fd.flush()
-    except IOError:
-        logger.error("❌ Bot已在运行，退出")
-        return
+
+    # 检查旧进程是否存活
+    if PIDFILE.exists():
+        try:
+            old_pid = int(PIDFILE.read_text().strip())
+            if old_pid > 0:
+                try:
+                    os.kill(old_pid, 0)  # 检查进程是否存在
+                    # 如果没抛异常，说明进程还活着
+                    logger.error(f"❌ Bot已在运行(PID:{old_pid})，退出")
+                    return
+                except ProcessLookupError:
+                    logger.warning(f"旧Bot进程(PID:{old_pid})已死，启动新实例")
+                except PermissionError:
+                    pass
+        except (ValueError, OSError):
+            pass
+
+    # 写入新PID
+    PIDFILE.write_text(str(os.getpid()))
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     if not token:
@@ -215,14 +229,25 @@ def main():
     async def post_init(app):
         await set_commands(app)
         scheduler = AsyncIOScheduler()
-        # 数据更新: 15:10 mootdx实时更新
+        # 数据更新: 15:10 新浪实时行情（优先）+ mootdx备用
         async def data_update():
-            logger.info("定时数据更新(mootdx)...")
+            logger.info("定时数据更新...")
             try:
-                from src.data.mootdx_adapter import daily_update_mootdx
-                daily_update_mootdx()
+                import pandas as pd
+                from src.data.sina_adapter import update_daily_from_sina
+                dq = orch.context.read("data.daily_quote")
+                codes = pd.read_csv("data/hs300_codes.txt", header=None)[0].tolist()
+                parquet = str(PROJECT_ROOT / "data" / "parquet" / "hs300_daily.parquet")
+                updated = update_daily_from_sina(dq, codes, parquet)
+                orch.context.write("data.daily_quote", updated, writer="system")
+                logger.info(f"新浪更新: {len(updated)}条, 最新={updated['date'].max()}")
             except Exception as e:
-                logger.error(f"数据更新失败: {e}")
+                logger.warning(f"新浪更新失败，尝试mootdx: {e}")
+                try:
+                    from src.data.mootdx_adapter import daily_update_mootdx
+                    daily_update_mootdx()
+                except Exception as e2:
+                    logger.error(f"数据更新全部失败: {e2}")
         scheduler.add_job(data_update, "cron", hour=15, minute=10,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
         # 调仓: 15:25

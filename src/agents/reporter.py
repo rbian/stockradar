@@ -101,13 +101,21 @@ class ReporterAgent(BaseAgent):
         # 4) 持仓+净值
         lines.append("\n📦 **模拟持仓:**")
         from src.simulator.nav_tracker import NAVTracker
-        nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state.json"
+        nav_dir = Path(__file__).resolve().parent.parent.parent / "data"
+        # 优先读 nav_state_balanced.json，兼容 nav_state.json
+        nav_file = nav_dir / "nav_state_balanced.json"
+        if not nav_file.exists():
+            nav_file = nav_dir / "nav_state.json"
         if nav_file.exists():
             try:
                 nav = NAVTracker.from_dict(json.loads(nav_file.read_text()))
                 info = nav.get_nav()
-                lines.append(f"  净值: {info['nav']:.4f} | 收益: {info['total_return']:+.2f}%")
-                lines.append(f"  持仓: {info['holdings_count']}只 | 交易: {info['trades']}笔")
+                lines.append(f"  💰 净值: {info['nav']:.4f} | 收益: {info['total_return']:+.2f}%")
+                lines.append(f"  📦 持仓: {info['holdings_count']}只 | 交易: {info['trades']}笔")
+                if nav.holdings:
+                    from src.data.stock_names import stock_name
+                    for code, h in sorted(nav.holdings.items())[:5]:
+                        lines.append(f"  · {stock_name(code)} {h['shares']}股@¥{h['cost_price']:.2f}")
             except Exception:
                 lines.append("  模拟模式")
         else:

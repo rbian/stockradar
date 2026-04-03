@@ -109,16 +109,30 @@ def diagnose_holdings(nav_data: dict, daily_quote: pd.DataFrame = None,
 def _simple_diagnose(holdings: dict, nav_data: dict) -> str:
     """无行情数据时的简化诊断"""
     names = _load_stock_names()
-    nav = nav_data.get("nav", 1.0)
-    ret = nav_data.get("total_return", 0)
+    
+    # 从 nav_history 取最新净值
+    nav_history = nav_data.get("nav_history", [])
+    if nav_history:
+        latest = nav_history[-1]
+        nav = latest.get("nav", 1.0)
+        ret = (nav - 1) * 100
+    else:
+        nav = 1.0
+        ret = 0.0
+    
+    # 计算总市值用于权重
+    total_cost = sum(h.get("shares", 0) * h.get("cost_price", 0) for h in holdings.values())
     
     lines = [f"🏥 **持仓概览** ({len(holdings)}只)"]
     lines.append(f"💰 净值: {nav:.4f} | 收益: {ret:+.2f}%")
     
     for code, pos in holdings.items():
         name = names.get(code, code)
-        weight = pos.get("weight", 0) * 100
-        lines.append(f"  {name}: {weight:.1f}%")
+        cost = pos.get("shares", 0) * pos.get("cost_price", 0)
+        weight = (cost / total_cost * 100) if total_cost > 0 else 0
+        shares = pos.get("shares", 0)
+        price = pos.get("cost_price", 0)
+        lines.append(f"  {name}: {shares}股@¥{price:.2f} ({weight:.1f}%)")
     
     return "\n".join(lines)
 

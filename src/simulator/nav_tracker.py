@@ -191,9 +191,11 @@ class NAVTracker:
 
         # 持仓明细
         if self.holdings:
+            from src.data.stock_names import stock_name
             lines.append(f"\n📋 **持仓明细:**")
             for code, h in sorted(self.holdings.items()):
-                lines.append(f"  {code}: {h['shares']}股 @¥{h['cost_price']:.2f}")
+                name = stock_name(code)
+                lines.append(f"  {name}({code}): {h['shares']}股 @¥{h['cost_price']:.2f}")
 
         return "\n".join(lines)
 
