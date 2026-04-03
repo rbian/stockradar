@@ -14,11 +14,15 @@ class RouterAgent(BaseAgent):
 
     # 意图 → Agent映射规则
     ROUTES = {
+        # 进化类 → EvolverAgent（优先匹配，避免被analyst抢走）
+        r"(因子.*表现|因子.*状态|因子.*监控|IC.*追踪|IC.*监控|进化|优化|权重.*调整|动态因子)": "evolver",
+        r"(策略.*体检|策略.*诊断|策略.*复盘|失败.*模式|因子.*发现)": "evolver",
+
         # 分析类 → AnalystAgent
         r"(分析|研究|看看|怎么样|基本面|技术面|财报).*(\d{6}|[\u4e00-\u9fa5]{2,4})": "analyst",
         r"(市场|大盘|指数|行情|走势)": "analyst",
         r"(北向|资金|主力|融资)": "analyst",
-        r"(评分|排名|Top|选股|推荐|IC|因子|诊断|健康|假设|市场状态|regime)": "analyst",
+        r"(评分|排名|Top|选股|推荐|IC|诊断|健康|假设|市场状态|regime)": "analyst",
 
         # 交易类 → TraderAgent
         r"(持仓|组合|买入|卖出|换仓|止[损盈]|风控|调仓|建议|建仓)": "trader",
@@ -27,10 +31,6 @@ class RouterAgent(BaseAgent):
 
         # 回测类 → TraderAgent（backtest子功能）
         r"(回测|测试|验证|策略效果)": "trader",
-
-        # 进化类 → EvolverAgent
-        r"(因子.*表现|IC|进化|优化|权重)": "evolver",
-        r"(诊断|体检|复盘|失败)": "evolver",
 
         # 报告类 → ReporterAgent
         r"(报告|日报|周报|月报|总结|新闻|情绪|舆情)": "reporter",

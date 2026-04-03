@@ -90,6 +90,13 @@ class AgentOrchestrator:
             logger.error(f"Agent执行失败: {e}")
             return f"❌ 处理失败: {e}"
 
+    def get_status(self) -> dict:
+        """获取编排器状态"""
+        return {
+            "agents": list(self.agents.keys()),
+            "tools": list(self.tools._tools.keys()) if hasattr(self.tools, '_tools') else [],
+        }
+
     # ──── 每日流水线 ────
 
     async def run_daily_pipeline(self, date: str = None):
