@@ -1,16 +1,16 @@
-"""因子IC追踪 + 权重自动调整
+"""因子IC追踪 + 权重自动调整（因子级）
 
-每日计算每个因子的IC（rank相关性）：
-- IC = rank相关性（因子值 vs 未来5日收益）
-- IC_20日均值 > 0.03 → 权重×1.1（上限×2）
-- IC_20日均值 < 0.01 → 权重×0.9（下限×0.2）
-- IC_20日均值 < 0   → 权重×0.5
-- 连续30天IC < 0.01 → 暂停该因子（权重=0）
-- 暂停因子连续10天IC > 0.02 → 自动恢复，初始权重×0.5
+每日计算每个因子的IC（rank相关性），通过 multiplier 调整因子权重：
+- 每个因子有独立的 original_weight（来自factors.yaml，默认1.0）
+- FactorTracker 跟踪一个 weight_multiplier（初始1.0）
+- 实际权重 = original_weight × weight_multiplier
+- IC持续为正 → multiplier × 1.05（上限×1.5）
+- IC持续为负 → multiplier × 0.95（下限×0.3）
+- 连续60天低IC → 暂停该因子（multiplier=0）
+- 暂停因子连续15天IC > 0.02 → 自动恢复，multiplier=0.5
 """
 
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,7 @@ import yaml
 from loguru import logger
 from scipy import stats
 
-from src.infra.config import CONFIG_DIR, get_settings
+from src.infra.config import CONFIG_DIR
 
 
 @dataclass
@@ -26,8 +26,8 @@ class FactorStatus:
     """因子状态"""
     name: str
     category: str
-    original_weight: float
-    current_weight: float
+    original_weight: float  # 因子的原始权重（来自factors.yaml，默认1.0）
+    weight_multiplier: float  # 权重乘数（初始1.0，由IC动态调整）
     ic_today: float
     ic_20d_avg: float
     consecutive_low_ic_days: int  # 连续IC<0.01天数
@@ -36,9 +36,16 @@ class FactorStatus:
     weight_history: list = field(default_factory=list)
     ic_history: list = field(default_factory=list)
 
+    @property
+    def current_weight(self) -> float:
+        """实际权重 = original_weight × multiplier"""
+        if self.is_suspended:
+            return 0.0
+        return self.original_weight * self.weight_multiplier
+
 
 class FactorTracker:
-    """因子IC追踪器
+    """因子IC追踪器（因子级权重）
 
     用法:
         tracker = FactorTracker()
@@ -64,12 +71,11 @@ class FactorTracker:
         self.suspend_threshold_days = 60  # 连续低IC暂停天数（加倍）
         self.recovery_threshold_days = 15  # 恢复需要连续天数
 
-        # 调整幅度限制（更保守）
-        self.boost_rate = 1.05  # 加权倍数（原1.1）
-        self.decay_rate = 0.95  # 减权倍数（原0.9）
-        self.penalize_rate = 0.7  # IC<0时惩罚（原0.5）
-        self.max_weight_mult = 1.5  # 最大权重倍数（原2.0）
-        self.min_weight_mult = 0.3  # 最小权重倍数（原0.2）
+        # 调整幅度限制（更保守）— 作用于 multiplier
+        self.boost_rate = 1.05  # multiplier 加权倍数
+        self.decay_rate = 0.95  # multiplier 减权倍数
+        self.max_weight_mult = 1.5  # multiplier 最大值
+        self.min_weight_mult = 0.3  # multiplier 最小值
 
         # 因子状态
         self.factor_statuses: dict[str, FactorStatus] = {}
@@ -101,11 +107,16 @@ class FactorTracker:
 
                 # 取最新一条恢复状态
                 latest = factor_history.iloc[-1]
-                status.current_weight = latest.get("weight", status.original_weight)
+                restored_weight = latest.get("weight", status.original_weight)
+                # 反推 multiplier = weight / original_weight
+                if status.original_weight > 0:
+                    status.weight_multiplier = restored_weight / status.original_weight
                 status.is_suspended = latest.get("is_suspended", False)
+                if status.is_suspended:
+                    status.weight_multiplier = 0.0
                 status.consecutive_low_ic_days = latest.get("consecutive_low_ic", 0)
 
-                # 计算IC_20d_avg
+                # 计算IC_30d_avg
                 recent_ics = [h["ic"] for h in status.ic_history[-self.ic_window:]]
                 status.ic_20d_avg = np.mean(recent_ics) if recent_ics else 0
 
@@ -113,19 +124,17 @@ class FactorTracker:
         except Exception as e:
             logger.debug(f"恢复IC历史失败（不影响运行）: {e}")
 
-        # 从DuckDB恢复历史IC（如果有）
-        self._restore_from_db()
-
     def _init_statuses(self):
-        """初始化因子状态"""
+        """初始化因子状态 — 读取因子级权重"""
         for category, cat_config in self.config["categories"].items():
-            cat_weight = cat_config["weight"]
-            for factor_name in cat_config.get("factors", {}):
+            for factor_name, factor_config in cat_config.get("factors", {}).items():
+                # 读取因子独立权重（默认1.0，向后兼容无weight字段的配置）
+                factor_weight = factor_config.get("weight", 1.0)
                 self.factor_statuses[factor_name] = FactorStatus(
                     name=factor_name,
                     category=category,
-                    original_weight=cat_weight,
-                    current_weight=cat_weight,
+                    original_weight=factor_weight,
+                    weight_multiplier=1.0,
                     ic_today=0.0,
                     ic_20d_avg=0.0,
                     consecutive_low_ic_days=0,
@@ -136,12 +145,9 @@ class FactorTracker:
     def daily_update(self, data: dict, date: str,
                      factor_engine=None,
                      daily_quote: pd.DataFrame = None) -> dict:
-        """每日更新因子IC并调整权重
+        """每日更新因子IC并调整权重 multiplier
 
-        改进策略：
-        1. 只在IC连续20日一致（同正或同负）时才调整
-        2. 调整幅度更小
-        3. 不做惩罚性大幅减权
+        调整的是 weight_multiplier，实际权重 = original_weight × multiplier
         """
         adjustments = {}
 
@@ -162,6 +168,7 @@ class FactorTracker:
             else:
                 positive_ratio = 0.5
 
+            old_mult = status.weight_multiplier
             old_weight = status.current_weight
 
             if status.is_suspended:
@@ -172,29 +179,29 @@ class FactorTracker:
 
                 if status.consecutive_recovery_days >= self.recovery_threshold_days:
                     status.is_suspended = False
-                    status.current_weight = status.original_weight * 0.5
+                    status.weight_multiplier = 0.5  # 恢复时 multiplier=0.5
                     status.consecutive_recovery_days = 0
                     status.consecutive_low_ic_days = 0
                     adjustments[factor_name] = {
                         "action": "recovered",
                         "old_weight": 0,
                         "new_weight": status.current_weight,
+                        "multiplier": status.weight_multiplier,
                     }
             else:
-                # 新策略：基于IC一致性而非均值
+                # 基于 IC 一致性调整 multiplier
                 if positive_ratio > 0.7 and status.ic_20d_avg > 0.02:
-                    # IC持续为正且一致 → 小幅加权
-                    new_weight = min(
-                        status.current_weight * self.boost_rate,
-                        status.original_weight * self.max_weight_mult
+                    # IC持续为正且一致 → 小幅加大 multiplier
+                    status.weight_multiplier = min(
+                        status.weight_multiplier * self.boost_rate,
+                        self.max_weight_mult
                     )
-                    status.current_weight = new_weight
                     status.consecutive_low_ic_days = 0
                 elif positive_ratio < 0.3:
-                    # IC持续为负 → 减权
-                    status.current_weight = max(
-                        status.current_weight * self.decay_rate,
-                        status.original_weight * self.min_weight_mult
+                    # IC持续为负 → 缩小 multiplier
+                    status.weight_multiplier = max(
+                        status.weight_multiplier * self.decay_rate,
+                        self.min_weight_mult
                     )
                     status.consecutive_low_ic_days += 1
                 elif status.ic_20d_avg < 0.01 and positive_ratio < 0.5:
@@ -205,24 +212,26 @@ class FactorTracker:
                 # 暂停检查
                 if status.consecutive_low_ic_days >= self.suspend_threshold_days:
                     status.is_suspended = True
-                    status.current_weight = 0
+                    status.weight_multiplier = 0.0
                     adjustments[factor_name] = {
                         "action": "suspended",
                         "old_weight": old_weight,
                         "new_weight": 0,
                         "reason": f"连续{status.consecutive_low_ic_days}天IC<0.01",
                     }
-                elif abs(status.current_weight - old_weight) > 0.005:
+                elif abs(status.weight_multiplier - old_mult) > 0.005:
                     adjustments[factor_name] = {
                         "action": "adjusted",
                         "old_weight": old_weight,
                         "new_weight": status.current_weight,
+                        "multiplier": status.weight_multiplier,
                         "ic_20d_avg": status.ic_20d_avg,
                     }
 
             status.weight_history.append({
                 "date": date,
                 "weight": status.current_weight,
+                "multiplier": status.weight_multiplier,
             })
 
         if adjustments:
@@ -230,7 +239,8 @@ class FactorTracker:
             for name, adj in adjustments.items():
                 logger.info(
                     f"  {name}: {adj['action']} "
-                    f"({adj.get('old_weight', 0):.3f} → {adj.get('new_weight', 0):.3f})"
+                    f"({adj.get('old_weight', 0):.3f} → {adj.get('new_weight', 0):.3f}, "
+                    f"mult={adj.get('multiplier', '?'):.3f})"
                 )
 
         return adjustments
@@ -307,6 +317,7 @@ class FactorTracker:
                 "factor": name,
                 "category": s.category,
                 "original_weight": s.original_weight,
+                "weight_multiplier": s.weight_multiplier,
                 "current_weight": s.current_weight,
                 "ic_today": s.ic_today,
                 "ic_20d_avg": s.ic_20d_avg,
@@ -318,27 +329,30 @@ class FactorTracker:
     def get_adjusted_config(self) -> dict:
         """获取调整后的因子配置
 
-        可直接写入factors.yaml
+        保留 category 原始权重，在每个因子配置中写入调整后的 weight。
+        可直接写入factors.yaml。
         """
         adjusted = {"categories": {}}
 
-        # 按category分组
+        # 按 category 分组
         categories = {}
         for name, status in self.factor_statuses.items():
             cat = status.category
             if cat not in categories:
+                # 保留 category 原始权重
+                cat_weight = self.config["categories"][cat]["weight"]
                 categories[cat] = {
-                    "weight": status.current_weight,
+                    "weight": cat_weight,
                     "factors": {},
                 }
-            else:
-                # 同category取平均（如果不同的话保留最新的）
-                categories[cat]["weight"] = status.current_weight
 
             # 保留原始因子配置
             original_factors = self.config["categories"][cat].get("factors", {})
             if name in original_factors:
                 categories[cat]["factors"][name] = dict(original_factors[name])
+
+            # 写入调整后的因子级权重
+            categories[cat]["factors"][name]["weight"] = status.current_weight
 
             # 暂停因子标记
             if status.is_suspended:

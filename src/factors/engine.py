@@ -200,6 +200,31 @@ class FactorEngine:
                 return True
         return False
 
+    def register_dynamic_factor(self, name: str, func, category: str,
+                                factor_config: dict) -> bool:
+        """注册动态因子（由EvolverAgent自动注册）
+
+        Args:
+            name: 因子名称
+            func: 因子计算函数，接受 data dict，返回 pd.Series(index=code)
+            category: 所属类别（如 'technical', 'fundamental'）
+            factor_config: 因子配置（direction, clip, weight 等）
+
+        Returns:
+            是否注册成功
+        """
+        # 添加计算函数
+        self.factor_funcs[name] = func
+
+        # 添加到配置
+        if category not in self.config["categories"]:
+            logger.warning(f"类别 {category} 不存在，无法注册因子 {name}")
+            return False
+
+        self.config["categories"][category]["factors"][name] = factor_config
+        logger.info(f"动态因子已注册: {name} → {category}")
+        return True
+
     def calc_delta(self, today_scores: pd.DataFrame,
                    prev_scores: pd.DataFrame,
                    lookback: int = 5) -> pd.DataFrame:

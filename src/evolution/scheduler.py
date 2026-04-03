@@ -11,6 +11,7 @@
 from datetime import datetime, timedelta
 from loguru import logger
 
+from src.evolution.auto_register import AutoRegister
 from src.evolution.factor_tracker import FactorTracker
 from src.evolution.regime_detector import RegimeDetector
 from src.evolution.knowledge import KnowledgeStore
@@ -35,6 +36,10 @@ class EvolutionScheduler:
         self.tracker = FactorTracker()
         self.regime_detector = RegimeDetector(store=store)
         self.knowledge = KnowledgeStore()
+        self.auto_register = AutoRegister(engine=engine)
+
+        # 启动时恢复动态因子
+        self.auto_register.restore_all_to_engine()
 
     # ========== 每日执行 ==========
 
@@ -100,6 +105,23 @@ class EvolutionScheduler:
 
         result = await gen.weekly_run(data, date)
         results["weekly"]["hypothesis"] = result
+
+        # 自动注册有效因子
+        registrations = []
+        for hyp, val in zip(
+            result.get("hypotheses", []),
+            result.get("validations", []),
+        ):
+            reg_result = self.auto_register.register_hypothesis(hyp, val)
+            if reg_result:
+                registrations.append(reg_result)
+        results["weekly"]["registrations"] = registrations
+
+        # Review 已注册的动态因子
+        reviews = self.auto_register.review_registered_factors(
+            data, date, tracker=self.tracker
+        )
+        results["weekly"]["factor_reviews"] = reviews
 
         # 将有效发现写入知识库
         for val in result.get("validations", []):
@@ -187,9 +209,8 @@ class EvolutionScheduler:
                 if factor_config.get("_suspended"):
                     self.engine.resume_factor(factor_name, status.current_weight)
                 else:
-                    # 将category权重的变化映射为因子级权重
-                    ratio = status.current_weight / status.original_weight if status.original_weight > 0 else 1.0
-                    self.engine.adjust_factor_weight(factor_name, ratio)
+                    # 使用 multiplier × original 作为因子级权重
+                    self.engine.adjust_factor_weight(factor_name, status.current_weight)
 
         logger.debug("进化权重已同步到评分引擎（因子级）")
 
@@ -243,5 +264,6 @@ class EvolutionScheduler:
                 "avg_ic_20d": status_df["ic_20d_avg"].mean() if not status_df.empty else 0,
             },
             "knowledge_files": len(self.knowledge.FILES),
+            "dynamic_factors": self.auto_register.get_status().to_dict("records"),
             "last_daily": "N/A",  # TODO: 从DB读取
         }
