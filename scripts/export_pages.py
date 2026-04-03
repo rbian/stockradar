@@ -13,6 +13,9 @@ from src.data.stock_names import stock_name
 
 PROJECT = Path('/home/node/.openclaw/workspace/research/stockradar')
 
+import subprocess
+
+
 def export():
     nav_data = json.load(open(PROJECT / 'data/nav_state_balanced.json'))
     dq = pd.read_parquet(PROJECT / 'data/parquet/hs300_daily.parquet')
@@ -99,5 +102,39 @@ def export():
     print(f"最新: NAV={stats['nav']}, 收益={stats['total_return']}%, 日期={stats['latest_date']}")
     return output
 
+
+def deploy_to_ghpages():
+    """导出数据并推送到 gh-pages 分支"""
+    import shutil
+    output = export()
+    proj = str(PROJECT)
+
+    # Commit docs/ to master
+    subprocess.run(["git", "add", "docs/"], cwd=proj, timeout=10)
+    try:
+        subprocess.run(["git", "commit", "-m", "pages: data update"],
+                      cwd=proj, timeout=10, capture_output=True)
+        subprocess.run(["git", "push", "origin", "master"], cwd=proj, timeout=30)
+    except Exception:
+        pass  # no changes to commit
+
+    # Deploy to gh-pages
+    subprocess.run(["git", "fetch", "origin", "gh-pages"], cwd=proj, timeout=10)
+    subprocess.run(["git", "checkout", "gh-pages"], cwd=proj, timeout=10)
+    for fname in ["index.html", "data.json"]:
+        src = str(PROJECT / "docs" / fname)
+        dst = str(PROJECT / fname)
+        shutil.copy2(src, dst)
+    subprocess.run(["git", "add", "index.html", "data.json"], cwd=proj, timeout=10)
+    try:
+        subprocess.run(["git", "commit", "-m", f"pages: {output['updated']}"],
+                      cwd=proj, timeout=10, capture_output=True)
+        subprocess.run(["git", "push", "origin", "gh-pages"], cwd=proj, timeout=30)
+        print("gh-pages 已部署")
+    except Exception:
+        print("gh-pages 无变化")
+    subprocess.run(["git", "checkout", "master"], cwd=proj, timeout=10)
+
+
 if __name__ == '__main__':
-    export()
+    deploy_to_ghpages()
