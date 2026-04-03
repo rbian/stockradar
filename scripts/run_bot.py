@@ -297,6 +297,24 @@ def main():
         # 日报: 15:30
         scheduler.add_job(daily_push, "cron", hour=15, minute=30,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # Pages更新: 15:35
+        async def pages_update():
+            logger.info("更新GitHub Pages...")
+            try:
+                import subprocess
+                subprocess.run(["python3", "scripts/export_pages.py"],
+                              cwd=str(PROJECT_ROOT), timeout=30)
+                subprocess.run(["git", "add", "docs/"], cwd=str(PROJECT_ROOT), timeout=10)
+                subprocess.run(["git", "commit", "-m",
+                              f"pages: {__import__('datetime').date.today()}"],
+                              cwd=str(PROJECT_ROOT), timeout=10)
+                subprocess.run(["git", "push", "origin", "master"],
+                              cwd=str(PROJECT_ROOT), timeout=30)
+                logger.info("GitHub Pages 已更新")
+            except Exception as e:
+                logger.warning(f"Pages更新失败(不影响主功能): {e}")
+        scheduler.add_job(pages_update, "cron", hour=15, minute=35,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
         # D4 周度假设生成: 周六10:00
         async def weekly_evolution():
             logger.info("周度进化: 假设生成...")

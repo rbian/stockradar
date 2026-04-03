@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockRadar 持仓跟踪</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
+.container { max-width: 960px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.subtitle { color: #8b949e; font-size: 0.85rem; margin-bottom: 20px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; }
+.stat-label { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+.positive { color: #3fb950; }
+.negative { color: #f85149; }
+.neutral { color: #e6edf3; }
+.chart-container { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 24px; height: 280px; }
+.section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 0.75rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 6px; border-bottom: 1px solid #30363d; }
+td { padding: 10px 6px; font-size: 0.9rem; border-bottom: 1px solid #21262d; }
+tr:hover { background: #161b22; }
+.holding-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+.holding-name { font-weight: 600; }
+.holding-detail { font-size: 0.8rem; color: #8b949e; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+.tag-buy { background: #1b3a1b; color: #3fb950; }
+.tag-sell { background: #3a1b1b; color: #f85149; }
+.updated { text-align: center; color: #484f58; font-size: 0.75rem; margin-top: 20px; }
+.loading { text-align: center; padding: 60px; color: #8b949e; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📊 StockRadar 持仓跟踪</h1>
+  <div class="subtitle" id="subtitle">沪深300量化选股 | AI驱动</div>
+
+  <div class="stats-grid" id="stats"></div>
+  <div class="chart-container"><canvas id="navChart"></canvas></div>
+
+  <div class="section-title">📋 当前持仓</div>
+  <div id="holdings"></div>
+
+  <div style="margin-top:24px" class="section-title">📜 交易记录</div>
+  <table><thead><tr><th>日期</th><th>操作</th><th>股票</th><th>数量</th><th>价格</th><th>原因</th></tr></thead>
+  <tbody id="trades"></tbody></table>
+
+  <div class="updated" id="footer"></div>
+</div>
+
+<script>
+async function load() {
+  try {
+    const resp = await fetch('data.json?t=' + Date.now());
+    const data = await resp.json();
+    render(data);
+  } catch(e) {
+    document.querySelector('.container').innerHTML = '<div class="loading">加载数据失败，请稍后刷新</div>';
+  }
+}
+
+function render(data) {
+  const s = data.stats;
+  // Stats
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">净值</div><div class="stat-value neutral">${s.nav.toFixed(4)}</div></div>
+    <div class="stat-card"><div class="stat-label">总收益</div><div class="stat-value ${s.total_return>=0?'positive':'negative'}">${s.total_return>=0?'+':''}${s.total_return}%</div></div>
+    <div class="stat-card"><div class="stat-label">最大回撤</div><div class="stat-value negative">${s.max_drawdown}%</div></div>
+    <div class="stat-card"><div class="stat-label">持仓</div><div class="stat-value neutral">${s.holdings_count}只</div></div>
+    <div class="stat-card"><div class="stat-label">总市值</div><div class="stat-value neutral">¥${(s.current_value/10000).toFixed(1)}万</div></div>
+    <div class="stat-card"><div class="stat-label">现金</div><div class="stat-value neutral">¥${(s.cash/10000).toFixed(1)}万</div></div>
+  `;
+
+  // Chart
+  const ctx = document.getElementById('navChart').getContext('2d');
+  const labels = data.nav_history.map(h => h.date);
+  const navs = data.nav_history.map(h => h.nav);
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: '净值',
+        data: navs,
+        borderColor: '#58a6ff',
+        backgroundColor: 'rgba(88,166,255,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: '#58a6ff',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 } } },
+        y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' } }
+      }
+    }
+  });
+
+  // Holdings
+  const holdingsHtml = data.holdings.sort((a,b) => b.market_value - a.market_value).map(h => `
+    <div class="holding-card">
+      <div>
+        <span class="holding-name">${h.name}</span>
+        <span style="color:#8b949e;font-size:0.8rem"> ${h.code}</span>
+        <div class="holding-detail">${h.shares}股 · 成本¥${h.cost_price} · 权重${h.weight}%</div>
+      </div>
+      <div style="text-align:right">
+        <div class="stat-value ${h.pnl_pct>=0?'positive':'negative'}" style="font-size:1.1rem">${h.pnl_pct>=0?'+':''}${h.pnl_pct}%</div>
+        <div style="font-size:0.8rem;color:#8b949e">现价 ¥${h.current_price}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('holdings').innerHTML = holdingsHtml;
+
+  // Trades
+  document.getElementById('trades').innerHTML = data.trades.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td><span class="tag ${t.action==='buy'?'tag-buy':'tag-sell'}">${t.action==='buy'?'买入':'卖出'}</span></td>
+      <td>${t.name} <span style="color:#8b949e">${t.code}</span></td>
+      <td>${t.shares}</td>
+      <td>¥${t.price}</td>
+      <td style="color:#8b949e">${t.reason}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('footer').textContent = `数据更新于 ${data.updated} | StockRadar v0.6`;
+}
+
+load();
+</script>
+</body>
+</html>
