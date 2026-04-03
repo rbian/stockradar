@@ -1,0 +1,133 @@
+{
+  "updated": "2026-04-03",
+  "stats": {
+    "latest_date": "2026-04-03",
+    "nav": 1.0126,
+    "total_return": 1.26,
+    "max_drawdown": 0.0,
+    "holdings_count": 5,
+    "total_trades": 5,
+    "initial_capital": 1000000,
+    "current_value": 1012565.0,
+    "cash": 525895.0
+  },
+  "nav_history": [
+    {
+      "date": "2026-03-31",
+      "nav": 0.9995,
+      "market_value": 473631.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-04-03",
+      "nav": 1.0126,
+      "market_value": 486670.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-04-03",
+      "nav": 1.0126,
+      "market_value": 486670.0,
+      "holdings_count": 5
+    }
+  ],
+  "holdings": [
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "shares": 1300,
+      "cost_price": 76.35,
+      "current_price": 76.35,
+      "market_value": 99255.0,
+      "pnl_pct": 0.0,
+      "weight": 21.0
+    },
+    {
+      "code": "002460",
+      "name": "赣锋锂业",
+      "shares": 1200,
+      "cost_price": 78.38,
+      "current_price": 79.75,
+      "market_value": 95700.0,
+      "pnl_pct": 1.75,
+      "weight": 19.9
+    },
+    {
+      "code": "688506",
+      "name": "百利天恒",
+      "shares": 300,
+      "cost_price": 278.0,
+      "current_price": 313.53,
+      "market_value": 94059.0,
+      "pnl_pct": 12.78,
+      "weight": 17.6
+    },
+    {
+      "code": "603288",
+      "name": "海天味业",
+      "shares": 2400,
+      "cost_price": 41.0,
+      "current_price": 41.69,
+      "market_value": 100056.0,
+      "pnl_pct": 1.68,
+      "weight": 20.8
+    },
+    {
+      "code": "002475",
+      "name": "立讯精密",
+      "shares": 2000,
+      "cost_price": 49.26,
+      "current_price": 48.8,
+      "market_value": 97600.0,
+      "pnl_pct": -0.93,
+      "weight": 20.8
+    }
+  ],
+  "trades": [
+    {
+      "date": "2026-03-31",
+      "code": "002475",
+      "name": "立讯精密",
+      "action": "buy",
+      "shares": 2000,
+      "price": 49.26,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "603288",
+      "name": "海天味业",
+      "action": "buy",
+      "shares": 2400,
+      "price": 41.0,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "688506",
+      "name": "百利天恒",
+      "action": "buy",
+      "shares": 300,
+      "price": 278.0,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "002460",
+      "name": "赣锋锂业",
+      "action": "buy",
+      "shares": 1200,
+      "price": 78.38,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "shares": 1300,
+      "price": 76.35,
+      "reason": "评分调仓"
+    }
+  ]
+}
