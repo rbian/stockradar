@@ -75,29 +75,41 @@ function render(data) {
     <div class="stat-card"><div class="stat-label">现金</div><div class="stat-value neutral">¥${(s.cash/10000).toFixed(1)}万</div></div>
   `;
 
-  // Chart
+  // Chart - Strategy vs HS300 Benchmark
   const ctx = document.getElementById('navChart').getContext('2d');
   const labels = data.nav_history.map(h => h.date);
   const navs = data.nav_history.map(h => h.nav);
+  const datasets = [{
+    label: '策略净值',
+    data: navs,
+    borderColor: '#58a6ff',
+    backgroundColor: 'rgba(88,166,255,0.1)',
+    fill: true,
+    tension: 0.3,
+    pointRadius: 3,
+    pointBackgroundColor: '#58a6ff',
+  }];
+  // Add HS300 benchmark if available
+  if (data.hs300_benchmark && data.hs300_benchmark.length > 1) {
+    const bmDates = data.hs300_benchmark.map(h => h.date);
+    const bmNavs = data.hs300_benchmark.map(h => h.nav);
+    datasets.push({
+      label: 'HS300基准',
+      data: bmNavs,
+      borderColor: '#8b949e',
+      borderDash: [5, 5],
+      fill: false,
+      tension: 0.3,
+      pointRadius: 0,
+    });
+  }
   new Chart(ctx, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: '净值',
-        data: navs,
-        borderColor: '#58a6ff',
-        backgroundColor: 'rgba(88,166,255,0.1)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 3,
-        pointBackgroundColor: '#58a6ff',
-      }]
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { labels: { color: '#8b949e' } } },
       scales: {
         x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 } } },
         y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' } }

@@ -23,12 +23,24 @@
       "nav": 1.0126,
       "market_value": 486670.0,
       "holdings_count": 5
+    }
+  ],
+  "hs300_benchmark": [
+    {
+      "date": "2026-03-31",
+      "nav": 0.9995
+    },
+    {
+      "date": "2026-04-01",
+      "nav": 1.0258
+    },
+    {
+      "date": "2026-04-02",
+      "nav": 1.0087
     },
     {
       "date": "2026-04-03",
-      "nav": 1.0126,
-      "market_value": 486670.0,
-      "holdings_count": 5
+      "nav": 1.0036
     }
   ],
   "holdings": [
