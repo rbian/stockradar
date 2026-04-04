@@ -1,6 +1,6 @@
 # 📡 StockRadar
 
-> AI-driven A-share stock scoring and simulated trading system — HS300 universe · 36 factors · self-evolving
+> AI-driven A-share stock scoring and simulated trading system — Multi-Agent Architecture · 36 Factors · Self-Evolving
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
 
@@ -11,10 +11,11 @@
 StockRadar is a personal A-share simulated trading system that automatically scores HS300 stocks daily, manages a simulated portfolio, and delivers reports via Telegram Bot.
 
 Key features:
+- **Multi-Agent Architecture** — Router + Analyst + Trader + Reporter + Evolver, each with specialized reasoning and tools
 - **36-factor scoring** — fundamentals + technicals + capital flow + sentiment, 300 stocks in 3s
 - **Simulated trading** — auto rebalance, NAV tracking, stop-loss
 - **LLM-enhanced** — valuation analysis, news sentiment, factor hypothesis generation
-- **Self-evolving** — IC-based factor weight adjustment
+- **Self-evolving** — IC-based factor weight adjustment, automatic factor discovery and registration
 - **Telegram Bot** — real-time scoring / portfolio / analysis
 
 📊 **Live Portfolio**: [https://rbian.github.io/stockradar](https://rbian.github.io/stockradar)
