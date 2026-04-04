@@ -1,61 +1,65 @@
 # 📡 StockRadar
 
-> AI-driven A-share stock scoring and simulated trading system — Multi-Agent Architecture · 36 Factors · Self-Evolving
+> AI-driven A-share stock scoring & simulated trading — Multi-Agent Architecture · 36 Factors · Self-Evolving
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+**[中文文档](README_CN.md)** | **[Live Portfolio](https://rbian.github.io/stockradar)**
 
 ---
 
-## 💡 这是什么
+## What is this
 
 StockRadar is a personal A-share simulated trading system that automatically scores HS300 stocks daily, manages a simulated portfolio, and delivers reports via Telegram Bot.
 
-Key features:
+### Key Features
+
 - **Multi-Agent Architecture** — Router + Analyst + Trader + Reporter + Evolver, each with specialized reasoning and tools
-- **36-factor scoring** — fundamentals + technicals + capital flow + sentiment, 300 stocks in 3s
+- **36-factor scoring** — fundamentals + technicals + capital flow + sentiment, 300 stocks in 3 seconds
 - **Simulated trading** — auto rebalance, NAV tracking, stop-loss
 - **LLM-enhanced** — valuation analysis, news sentiment, factor hypothesis generation
 - **Self-evolving** — IC-based factor weight adjustment, automatic factor discovery and registration
 - **Telegram Bot** — real-time scoring / portfolio / analysis
 
-📊 **Live Portfolio**: [https://rbian.github.io/stockradar](https://rbian.github.io/stockradar)
+📊 **Live Portfolio Dashboard**: [https://rbian.github.io/stockradar](https://rbian.github.io/stockradar)
 
-## 📊 回测结果
+## Backtest Results
 
-| 年份 | 收益 | 年化 | Sharpe | 最大回撤 | 交易笔数 |
-|------|------|------|--------|---------|---------|
+| Year | Return | Ann. | Sharpe | Max DD | Trades |
+|------|--------|------|--------|--------|--------|
 | 2024 | +46.2% | 18.5% | 0.75 | -21.7% | 909 |
 | 2025 | +37.3% | 29.1% | 1.24 | -18.9% | 476 |
 
-> 回测基于等权Top10持仓，含0.1%手续费。过去表现不代表未来收益。
+> Equal-weighted Top 10 portfolio, 0.1% commission. Past performance does not guarantee future results.
 
-## ⚙️ 评分因子
+## Scoring Factors
 
 ```
-基本面 35% ─── ROE·毛利率·PE分位·营收增速·利润增速 等
-技术面 20% ─── RSI·MACD·均线趋势·动量 等
-资金流 20% ─── 北向·大单·主力净流入 等
-市场情绪 15% ── 换手异动·量比·涨停计数 等
-LLM   10% ──── 新闻情绪·估值研判 等
+Fundamentals  35% ─── ROE · Gross Margin · PE Percentile · Revenue Growth · Profit Growth
+Technicals    20% ─── RSI · MACD · MA Trend · Momentum
+Capital Flow  20% ─── Northbound · Large Orders · Net Inflow
+Sentiment     15% ─── Turnover Anomaly · Volume Ratio · Limit-Up Count
+LLM           10% ─── News Sentiment · Valuation Judgment
 ```
 
-因子权重由IC追踪系统自动调整（IC高的因子权重增加，IC持续低的因子降权）。
+Factor weights are auto-adjusted by IC tracking (high-IC factors gain weight, persistently low-IC factors are penalized).
 
-## 🧬 自进化系统
+## Self-Evolving System
 
-| 维度 | 功能 | 频率 |
-|------|------|------|
-| D1 因子IC追踪 | 计算因子预测力，自动调整权重 | 每日 |
-| D2 策略医生 | 持仓诊断，异常预警 | 每日 |
-| D3 市场状态 | 检测趋势/震荡市，辅助策略选择 | 实时 |
-| D4 假设生成 | LLM生成新因子假设，IC验证 | 每周 |
+| Dimension | Function | Frequency |
+|-----------|----------|-----------|
+| D1 Factor IC Tracking | Measure predictive power, auto-adjust weights | Daily |
+| D2 Strategy Doctor | Portfolio diagnostics, anomaly alerts | Daily |
+| D3 Market Regime | Detect trending/ranging market | Real-time |
+| D4 Hypothesis Generation | LLM generates new factor hypotheses, IC validation | Weekly |
 
-**IC实证发现（20日基线）：**
-- 趋势因子最强：ma20_slope IC=+0.22
-- 反转因子失效：max_drawdown_60d IC=-0.20
-- 技术面 >> 基本面（当前市场特征）
+**Empirical IC Findings (20-day baseline):**
+- Strongest: ma20_slope IC=+0.22 (trend)
+- Weakest: max_drawdown_60d IC=-0.20 (reversal)
+- Technicals >> Fundamentals (current market regime)
 
-## 🏗️ 架构
+## Architecture
 
 ```
         Telegram Bot
@@ -76,52 +80,52 @@ LLM   10% ──── 新闻情绪·估值研判 等
    Data (Sina + mootdx + BaoStock)
 ```
 
-## 💬 Bot命令
+## Bot Commands
 
 ```
-/top        → 评分Top10 (含持仓标记📦)
-/nav        → 净值+收益
-/report     → 日报 (行情+持仓+新闻+诊断)
-分析600519  → 个股9层深度分析
-持仓建议     → 评分→建仓Top10
-诊断        → 持仓5日涨跌+风控预警
-因子        → IC排行Top/Bottom
-市场状态     → 趋势/震荡市判断
-风控        → 止损/减仓检查
-周报/月报    → 周期报告
-回测        → 历史回测结果
+/top        → Top 10 scored stocks (with holding markers 📦)
+/nav        → NAV + returns
+/report     → Daily report (market + portfolio + news + diagnostics)
+分析600519  → Deep stock analysis (9 dimensions)
+持仓建议     → Score → build Top 10 portfolio
+诊断        → 5-day P&L + risk alerts
+因子        → IC ranking Top/Bottom
+市场状态     → Trend/range detection
+风控        → Stop-loss / position reduction check
+周报/月报    → Weekly/monthly reports
+回测        → Historical backtest results
 ```
 
-每天自动：15:10数据更新 → 15:25调仓 → 15:27 IC追踪 → 15:30日报推送
+Daily schedule: 15:10 data update → 15:25 rebalance → 15:27 IC tracking → 15:30 report → 15:35 pages update
 
-## 📁 结构
+## Project Structure
 
 ```
-src/agents/      ← 4个Agent (Router/Analyst/Trader/Reporter)
-src/core/        ← 编排器 + 工具注册 + 共享上下文
-src/factors/     ← 36因子引擎
-src/data/        ← mootdx + BaoStock + AKShare 数据适配
-src/simulator/   ← 净值追踪 + 风控 + 交易记录
-src/evolution/   ← IC追踪 + 策略医生 + 假设生成 + 市场状态检测
-scripts/         ← Bot入口 + 数据初始化 + 每日更新
-config/          ← YAML配置 (因子权重/策略参数)
+src/agents/      ← 5 Agents (Router / Analyst / Trader / Reporter / Evolver)
+src/core/        ← Orchestrator + Tool Registry + Shared Context
+src/factors/     ← 36-factor scoring engine
+src/data/        ← Sina + mootdx + BaoStock data adapters
+src/simulator/   ← NAV tracking + risk control + trade logging
+src/evolution/   ← IC tracking + strategy doctor + hypothesis generation + regime detection
+scripts/         ← Bot entry + data init + daily update
+config/          ← YAML config (factor weights / strategy params)
 ```
 
-## 🚀 快速开始
+## Quick Start
 
 ```bash
 git clone https://github.com/rbian/stockradar.git
 cd stockradar
 pip install -r requirements.txt
 
-# 配置
+# Configure
 echo "TELEGRAM_BOT_TOKEN=your_token" >> .env
 echo "TELEGRAM_ALLOWED_USERS=your_id" >> .env
 
-# 运行
+# Run
 python scripts/run_bot.py
 ```
 
-## 📋 License
+## License
 
 MIT
