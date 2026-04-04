@@ -1,6 +1,6 @@
 # 📡 StockRadar
 
-> AI驱动的A股智能选股系统 — 300只沪深300 · 多Agent协作 · 因子自进化
+> AI-driven A-share stock scoring and simulated trading system — HS300 universe · 36 factors · self-evolving
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
 
@@ -8,14 +8,16 @@
 
 ## 💡 这是什么
 
-StockRadar 是一个**个人A股模拟交易系统**，每天自动给沪深300成分股打分，维护模拟持仓，通过Telegram Bot推送日报。
+StockRadar is a personal A-share simulated trading system that automatically scores HS300 stocks daily, manages a simulated portfolio, and delivers reports via Telegram Bot.
 
-核心特点：
-- **36因子评分** — 基本面+技术面+资金流+市场情绪，3秒完成300只评分
-- **模拟交易** — 自动建仓、调仓、净值追踪、风控止损
-- **LLM增强** — 个股估值研判、新闻情绪分析、因子假设生成
-- **自进化** — 因子IC追踪，权重自动调整
-- **Telegram Bot** — 随时查看评分/持仓/分析
+Key features:
+- **36-factor scoring** — fundamentals + technicals + capital flow + sentiment, 300 stocks in 3s
+- **Simulated trading** — auto rebalance, NAV tracking, stop-loss
+- **LLM-enhanced** — valuation analysis, news sentiment, factor hypothesis generation
+- **Self-evolving** — IC-based factor weight adjustment
+- **Telegram Bot** — real-time scoring / portfolio / analysis
+
+📊 **Live Portfolio**: [https://rbian.github.io/stockradar](https://rbian.github.io/stockradar)
 
 ## 📊 回测结果
 
@@ -55,22 +57,22 @@ LLM   10% ──── 新闻情绪·估值研判 等
 ## 🏗️ 架构
 
 ```
-         用户(Telegram)
-              │
-        ┌─────▼─────┐
-        │  Router    │  意图识别，路由到对应Agent
-        └──┬──┬──┬──┘
-           │  │  │
-     ┌─────┘  │  └─────┐
-     ▼        ▼        ▼
+        Telegram Bot
+             │
+       ┌─────▼─────┐
+       │  Router    │  intent routing
+       └──┬──┬──┬──┘
+          │  │  │
+    ┌─────┘  │  └─────┐
+    ▼        ▼        ▼
  Analyst  Trader  Reporter
-  评分分析  交易决策   日报周报
-     │        │        │
-     └────┬───┘────────┘
-          ▼
-    FactorEngine (36因子)
-          ▼
-    数据层 (mootdx + BaoStock + AKShare)
+ scoring  trading   reports
+    │        │        │
+    └────┬───┘────────┘
+         ▼
+   FactorEngine (36 factors)
+         ▼
+   Data (Sina + mootdx + BaoStock)
 ```
 
 ## 💬 Bot命令
