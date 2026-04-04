@@ -51,14 +51,22 @@ def test_scoring_and_rebalance(test_date=None):
     latest_date = dq["date"].max()
     logger.info(f"Data: {len(dq)} rows, latest={latest_date}")
 
-    # Load codes and financial data
-    codes = pd.read_csv(PROJECT / "data/hs300_codes.txt", header=None)[0].tolist()
+    # Load via system_init for consistent data
+    from scripts.system_init import load_hs300_data, load_financial_data
+    dq, codes = load_hs300_data()
+    financial = load_financial_data()
     
+    if test_date:
+        dq = dq[dq["date"] <= pd.Timestamp(test_date)]
+    
+    latest_date = dq["date"].max()
+    logger.info(f"Data: {len(dq)} rows, {len(codes)} codes, latest={latest_date}")
+
     # Score
     data = {
-        "daily_quote": dq[dq["code"].isin(codes)],
+        "daily_quote": dq,
         "codes": codes,
-        "financial": pd.DataFrame(),
+        "financial": financial if financial is not None else pd.DataFrame(),
         "northbound": pd.DataFrame(),
     }
     scores = engine.score_all(data)
@@ -152,13 +160,20 @@ def test_ic_tracking():
     
     tracker = FactorTracker()
     engine = FactorEngine()
-    dq = pd.read_parquet(PROJECT / "data/parquet/hs300_daily.parquet")
-    codes = pd.read_csv(PROJECT / "data/hs300_codes.txt", header=None)[0].tolist()
+    dq, codes = pd.DataFrame(), []
+    try:
+        from scripts.system_init import load_hs300_data, load_financial_data
+        dq, codes = load_hs300_data()
+        financial = load_financial_data()
+    except Exception:
+        dq = pd.read_parquet(PROJECT / "data/parquet/hs300_daily.parquet")
+        codes = [str(c) for c in pd.read_csv(PROJECT / "data/hs300_codes.txt", header=None)[0].tolist()]
+        financial = pd.DataFrame()
     
     data = {
-        "daily_quote": dq[dq["code"].isin(codes)],
+        "daily_quote": dq,
         "codes": codes,
-        "financial": pd.DataFrame(),
+        "financial": financial,
         "northbound": pd.DataFrame(),
     }
     scores = engine.score_all(data)
