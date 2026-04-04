@@ -172,6 +172,12 @@ class NAVTracker:
             "market_value": market_value,
             "holdings_count": len(self.holdings),
         })
+        # Deduplicate: keep last entry per date
+        seen = {}
+        for h in self.nav_history:
+            d = h["date"] if isinstance(h["date"], str) else str(h["date"])
+            seen[d] = h
+        self.nav_history = list(seen.values())
 
     def get_report(self) -> str:
         """生成净值报告"""

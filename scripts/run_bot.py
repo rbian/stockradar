@@ -249,7 +249,33 @@ def main():
                     from src.data.mootdx_adapter import daily_update_mootdx
                     daily_update_mootdx()
                 except Exception as e2:
-                    logger.error(f"数据更新全部失败: {e2}")
+                    logger.warning(f"mootdx也失败，尝试Tushare日线: {e2}")
+                    try:
+                        import tushare as ts
+                        token = os.environ.get('TUSHARE_TOKEN', '')
+                        if token:
+                            ts.set_token(token)
+                            pro = ts.pro_api()
+                            codes = pd.read_csv("data/hs300_codes.txt", header=None)[0].tolist()
+                            rows = []
+                            for c in codes[:50]:  # Free tier limit
+                                df = pro.daily(ts_code=f"{c}.SH" if c.startswith('6') else f"{c}.SZ",
+                                               start_date=datetime.now().strftime('%Y%m%d'))
+                                if not df.empty:
+                                    df['code'] = c
+                                    rows.append(df)
+                                import time; time.sleep(0.3)
+                            if rows:
+                                new = pd.concat(rows)
+                                new = new.rename(columns={'trade_date':'date','open':'open','high':'high','low':'low','close':'close','vol':'volume'})
+                                new['date'] = pd.to_datetime(new['date'])
+                                new['change_pct'] = new['pct_chg']
+                                dq = orch.context.read("data.daily_quote")
+                                updated = pd.concat([dq, new], ignore_index=True).drop_duplicates(subset=['code','date'], keep='last')
+                                orch.context.write("data.daily_quote", updated, writer="system")
+                                logger.info(f"Tushare兜底更新: {len(new)}条")
+                    except Exception as e3:
+                        logger.error(f"数据更新全部失败: {e3}")
         scheduler.add_job(data_update, "cron", hour=15, minute=10,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
         # 调仓: 15:25
