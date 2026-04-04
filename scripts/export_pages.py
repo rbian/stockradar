@@ -84,10 +84,27 @@ def export():
         "cash": round(nav_data.get("cash", 0), 0),
     }
 
+    # HS300 benchmark
+    hs300_benchmark = []
+    if nav_history:
+        start_nav = nav_history[0]["nav"]
+        start_date = nav_history[0]["date"]
+        hs300_data = dq[dq["date"] >= pd.Timestamp(start_date)]
+        # Get HS300 index close (use average of all stocks as proxy if no index)
+        daily_avg = hs300_data.groupby("date").agg({"close": "mean"}).reset_index()
+        if not daily_avg.empty:
+            base_price = daily_avg.iloc[0]["close"]
+            for _, row in daily_avg.iterrows():
+                hs300_benchmark.append({
+                    "date": str(row["date"])[:10],
+                    "nav": round(row["close"] / base_price * start_nav, 4),
+                })
+
     output = {
         "updated": latest_date,
         "stats": stats,
         "nav_history": nav_history,
+        "hs300_benchmark": hs300_benchmark,
         "holdings": holdings,
         "trades": list(reversed(trades)),  # 最新在前
     }
