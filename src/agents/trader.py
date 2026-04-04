@@ -224,6 +224,25 @@ class TraderAgent(BaseAgent):
         if self.context:
             self.context.set_scores(scores)
 
+        # Technical signal filter — penalize death cross / overbought stocks
+        try:
+            from src.factors.technical_signals import score_stock
+            for code in scores.index[:20]:
+                stock_data = quote[quote["code"] == code].tail(60)
+                if len(stock_data) >= 30:
+                    sig = score_stock(stock_data)
+                    ss = sig["signal_score"]
+                    # Penalize stocks with very low technical signals
+                    if ss < 35:  # 强烈卖出
+                        scores.loc[code, "score_total"] *= 0.7
+                    elif ss < 50:  # 卖出/观望
+                        scores.loc[code, "score_total"] *= 0.9
+                    elif ss >= 80:  # 强烈买入 bonus
+                        scores.loc[code, "score_total"] *= 1.05
+            scores = scores.sort_values("score_total", ascending=False)
+        except Exception:
+            pass
+
         # 获取最新价格
         latest_date = quote["date"].max()
         day = quote[quote["date"] == latest_date]

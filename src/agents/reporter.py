@@ -132,7 +132,18 @@ class ReporterAgent(BaseAgent):
         except Exception:
             pass
 
-        # 6) 持仓诊断
+        # 6) Tushare enrichment (northbound + sectors)
+        try:
+            from src.data.tushare_adapter import enrich_report_with_tushare
+            ts_data = enrich_report_with_tushare()
+            if ts_data:
+                lines.append("")
+                for v in ts_data.values():
+                    lines.append(v)
+        except Exception:
+            pass
+
+        # 7) 持仓诊断
         try:
             from src.evolution.strategy_doctor import diagnose_holdings
             import json as _json

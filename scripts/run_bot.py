@@ -190,6 +190,7 @@ def main():
             BotCommand("nav", "💰 净值+收益"),
             BotCommand("report", "📰 今日日报"),
             BotCommand("help", "❓ 功能列表"),
+            BotCommand("factors", "🧬 因子状态"),
         ])
     
     app.add_handler(CommandHandler("start", cmd_start))
@@ -197,6 +198,7 @@ def main():
     app.add_handler(CommandHandler("top", lambda u, c: _quick_cmd(u, c, "评分排名")))
     app.add_handler(CommandHandler("nav", lambda u, c: _quick_cmd(u, c, "净值")))
     app.add_handler(CommandHandler("report", lambda u, c: _quick_cmd(u, c, "日报")))
+    app.add_handler(CommandHandler("factors", lambda u, c: _quick_cmd(u, c, "因子状态")))
 
     # 定时任务
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -315,6 +317,42 @@ def main():
                 logger.warning(f"Pages更新失败(不影响主功能): {e}")
         scheduler.add_job(pages_update, "cron", hour=15, minute=35,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+
+        # 持仓预警: 盘中每5分钟 (9:35-11:30, 13:05-15:00)
+        async def alert_check():
+            try:
+                import json, pandas as pd
+                from src.simulator.alert_system import check_alerts, format_alerts
+                from src.data.stock_names import stock_name as _sn
+                nav_data = json.load(open(PROJECT_ROOT / 'data' / 'nav_state_balanced.json'))
+                dq = orch.context.read("data.daily_quote")
+                holdings = nav_data.get('holdings', {})
+                if not holdings or dq is None:
+                    return
+                alerts = check_alerts(holdings, dq)
+                if alerts:
+                    names = {c: _sn(c) for c in holdings}
+                    msg = format_alerts(alerts, names)
+                    for uid in ALLOWED_USERS:
+                        await app.bot.send_message(chat_id=uid, text=msg)
+                    logger.info(f"预警推送: {len(alerts)}条")
+            except Exception as e:
+                logger.debug(f"预警检查失败: {e}")
+        # Morning session: 9:35-11:30 every 5 min
+        scheduler.add_job(alert_check, "cron", minute='*/5',
+                          hour='9-10', day_of_week="mon-fri",
+                          start_date='2026-01-01', timezone="Asia/Shanghai")
+        scheduler.add_job(alert_check, "cron", minute='0-30/5',
+                          hour='11', day_of_week="mon-fri",
+                          timezone="Asia/Shanghai")
+        # Afternoon session: 13:05-15:00 every 5 min
+        scheduler.add_job(alert_check, "cron", minute='*/5',
+                          hour='13-14', day_of_week="mon-fri",
+                          timezone="Asia/Shanghai")
+        scheduler.add_job(alert_check, "cron", minute='0',
+                          hour='15', day_of_week="mon-fri",
+                          timezone="Asia/Shanghai")
+
         # D4 周度假设生成: 周六10:00
         async def weekly_evolution():
             logger.info("周度进化: 假设生成...")
@@ -336,7 +374,7 @@ def main():
         scheduler.add_job(weekly_evolution, "cron", day_of_week="sat", hour=10, minute=0,
                           timezone="Asia/Shanghai")
         scheduler.start()
-        logger.info("Scheduler: 数据15:10 + 调仓15:25 + IC15:27 + 日报15:30 + 周六进化10:00")
+        logger.info("Scheduler: 数据15:10 + 调仓15:25 + IC15:27 + 日报15:30 + Pages15:35 + 预警5min + 周六进化10:00")
 
     app.post_init = post_init
 
@@ -354,6 +392,7 @@ def main():
                 app.add_handler(CommandHandler("top", lambda u, c: _quick_cmd(u, c, "评分排名")))
                 app.add_handler(CommandHandler("nav", lambda u, c: _quick_cmd(u, c, "净值")))
                 app.add_handler(CommandHandler("report", lambda u, c: _quick_cmd(u, c, "日报")))
+                app.add_handler(CommandHandler("factors", lambda u, c: _quick_cmd(u, c, "因子状态")))
                 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
             
             app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
