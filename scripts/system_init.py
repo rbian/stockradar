@@ -13,7 +13,7 @@ from src.factors.engine import FactorEngine
 from src.data.baostock_adapter import fetch_daily_quote_batch_bs
 from src.data.cache import load_financial_cache, load_growth_cache
 from src.core.orchestrator import AgentOrchestrator
-from src.agents import RouterAgent, AnalystAgent, TraderAgent, ReporterAgent
+from src.agents import RouterAgent, AnalystAgent, TraderAgent, ReporterAgent, EvolverAgent
 
 
 WATCHLIST = ["600519", "000333", "600036", "601318", "000858",
@@ -64,7 +64,7 @@ def create_system(mode: str = "full"):
     orch.context.write("factor_engine", engine, writer="system")
     orch.context.write("mode", "simulation", writer="system")
 
-    for cls in [RouterAgent, AnalystAgent, TraderAgent, ReporterAgent]:
+    for cls in [RouterAgent, AnalystAgent, TraderAgent, ReporterAgent, EvolverAgent]:
         agent = cls(context=orch.context, message_bus=orch.bus)
         orch.register_agent(agent)
 
