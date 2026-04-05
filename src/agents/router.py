@@ -16,7 +16,8 @@ class RouterAgent(BaseAgent):
     ROUTES = {
         # 进化类 → EvolverAgent（优先匹配，避免被analyst抢走）
         r"(因子.*表现|因子.*状态|因子.*监控|IC.*追踪|IC.*监控|进化|优化|权重.*调整|动态因子)": "evolver",
-        r"(策略.*体检|策略.*诊断|策略.*复盘|失败.*模式|因子.*发现)": "evolver",
+        r"(策略.*体检|策略.*诊断|策略.*复盘|失败.*模式|因子.*发现|错误模式|交易复盘)": "evolver",
+        r"(教训|知识库|lesson|knowledge)": "evolver",
 
         # 分析类 → AnalystAgent
         r"(分析|研究|看看|怎么样|基本面|技术面|财报).*(\d{6}|[\u4e00-\u9fa5]{2,4})": "analyst",

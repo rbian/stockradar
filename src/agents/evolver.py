@@ -38,7 +38,15 @@ class EvolverAgent(BaseAgent):
 
         action = {"type": "status"}
 
-        if "动态因子" in msg:
+        if any(k in msg for k in ("复盘", "交易复盘", "review")):
+            action = {"type": "trade_review"}
+        elif any(k in msg for k in ("错误模式", "模式库", "错误", "patterns")):
+            action = {"type": "error_patterns"}
+        elif any(k in msg for k in ("教训", "lessons")):
+            action = {"type": "lessons"}
+        elif any(k in msg for k in ("知识库", "knowledge")):
+            action = {"type": "knowledge_stats"}
+        elif "动态因子" in msg:
             action = {"type": "dynamic_factors"}
         elif "权重" in msg:
             action = {"type": "weights"}
@@ -106,19 +114,64 @@ class EvolverAgent(BaseAgent):
                     lines.append(f"\n⏸ 暂停: {', '.join(suspended['factor'].tolist())}")
                 return ActionResult(success=True, message="\n".join(lines))
 
-            else:
+            elif action_type == "status":
                 status = scheduler.get_evolution_status()
-                factors = status.get("factors", {})
-                dynamic = status.get("dynamic_factors", [])
                 lines = [
                     "🧬 **进化系统状态**\n",
-                    f"因子: {factors.get('active', 0)}活跃 / "
-                    f"{factors.get('suspended', 0)}暂停 / "
-                    f"{factors.get('total', 0)}总计",
-                    f"平均IC30日: {factors.get('avg_ic_20d', 0):.4f}",
-                    f"动态因子: {len(dynamic)} 个",
-                    f"知识库文件: {status.get('knowledge_files', 0)} 个",
+                    f"因子: {status.get('factors', {}).get('active', 0)}活跃 / "
+                    f"{status.get('factors', {}).get('suspended', 0)}暂停",
+                    f"动态因子: {len(status.get('dynamic_factors', []))} 个",
+                    f"交易复盘: {status.get('trade_reviews', 0)} 份",
+                    f"错误模式: {status.get('error_patterns', 0)} 个",
                 ]
+                return ActionResult(success=True, message="\n".join(lines))
+
+            elif action_type == "trade_review":
+                import json, pandas as pd
+                from src.evolution.trade_reviewer import review_trades, format_review_report
+                dq = self.context.read("data.daily_quote") if self.context else None
+                nav_file = Path(__file__).resolve().parent.parent.parent / "data" / "nav_state_balanced.json"
+                trade_log = []
+                if nav_file.exists():
+                    nav_data = json.loads(nav_file.read_text())
+                    trade_log = nav_data.get("trade_log", [])
+                # Also load persistent trade log
+                tl_file = Path(__file__).resolve().parent.parent.parent / "data" / "trade_log.json"
+                if tl_file.exists():
+                    all_trades = json.loads(tl_file.read_text())
+                    trade_log.extend(all_trades)
+                if dq is None or not trade_log:
+                    return ActionResult(success=True, message="暂无数据可复盘")
+                result = review_trades(dq, trade_log)
+                report = format_review_report(result["reviews"], result["patterns"])
+                # Save to knowledge
+                from src.evolution.trade_reviewer import save_review_to_knowledge
+                from src.evolution.error_patterns import update_patterns_from_review
+                save_review_to_knowledge(result["reviews"], result["patterns"])
+                update_patterns_from_review(result)
+                return ActionResult(success=True, message=report)
+
+            elif action_type == "error_patterns":
+                from src.evolution.error_patterns import format_patterns_report
+                return ActionResult(success=True, message=format_patterns_report())
+
+            elif action_type == "lessons":
+                from src.evolution.knowledge import KnowledgeStore
+                ks = KnowledgeStore()
+                content = ks.read("lessons_learned.md")
+                if len(content.strip()) < 100:
+                    return ActionResult(success=True, message="暂无永久教训记录")
+                return ActionResult(success=True, message=f"📝 **永久教训**\n\n{content}")
+
+            elif action_type == "knowledge_stats":
+                from src.evolution.knowledge import KnowledgeStore
+                ks = KnowledgeStore()
+                stats = ks.get_stats()
+                lines = ["📚 **知识库统计**\n"]
+                for fname, line_count in stats["files"].items():
+                    lines.append(f"  {fname}: {line_count} 行")
+                lines.append(f"\n  交易复盘: {stats['trade_reviews']} 份")
+                lines.append(f"  错误模式: {stats['error_patterns']} 个")
                 return ActionResult(success=True, message="\n".join(lines))
 
         except Exception as e:

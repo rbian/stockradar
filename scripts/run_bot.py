@@ -344,7 +344,33 @@ def main():
         scheduler.add_job(pages_update, "cron", hour=15, minute=35,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
 
-        # 持仓预警: 盘中每5分钟 (9:35-11:30, 13:05-15:00)
+        # 交易复盘: 15:40 (调仓+日报之后)
+        async def trade_review():
+            logger.info("交易复盘...")
+            try:
+                import json, pandas as pd
+                from src.evolution.trade_reviewer import review_trades, save_review_to_knowledge
+                from src.evolution.error_patterns import update_patterns_from_review
+                dq = orch.context.read("data.daily_quote")
+                nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
+                trade_log = []
+                if nav_file.exists():
+                    nav_data = json.loads(nav_file.read_text())
+                    trade_log = nav_data.get('trade_log', [])
+                tl_file = PROJECT_ROOT / 'data' / 'trade_log.json'
+                if tl_file.exists():
+                    trade_log.extend(json.loads(tl_file.read_text()))
+                if dq is not None and trade_log:
+                    result = review_trades(dq, trade_log)
+                    save_review_to_knowledge(result['reviews'], result['patterns'])
+                    update_patterns_from_review(result)
+                    n = len(result['reviews'])
+                    p = len(result['patterns'])
+                    logger.info(f"交易复盘完成: {n}条, {p}个模式")
+            except Exception as e:
+                logger.warning(f"交易复盘失败: {e}")
+        scheduler.add_job(trade_review, "cron", hour=15, minute=40,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
         async def alert_check():
             try:
                 import json, pandas as pd
@@ -400,7 +426,7 @@ def main():
         scheduler.add_job(weekly_evolution, "cron", day_of_week="sat", hour=10, minute=0,
                           timezone="Asia/Shanghai")
         scheduler.start()
-        logger.info("Scheduler: 数据15:10 + 调仓15:25 + IC15:27 + 日报15:30 + Pages15:35 + 预警5min + 周六进化10:00")
+        logger.info("Scheduler: 数据15:10 + 调仓15:25 + IC15:27 + 日报15:30 + Pages15:35 + 预警5min + 复盘15:40 + 周六进化10:00")
 
     app.post_init = post_init
 
