@@ -425,8 +425,35 @@ def main():
                 logger.error(f"周度进化失败: {e}")
         scheduler.add_job(weekly_evolution, "cron", day_of_week="sat", hour=10, minute=0,
                           timezone="Asia/Shanghai")
+
+        # D5 周六14:00 GitHub扫描
+        async def github_scan():
+            logger.info("GitHub项目扫描...")
+            try:
+                from src.evolution.github_scanner import scan_github
+                results = scan_github()
+                logger.info(f"GitHub扫描: {len(results)}个项目")
+            except Exception as e:
+                logger.warning(f"GitHub扫描失败: {e}")
+        scheduler.add_job(github_scan, "cron", day_of_week="sat", hour=14, minute=0,
+                          timezone="Asia/Shanghai")
+
+        # D6 每月1日进化月报
+        async def monthly_report():
+            logger.info("生成进化月报...")
+            try:
+                from src.evolution.evolution_reporter import generate_monthly_report
+                report = generate_monthly_report()
+                for uid in ALLOWED_USERS:
+                    await app.bot.send_message(chat_id=uid, text=report)
+                logger.info("进化月报已推送")
+            except Exception as e:
+                logger.warning(f"进化月报失败: {e}")
+        scheduler.add_job(monthly_report, "cron", day="1", hour=9, minute=0,
+                          timezone="Asia/Shanghai")
+
         scheduler.start()
-        logger.info("Scheduler: 数据15:10 + 调仓15:25 + IC15:27 + 日报15:30 + Pages15:35 + 预警5min + 复盘15:40 + 周六进化10:00")
+        logger.info("Scheduler: 数据→调仓→IC→日报→Pages→预警5min→复盘→ 周六:进化+GitHub扫描→ 月初:进化月报")
 
     app.post_init = post_init
 

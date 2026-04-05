@@ -52,6 +52,12 @@ class EvolverAgent(BaseAgent):
             action = {"type": "param_optimize"}
         elif any(k in msg for k in ("因子生命周期", "因子审计", "factor.*audit")):
             action = {"type": "factor_lifecycle"}
+        elif any(k in msg for k in ("github", "外部学习", "扫描", "项目发现")):
+            action = {"type": "github_scan"}
+        elif any(k in msg for k in ("skill评估", "skill.*评估", "技能评估")):
+            action = {"type": "skill_eval"}
+        elif any(k in msg for k in ("进化月报", "进化报告", "月报")):
+            action = {"type": "evolution_report"}
         elif "动态因子" in msg:
             action = {"type": "dynamic_factors"}
         elif "权重" in msg:
@@ -214,6 +220,21 @@ class EvolverAgent(BaseAgent):
                     lines.append(f"  {r['factor']}: IC={r.get('ic_20d_avg', 0):.4f}")
 
                 return ActionResult(success=True, message="\n".join(lines))
+
+            elif action_type == "github_scan":
+                from src.evolution.github_scanner import scan_github, format_scan_report
+                results = scan_github()
+                return ActionResult(success=True, message=format_scan_report(results))
+
+            elif action_type == "skill_eval":
+                from src.evolution.skill_evaluator import format_skill_report
+                report = format_skill_report()
+                return ActionResult(success=True, message=report)
+
+            elif action_type == "evolution_report":
+                from src.evolution.evolution_reporter import generate_monthly_report
+                report = generate_monthly_report()
+                return ActionResult(success=True, message=report)
 
         except Exception as e:
             logger.error(f"EvolverAgent 执行失败: {e}")

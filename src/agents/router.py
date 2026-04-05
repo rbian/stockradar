@@ -18,6 +18,9 @@ class RouterAgent(BaseAgent):
         r"(因子.*表现|因子.*状态|因子.*监控|IC.*追踪|IC.*监控|进化|优化|权重.*调整|动态因子)": "evolver",
         r"(策略.*体检|策略.*诊断|策略.*复盘|失败.*模式|因子.*发现|错误模式|交易复盘)": "evolver",
         r"(教训|知识库|lesson|knowledge)": "evolver",
+        r"(github|外部学习|项目扫描)": "evolver",
+        r"(skill评估|技能评估)": "evolver",
+        r"(进化月报|进化报告|月报)": "evolver",
 
         # 分析类 → AnalystAgent
         r"(分析|研究|看看|怎么样|基本面|技术面|财报).*(\d{6}|[\u4e00-\u9fa5]{2,4})": "analyst",
