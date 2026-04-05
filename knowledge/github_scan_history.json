@@ -1,0 +1,174 @@
+[
+  {
+    "date": "2026-04-05",
+    "repos_found": 4,
+    "repos": [
+      {
+        "repo": "RKiding/Awesome-finance-skills",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "skills"
+      },
+      {
+        "repo": "wilsonfreitas/awesome-quant",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "awesome-list"
+      },
+      {
+        "repo": "thumlut/awesome-quant",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "awesome-list"
+      },
+      {
+        "repo": "AI4Finance-Foundation/FinRL",
+        "relevance_score": 5,
+        "source": "known",
+        "category": "rl"
+      }
+    ]
+  },
+  {
+    "date": "2026-04-05",
+    "repos_found": 99,
+    "repos": [
+      {
+        "repo": "RKiding/Awesome-finance-skills",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "skills"
+      },
+      {
+        "repo": "wilsonfreitas/awesome-quant",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "awesome-list"
+      },
+      {
+        "repo": "thumlut/awesome-quant",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "awesome-list"
+      },
+      {
+        "repo": "ricequant/rqalpha",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "tradingstrategy-ai/getting-started",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "lequant40/portfolio_allocation_js",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "quantopian/alphalens",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "husainm97/quant-lab-alpha",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "tradingstrategy-ai/trading-strategy/",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "LastAncientOne/Stock_Analysis_For_Quant",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "AI4Finance-Foundation/FinRL",
+        "relevance_score": 5,
+        "source": "known",
+        "category": "rl"
+      },
+      {
+        "repo": "johnbywater/quantdsl",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "jsmidt/QuantPy",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "alpha-miner/Finance-Python",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "goldmansachs/gs-quant",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "google/tf-quant-finance",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "quantsbin/Quantsbin",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "joseprupi/quantraserver",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "FlashAlpha-lab/flashalpha-python",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "eddelbuettel/rquantlib",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      }
+    ]
+  }
+]
