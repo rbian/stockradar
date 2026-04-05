@@ -87,6 +87,14 @@ def diagnose_holdings(nav_data: dict, daily_quote: pd.DataFrame = None,
         lines.append("建议检查基本面是否有变化，考虑止损")
     elif len(holdings) > 0:
         lines.append("\n✅ 持仓整体健康")
+
+    # Auto-fix suggestions
+    fix_rules = _generate_fix_suggestions(holdings, daily_quote, names)
+    if fix_rules:
+        lines.append("\n🔧 **自动修正建议:**")
+        for rule in fix_rules:
+            lines.append(f"  · {rule}")
+        _save_fix_rules(fix_rules)
     
     # 风控检查
     try:
@@ -135,6 +143,36 @@ def _simple_diagnose(holdings: dict, nav_data: dict) -> str:
         lines.append(f"  {name}: {shares}股@¥{price:.2f} ({weight:.1f}%)")
     
     return "\n".join(lines)
+
+def _generate_fix_suggestions(holdings: dict, daily_quote, names: dict) -> list[str]:
+    """Generate automatic fix suggestions based on portfolio analysis"""
+    rules = []
+    if not holdings or daily_quote is None or daily_quote.empty:
+        return rules
+
+    # Check concentration
+    total_cost = sum(h.get("shares", 0) * h.get("cost_price", 0) for h in holdings.values())
+    if total_cost > 0:
+        for code, h in holdings.items():
+            weight = (h["shares"] * h["cost_price"] / total_cost) * 100
+            if weight > 25:
+                rules.append(f"{names.get(code, code)}权重{weight:.0f}%过高，建议限制≤25%")
+
+    # Check trading frequency from nav trade_log
+    # (requires nav_data, so we check externally)
+
+    return rules
+
+
+def _save_fix_rules(rules: list[str]):
+    """Save fix rules to knowledge"""
+    if not rules:
+        return
+    from src.evolution.knowledge import KnowledgeStore
+    ks = KnowledgeStore()
+    for rule in rules:
+        ks.append("strategy_evolution.md", f"自动修正建议: {rule}")
+
 
 def _log_warning(warnings: list, names: dict, nav_data: dict):
     """记录持仓异常到知识库"""

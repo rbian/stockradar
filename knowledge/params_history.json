@@ -1,0 +1,138 @@
+[
+  {
+    "date": "2026-04-05 12:22",
+    "data_period": "last 6 months",
+    "results": [
+      {
+        "sharpe": 1.138,
+        "total_return": 3.38,
+        "max_drawdown": -3.43,
+        "trades": 105,
+        "final_nav": 1.0338,
+        "params": {
+          "rebalance_days": 5,
+          "top_n": 10,
+          "stop_loss": -0.05,
+          "stop_profit": 0.15
+        }
+      },
+      {
+        "sharpe": 0.85,
+        "total_return": 2.32,
+        "max_drawdown": -5.4,
+        "trades": 65,
+        "final_nav": 1.0232,
+        "params": {
+          "rebalance_days": 10,
+          "top_n": 10,
+          "stop_loss": -0.15,
+          "stop_profit": 0.1
+        }
+      },
+      {
+        "sharpe": 0.73,
+        "total_return": 1.86,
+        "max_drawdown": -5.15,
+        "trades": 68,
+        "final_nav": 1.0186,
+        "params": {
+          "rebalance_days": 10,
+          "top_n": 10,
+          "stop_loss": -0.1,
+          "stop_profit": 0.1
+        }
+      },
+      {
+        "sharpe": 0.533,
+        "total_return": 1.11,
+        "max_drawdown": -3.83,
+        "trades": 67,
+        "final_nav": 1.0111,
+        "params": {
+          "rebalance_days": 15,
+          "top_n": 10,
+          "stop_loss": -0.05,
+          "stop_profit": 0.1
+        }
+      },
+      {
+        "sharpe": 0.394,
+        "total_return": 0.9,
+        "max_drawdown": -5.31,
+        "trades": 70,
+        "final_nav": 1.009,
+        "params": {
+          "rebalance_days": 10,
+          "top_n": 10,
+          "stop_loss": -0.08,
+          "stop_profit": 0.25
+        }
+      },
+      {
+        "sharpe": 0.261,
+        "total_return": 0.44,
+        "max_drawdown": -6.24,
+        "trades": 34,
+        "final_nav": 1.0044,
+        "params": {
+          "rebalance_days": 20,
+          "top_n": 10,
+          "stop_loss": -0.15,
+          "stop_profit": 0.1
+        }
+      },
+      {
+        "sharpe": 0.134,
+        "total_return": 0.02,
+        "max_drawdown": -5.93,
+        "trades": 96,
+        "final_nav": 1.0002,
+        "params": {
+          "rebalance_days": 5,
+          "top_n": 10,
+          "stop_loss": -0.1,
+          "stop_profit": 0.2
+        }
+      },
+      {
+        "sharpe": -0.262,
+        "total_return": -0.94,
+        "max_drawdown": -4.37,
+        "trades": 88,
+        "final_nav": 0.9906,
+        "params": {
+          "rebalance_days": 10,
+          "top_n": 15,
+          "stop_loss": -0.05,
+          "stop_profit": 0.1
+        }
+      },
+      {
+        "sharpe": -0.39,
+        "total_return": -1.78,
+        "max_drawdown": -7.22,
+        "trades": 108,
+        "final_nav": 0.9822,
+        "params": {
+          "rebalance_days": 7,
+          "top_n": 10,
+          "stop_loss": -0.1,
+          "stop_profit": 0.1
+        }
+      },
+      {
+        "sharpe": -0.391,
+        "total_return": -1.41,
+        "max_drawdown": -5.52,
+        "trades": 82,
+        "final_nav": 0.9859,
+        "params": {
+          "rebalance_days": 15,
+          "top_n": 15,
+          "stop_loss": -0.08,
+          "stop_profit": 0.1
+        }
+      }
+    ]
+  }
+]

@@ -4,6 +4,8 @@
 """
 
 from loguru import logger
+import pandas as pd
+from pathlib import Path
 
 from src.core.agent_base import BaseAgent, AgentConfig, Observation, Plan, ActionResult
 
@@ -46,6 +48,10 @@ class EvolverAgent(BaseAgent):
             action = {"type": "lessons"}
         elif any(k in msg for k in ("知识库", "knowledge")):
             action = {"type": "knowledge_stats"}
+        elif any(k in msg for k in ("参数优化", "最优参数", "param")):
+            action = {"type": "param_optimize"}
+        elif any(k in msg for k in ("因子生命周期", "因子审计", "factor.*audit")):
+            action = {"type": "factor_lifecycle"}
         elif "动态因子" in msg:
             action = {"type": "dynamic_factors"}
         elif "权重" in msg:
@@ -172,6 +178,41 @@ class EvolverAgent(BaseAgent):
                     lines.append(f"  {fname}: {line_count} 行")
                 lines.append(f"\n  交易复盘: {stats['trade_reviews']} 份")
                 lines.append(f"  错误模式: {stats['error_patterns']} 个")
+                return ActionResult(success=True, message="\n".join(lines))
+
+            elif action_type == "param_optimize":
+                from src.evolution.param_optimizer import optimize_params, format_optimization_report
+                dq = self.context.read("data.daily_quote") if self.context else None
+                financial = self.context.read("financial_data") if self.context else None
+                codes = self.context.read("codes", []) if self.context else []
+                if dq is None:
+                    return ActionResult(success=False, message="无行情数据")
+                # Run optimization (may take a few minutes)
+                results = optimize_params(dq, financial, codes)
+                report = format_optimization_report(results)
+                return ActionResult(success=True, message=report)
+
+            elif action_type == "factor_lifecycle":
+                tracker = scheduler.tracker
+                status_df = tracker.get_status() if tracker else pd.DataFrame()
+                if status_df.empty:
+                    return ActionResult(success=True, message="暂无因子IC数据")
+
+                lines = ["🔄 **因子生命周期**\n"]
+                # Active
+                active = status_df[~status_df["is_suspended"]]
+                declining = active[active["weight_multiplier"] < 0.9]
+                healthy = active[active["weight_multiplier"] >= 0.9]
+                suspended = status_df[status_df["is_suspended"]]
+
+                lines.append(f"\n✅ 健康 ({len(healthy)}个):")
+                lines.append(f"⚠️ 衰退 ({len(declining)}个):")
+                for _, r in declining.iterrows():
+                    lines.append(f"  {r['factor']}: IC={r['ic_20d_avg']:.4f}, 权重×{r['weight_multiplier']:.2f}")
+                lines.append(f"\n⏸ 暂停 ({len(suspended)}个):")
+                for _, r in suspended.iterrows():
+                    lines.append(f"  {r['factor']}: IC={r.get('ic_20d_avg', 0):.4f}")
+
                 return ActionResult(success=True, message="\n".join(lines))
 
         except Exception as e:
