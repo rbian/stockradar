@@ -206,6 +206,7 @@ def main():
 
     async def daily_rebalance():
         """15:25 自动调仓"""
+        if not _is_trading_day(): return
         logger.info("定时调仓...")
         try:
             result = await asyncio.wait_for(
@@ -233,6 +234,9 @@ def main():
         scheduler = AsyncIOScheduler()
         # 数据更新: 15:10 新浪实时行情（优先）+ mootdx备用
         async def data_update():
+            if not _is_trading_day():
+                logger.info("今日休市，跳过数据更新")
+                return
             logger.info("定时数据更新...")
             try:
                 import pandas as pd
@@ -283,6 +287,7 @@ def main():
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
         # IC追踪: 15:27 (调仓后)
         async def ic_track():
+            if not _is_trading_day(): return
             logger.info("因子IC追踪...")
             try:
                 from src.evolution.factor_tracker import FactorTracker
@@ -346,6 +351,7 @@ def main():
 
         # 交易复盘: 15:40 (调仓+日报之后)
         async def trade_review():
+            if not _is_trading_day(): return
             logger.info("交易复盘...")
             try:
                 import json, pandas as pd
@@ -371,7 +377,35 @@ def main():
                 logger.warning(f"交易复盘失败: {e}")
         scheduler.add_job(trade_review, "cron", hour=15, minute=40,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
+        # A股休市日历 (节假日 + 周末补班但休市)
+        HOLIDAYS_2026 = {
+            # 元旦
+            "2026-01-01", "2026-01-02", "2026-01-03",
+            # 春节
+            "2026-02-14", "2026-02-15", "2026-02-16", "2026-02-17",
+            "2026-02-18", "2026-02-19", "2026-02-20",
+            # 清明
+            "2026-04-04", "2026-04-05", "2026-04-06",
+            # 劳动节
+            "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05",
+            # 端午
+            "2026-05-30", "2026-05-31", "2026-06-01",
+            # 中秋+国庆
+            "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04",
+            "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08",
+        }
+
+        def _is_trading_day() -> bool:
+            """判断今天是否为交易日"""
+            from datetime import date
+            today = date.today().isoformat()
+            if today in HOLIDAYS_2026:
+                return False
+            return date.today().weekday() < 5  # Mon-Fri
+
         async def alert_check():
+            if not _is_trading_day():
+                return
             try:
                 import json, pandas as pd
                 from src.simulator.alert_system import check_alerts, format_alerts
