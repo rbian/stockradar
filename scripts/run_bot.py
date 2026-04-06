@@ -19,6 +19,7 @@ from scripts.system_init import create_system
 
 orch = None
 ALLOWED_USERS = set()
+auto_traded_today = False
 
 # 按钮文字 → Agent消息映射
 BUTTON_MAP = {
@@ -206,7 +207,7 @@ def main():
 
     async def daily_rebalance():
         """15:25 自动调仓"""
-        nonlocal auto_traded_today
+        global auto_traded_today
         if auto_traded_today:
             msg = "⏭️ 盘中已触发自动交易，跳过定时调仓"
             for uid in ALLOWED_USERS:
@@ -237,12 +238,12 @@ def main():
 
     async def post_init(app):
         await set_commands(app)
-        nonlocal auto_traded_today
+        global auto_traded_today
         auto_traded_today = False
         scheduler = AsyncIOScheduler()
         # 数据更新: 15:10 新浪实时行情（优先）+ mootdx备用
         async def data_update():
-            nonlocal auto_traded_today
+            global auto_traded_today
             auto_traded_today = False  # 新的一天重置
             if not _is_trading_day():
                 logger.info("今日休市，跳过数据更新")
@@ -481,7 +482,7 @@ def main():
                     sold.append(f"{_sn(code)} ¥{price:.2f} 盈亏{pnl:+.0f}")
 
                 if sold:
-                    nonlocal auto_traded_today
+                    global auto_traded_today
                     auto_traded_today = True
                     nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
                     msg = f"🔴 **自动卖出执行**\n" + "\n".join(f"  • {s}" for s in sold)
