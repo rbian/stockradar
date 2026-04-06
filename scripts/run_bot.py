@@ -410,10 +410,22 @@ def main():
                 import json, pandas as pd
                 from src.simulator.alert_system import check_alerts, format_alerts
                 from src.data.stock_names import stock_name as _sn
+                from src.data.sina_adapter import fetch_realtime_quotes
                 nav_data = json.load(open(PROJECT_ROOT / 'data' / 'nav_state_balanced.json'))
-                dq = orch.context.read("data.daily_quote")
                 holdings = nav_data.get('holdings', {})
-                if not holdings or dq is None:
+                if not holdings:
+                    return
+                # 获取实时行情（非缓存的日线数据）
+                codes = list(holdings.keys())
+                try:
+                    dq = fetch_realtime_quotes(codes)
+                    if dq is None or dq.empty:
+                        logger.debug("实时行情获取失败，回退到缓存数据")
+                        dq = orch.context.read("data.daily_quote")
+                except Exception as e:
+                    logger.debug(f"实时行情异常，回退缓存: {e}")
+                    dq = orch.context.read("data.daily_quote")
+                if dq is None:
                     return
                 alerts = check_alerts(holdings, dq)
                 if alerts:
