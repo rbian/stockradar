@@ -206,7 +206,13 @@ def main():
 
     async def daily_rebalance():
         """15:25 自动调仓"""
-        if not _is_trading_day(): return
+        nonlocal auto_traded_today
+        if auto_traded_today:
+            msg = "⏭️ 盘中已触发自动交易，跳过定时调仓"
+            for uid in ALLOWED_USERS:
+                await app.bot.send_message(chat_id=uid, text=msg)
+            logger.info("定时调仓已跳过")
+            return
         logger.info("定时调仓...")
         try:
             result = await asyncio.wait_for(
@@ -231,9 +237,13 @@ def main():
 
     async def post_init(app):
         await set_commands(app)
+        nonlocal auto_traded_today
+        auto_traded_today = False
         scheduler = AsyncIOScheduler()
         # 数据更新: 15:10 新浪实时行情（优先）+ mootdx备用
         async def data_update():
+            nonlocal auto_traded_today
+            auto_traded_today = False  # 新的一天重置
             if not _is_trading_day():
                 logger.info("今日休市，跳过数据更新")
                 return
@@ -471,6 +481,8 @@ def main():
                     sold.append(f"{_sn(code)} ¥{price:.2f} 盈亏{pnl:+.0f}")
 
                 if sold:
+                    nonlocal auto_traded_today
+                    auto_traded_today = True
                     nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
                     msg = f"🔴 **自动卖出执行**\n" + "\n".join(f"  • {s}" for s in sold)
                     for uid in ALLOWED_USERS:
