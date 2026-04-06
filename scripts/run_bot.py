@@ -434,8 +434,48 @@ def main():
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
                     logger.info(f"预警推送: {len(alerts)}条")
+
+                    # 方案A: 自动卖出止损/止盈触发股票
+                    from src.simulator.alert_system import get_auto_sell_codes
+                    sell_codes = get_auto_sell_codes(alerts)
+                    if sell_codes:
+                        await _auto_sell(sell_codes, dq)
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
+
+        async def _auto_sell(codes: list[str], dq):
+            """Auto-sell triggered by stop-loss / take-profit alerts"""
+            try:
+                from src.simulator.nav_tracker import NAVTracker
+                import json
+                nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
+                nav_data = json.loads(nav_file.read_text())
+                tracker = NAVTracker.from_dict(nav_data)
+
+                sold = []
+                for code in codes:
+                    if code not in tracker.holdings:
+                        continue
+                    # Get current price from realtime data
+                    price_row = dq[dq['code'] == code] if 'code' in dq.columns else None
+                    if price_row is not None and len(price_row) > 0:
+                        price = float(price_row.iloc[0]['close'])
+                    else:
+                        continue
+
+                    h = tracker.holdings[code]
+                    pnl = (price - h['cost_price']) * h['shares']
+                    tracker._sell(code, price, 'realtime', 'auto_stop')
+                    sold.append(f"{_sn(code)} ¥{price:.2f} 盈亏{pnl:+.0f}")
+
+                if sold:
+                    nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                    msg = f"🔴 **自动卖出执行**\n" + "\n".join(f"  • {s}" for s in sold)
+                    for uid in ALLOWED_USERS:
+                        await app.bot.send_message(chat_id=uid, text=msg)
+                    logger.info(f"自动卖出: {', '.join(codes)}")
+            except Exception as e:
+                logger.error(f"自动卖出失败: {e}")
         # Morning session: 9:35-11:30 every 5 min
         scheduler.add_job(alert_check, "cron", minute='*/5',
                           hour='9-10', day_of_week="mon-fri",

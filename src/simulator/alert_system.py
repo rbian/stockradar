@@ -190,6 +190,16 @@ def check_alerts(holdings: dict, daily_quote: pd.DataFrame) -> list[dict]:
     return alerts
 
 
+# ── Auto-sell rules ──
+# Only auto-sell on high-confidence stop-loss / take-profit signals
+AUTO_SELL_TYPES = {"cost_below", "trailing_stop"}  # 止损 + 动态止盈
+
+
+def get_auto_sell_codes(alerts: list[dict]) -> list[str]:
+    """Extract codes that should be auto-sold"""
+    return [a["code"] for a in alerts if a["type"] in AUTO_SELL_TYPES]
+
+
 def format_alerts(alerts: list[dict], stock_names: dict = None) -> str:
     """Format alerts into Telegram-friendly message"""
     if not alerts:
