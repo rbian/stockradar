@@ -191,13 +191,21 @@ def check_alerts(holdings: dict, daily_quote: pd.DataFrame) -> list[dict]:
 
 
 # ── Auto-sell rules ──
-# Only auto-sell on high-confidence stop-loss / take-profit signals
-AUTO_SELL_TYPES = {"cost_below", "trailing_stop"}  # 止损 + 动态止盈
+# Auto-sell on stop-loss / trailing stop
+AUTO_SELL_TYPES = {"cost_below", "trailing_stop"}
+
+# Auto-buy signals
+AUTO_BUY_TYPES = {"rsi_oversold", "golden_cross", "gap_up"}
 
 
 def get_auto_sell_codes(alerts: list[dict]) -> list[str]:
     """Extract codes that should be auto-sold"""
     return [a["code"] for a in alerts if a["type"] in AUTO_SELL_TYPES]
+
+
+def get_buy_signals(alerts: list[dict]) -> list[dict]:
+    """Extract buy signals from alerts (for held stocks showing reversal)"""
+    return [a for a in alerts if a["type"] in AUTO_BUY_TYPES]
 
 
 def format_alerts(alerts: list[dict], stock_names: dict = None) -> str:

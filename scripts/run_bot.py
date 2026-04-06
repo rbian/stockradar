@@ -439,12 +439,15 @@ def main():
                     from src.simulator.alert_system import get_auto_sell_codes
                     sell_codes = get_auto_sell_codes(alerts)
                     if sell_codes:
-                        await _auto_sell(sell_codes, dq)
+                        sold_count = await _auto_sell(sell_codes, dq)
+                        # 卖出后自动买入补仓（从评分排名选）
+                        if sold_count > 0:
+                            await _auto_buy(dq)
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
 
-        async def _auto_sell(codes: list[str], dq):
-            """Auto-sell triggered by stop-loss / take-profit alerts"""
+        async def _auto_sell(codes: list[str], dq) -> int:
+            """Auto-sell triggered by stop-loss / take-profit alerts. Returns count sold."""
             try:
                 from src.simulator.nav_tracker import NAVTracker
                 import json
@@ -456,7 +459,6 @@ def main():
                 for code in codes:
                     if code not in tracker.holdings:
                         continue
-                    # Get current price from realtime data
                     price_row = dq[dq['code'] == code] if 'code' in dq.columns else None
                     if price_row is not None and len(price_row) > 0:
                         price = float(price_row.iloc[0]['close'])
@@ -474,8 +476,75 @@ def main():
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
                     logger.info(f"自动卖出: {', '.join(codes)}")
+                return len(sold)
             except Exception as e:
                 logger.error(f"自动卖出失败: {e}")
+                return 0
+
+        async def _auto_buy(dq):
+            """Auto-buy top-scored stocks after selling frees up cash"""
+            try:
+                from src.simulator.nav_tracker import NAVTracker
+                from src.factors.engine import FactorEngine
+                import json
+                nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
+                nav_data = json.loads(nav_file.read_text())
+                tracker = NAVTracker.from_dict(nav_data)
+
+                if tracker.cash < 10000:  # 现金不足，不买
+                    return
+
+                # 用因子引擎评分
+                engine = FactorEngine()
+                dq_full = orch.context.read("data.daily_quote")
+                if dq_full is None:
+                    return
+                codes_list = orch.context.read("codes", [])
+                data = {"daily_quote": dq_full, "codes": codes_list}
+                scores = engine.score_all(data)
+                if scores.empty:
+                    return
+
+                # 排除已持有的，取前3名
+                held = set(tracker.holdings.keys())
+                candidates = scores[~scores.index.isin(held)].head(3)
+                if candidates.empty:
+                    return
+
+                # 获取候选股实时价格
+                buy_codes = candidates.index.tolist()
+                try:
+                    buy_dq = fetch_realtime_quotes(buy_codes)
+                except Exception:
+                    buy_dq = dq
+
+                prices = {}
+                for code in buy_codes:
+                    row = buy_dq[buy_dq['code'] == code] if 'code' in buy_dq.columns else None
+                    if row is not None and len(row) > 0:
+                        prices[code] = float(row.iloc[0]['close'])
+
+                if not prices:
+                    return
+
+                # 买入（资金均分）
+                per_stock = tracker.cash / len(prices)
+                bought = []
+                for code, price in prices.items():
+                    shares = int(per_stock / price / 100) * 100
+                    if shares >= 100:
+                        tracker._buy(code, shares, price, 'realtime', 'auto_buy')
+                        score = candidates.loc[code, 'total_score'] if code in candidates.index else 0
+                        bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} (评分{score:.1f})")
+
+                if bought:
+                    nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                    msg = f"🟢 **自动买入补仓**\n现金¥{tracker.cash:,.0f}\n" + "\n".join(f"  • {s}" for s in bought)
+                    for uid in ALLOWED_USERS:
+                        await app.bot.send_message(chat_id=uid, text=msg)
+                    logger.info(f"自动买入: {bought}")
+            except Exception as e:
+                logger.error(f"自动买入失败: {e}")
         # Morning session: 9:35-11:30 every 5 min
         scheduler.add_job(alert_check, "cron", minute='*/5',
                           hour='9-10', day_of_week="mon-fri",
