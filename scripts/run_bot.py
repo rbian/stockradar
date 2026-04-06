@@ -482,19 +482,24 @@ def main():
                 return 0
 
         async def _auto_buy(dq):
-            """Auto-buy top-scored stocks after selling frees up cash"""
+            """Auto-buy with multi-condition entry filter
+
+            Filters: factor score + technical signal + not chasing highs + volume confirm
+            """
             try:
                 from src.simulator.nav_tracker import NAVTracker
                 from src.factors.engine import FactorEngine
+                from src.factors.technical_signals import score_stock
+                from src.data.sina_adapter import fetch_realtime_quotes
                 import json
                 nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
                 nav_data = json.loads(nav_file.read_text())
                 tracker = NAVTracker.from_dict(nav_data)
 
-                if tracker.cash < 10000:  # 现金不足，不买
+                if tracker.cash < 10000:
                     return
 
-                # 用因子引擎评分
+                # Step 1: 因子评分排名
                 engine = FactorEngine()
                 dq_full = orch.context.read("data.daily_quote")
                 if dq_full is None:
@@ -505,44 +510,96 @@ def main():
                 if scores.empty:
                     return
 
-                # 排除已持有的，取前3名
                 held = set(tracker.holdings.keys())
-                candidates = scores[~scores.index.isin(held)].head(3)
-                if candidates.empty:
+
+                # Step 2: 多条件过滤候选股
+                candidates = []
+                for code in scores.index:
+                    if code in held:
+                        continue
+                    if len(candidates) >= 5:
+                        break
+
+                    # 获取该股历史数据
+                    stock_data = dq_full[dq_full['code'] == code].tail(60)
+                    if len(stock_data) < 30:
+                        continue
+
+                    # 条件1: 技术信号评分 >= 50
+                    tech = score_stock(stock_data)
+                    if tech.get('signal_score', 0) < 50:
+                        continue
+
+                    # 条件2: RSI未超买 (< 70)
+                    rsi_val = tech.get('details', {}).get('rsi', {})
+                    rsi = rsi_val.get('value', 50) if isinstance(rsi_val, dict) else rsi_val
+                    if isinstance(rsi, (int, float)) and rsi > 70:
+                        continue
+
+                    # 条件3: 不在近期高点 (乖离率 < 5%)
+                    close = stock_data['close']
+                    ma20 = close.rolling(20).mean().iloc[-1]
+                    latest_price = close.iloc[-1]
+                    if ma20 > 0 and (latest_price / ma20 - 1) > 0.05:
+                        continue  # 偏离MA20超5%，追高风险
+
+                    # 条件4: 成交量确认 (> 5日均量)
+                    vol = stock_data.get('volume', pd.Series(dtype=float))
+                    if len(vol) >= 2:
+                        vol_ma5 = vol.tail(6).iloc[:-1].mean()
+                        if vol_ma5 > 0 and vol.iloc[-1] < vol_ma5 * 0.8:
+                            continue  # 缩量，资金不关注
+
+                    # 条件5: 短期趋势偏多 (MA5 > MA20)
+                    ma5 = close.rolling(5).mean().iloc[-1]
+                    if ma5 < ma20:
+                        continue
+
+                    factor_score = scores.loc[code, 'score_total'] if code in scores.index else 0
+                    candidates.append({
+                        'code': code,
+                        'factor_score': factor_score,
+                        'signal_score': tech['signal_score'],
+                        'reason': f"因子{factor_score:.1f} 信号{tech['signal_score']} {tech.get('signal', '')}",
+                    })
+
+                if not candidates:
+                    logger.info("无符合条件的买入候选")
                     return
 
-                # 获取候选股实时价格
-                buy_codes = candidates.index.tolist()
+                # 按(因子分*0.6 + 信号分*0.4)排序
+                candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
+                buy_list = candidates[:3]
+
+                # Step 3: 获取实时价格并买入
+                buy_codes = [c['code'] for c in buy_list]
                 try:
                     buy_dq = fetch_realtime_quotes(buy_codes)
                 except Exception:
                     buy_dq = dq
 
-                prices = {}
-                for code in buy_codes:
+                per_stock = tracker.cash / len(buy_list)
+                bought = []
+                for c in buy_list:
+                    code = c['code']
                     row = buy_dq[buy_dq['code'] == code] if 'code' in buy_dq.columns else None
                     if row is not None and len(row) > 0:
-                        prices[code] = float(row.iloc[0]['close'])
-
-                if not prices:
-                    return
-
-                # 买入（资金均分）
-                per_stock = tracker.cash / len(prices)
-                bought = []
-                for code, price in prices.items():
+                        price = float(row.iloc[0]['close'])
+                    else:
+                        continue
                     shares = int(per_stock / price / 100) * 100
                     if shares >= 100:
                         tracker._buy(code, shares, price, 'realtime', 'auto_buy')
-                        score = candidates.loc[code, 'total_score'] if code in candidates.index else 0
-                        bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} (评分{score:.1f})")
+                        bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
 
                 if bought:
                     nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
-                    msg = f"🟢 **自动买入补仓**\n现金¥{tracker.cash:,.0f}\n" + "\n".join(f"  • {s}" for s in bought)
+                    msg = f"🟢 **自动买入** (5重过滤)\n可用¥{tracker.cash:,.0f}\n" + "\n".join(f"  • {s}" for s in bought)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
                     logger.info(f"自动买入: {bought}")
+                else:
+                    logger.info("候选股价格不满足买入条件")
             except Exception as e:
                 logger.error(f"自动买入失败: {e}")
         # Morning session: 9:35-11:30 every 5 min
