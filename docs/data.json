@@ -1,15 +1,15 @@
 {
-  "updated": "2026-04-03",
+  "updated": "2026-04-07",
   "stats": {
-    "latest_date": "2026-04-03",
-    "nav": 1.0126,
-    "total_return": 1.26,
-    "max_drawdown": 0.0,
-    "holdings_count": 5,
-    "total_trades": 5,
+    "latest_date": "2026-04-07",
+    "nav": 1.0117,
+    "total_return": 1.17,
+    "max_drawdown": -0.09,
+    "holdings_count": 10,
+    "total_trades": 14,
     "initial_capital": 1000000,
-    "current_value": 1012565.0,
-    "cash": 525895.0
+    "current_value": 1007098.0,
+    "cash": 15882.0
   },
   "nav_history": [
     {
@@ -26,64 +26,217 @@
     },
     {
       "date": "2026-04-03",
-      "nav": 1.0126,
-      "market_value": 486670.0,
-      "holdings_count": 5
+      "nav": 1.0117,
+      "market_value": 995781.0,
+      "holdings_count": 10
+    }
+  ],
+  "hs300_benchmark": [
+    {
+      "date": "2026-03-31",
+      "nav": 0.9995
+    },
+    {
+      "date": "2026-04-01",
+      "nav": 1.0258
+    },
+    {
+      "date": "2026-04-02",
+      "nav": 1.0087
+    },
+    {
+      "date": "2026-04-03",
+      "nav": 1.0036
+    },
+    {
+      "date": "2026-04-07",
+      "nav": 1.008
     }
   ],
   "holdings": [
-    {
-      "code": "000333",
-      "name": "美的集团",
-      "shares": 1300,
-      "cost_price": 76.35,
-      "current_price": 76.35,
-      "market_value": 99255.0,
-      "pnl_pct": 0.0,
-      "weight": 21.0
-    },
     {
       "code": "002460",
       "name": "赣锋锂业",
       "shares": 1200,
       "cost_price": 78.38,
-      "current_price": 79.75,
-      "market_value": 95700.0,
-      "pnl_pct": 1.75,
-      "weight": 19.9
+      "current_price": 78.96,
+      "market_value": 94752.0,
+      "pnl_pct": 0.74,
+      "weight": 9.6
     },
     {
       "code": "688506",
       "name": "百利天恒",
       "shares": 300,
       "cost_price": 278.0,
-      "current_price": 313.53,
-      "market_value": 94059.0,
-      "pnl_pct": 12.78,
-      "weight": 17.6
+      "current_price": 309.22,
+      "market_value": 92766.0,
+      "pnl_pct": 11.23,
+      "weight": 8.5
     },
     {
       "code": "603288",
       "name": "海天味业",
       "shares": 2400,
       "cost_price": 41.0,
-      "current_price": 41.69,
-      "market_value": 100056.0,
-      "pnl_pct": 1.68,
-      "weight": 20.8
+      "current_price": 41.53,
+      "market_value": 99672.0,
+      "pnl_pct": 1.29,
+      "weight": 10.0
     },
     {
-      "code": "002475",
-      "name": "立讯精密",
-      "shares": 2000,
-      "cost_price": 49.26,
-      "current_price": 48.8,
-      "market_value": 97600.0,
-      "pnl_pct": -0.93,
-      "weight": 20.8
+      "code": "605499",
+      "name": "东鹏饮料",
+      "shares": 500,
+      "cost_price": 202.27,
+      "current_price": 198.04,
+      "market_value": 99020.0,
+      "pnl_pct": -2.09,
+      "weight": 10.3
+    },
+    {
+      "code": "300759",
+      "name": "康龙化成",
+      "shares": 3400,
+      "cost_price": 30.07,
+      "current_price": 30.1,
+      "market_value": 102340.0,
+      "pnl_pct": 0.1,
+      "weight": 10.4
+    },
+    {
+      "code": "601988",
+      "name": "中国银行",
+      "shares": 17700,
+      "cost_price": 5.82,
+      "current_price": 5.8,
+      "market_value": 102660.0,
+      "pnl_pct": -0.34,
+      "weight": 10.5
+    },
+    {
+      "code": "601607",
+      "name": "上海医药",
+      "shares": 5900,
+      "cost_price": 17.31,
+      "current_price": 17.28,
+      "market_value": 101952.0,
+      "pnl_pct": -0.17,
+      "weight": 10.4
+    },
+    {
+      "code": "600741",
+      "name": "华域汽车",
+      "shares": 5200,
+      "cost_price": 19.85,
+      "current_price": 19.97,
+      "market_value": 103844.0,
+      "pnl_pct": 0.6,
+      "weight": 10.5
+    },
+    {
+      "code": "601127",
+      "name": "赛力斯",
+      "shares": 1100,
+      "cost_price": 86.4,
+      "current_price": 86.63,
+      "market_value": 95293.0,
+      "pnl_pct": 0.27,
+      "weight": 9.7
+    },
+    {
+      "code": "600809",
+      "name": "山西汾酒",
+      "shares": 700,
+      "cost_price": 141.7,
+      "current_price": 141.31,
+      "market_value": 98917.0,
+      "pnl_pct": -0.28,
+      "weight": 10.1
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-03",
+      "code": "600809",
+      "name": "山西汾酒",
+      "action": "buy",
+      "shares": 700,
+      "price": 141.7,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "601127",
+      "name": "赛力斯",
+      "action": "buy",
+      "shares": 1100,
+      "price": 86.4,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "600741",
+      "name": "华域汽车",
+      "action": "buy",
+      "shares": 5200,
+      "price": 19.85,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 5900,
+      "price": 17.31,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "601988",
+      "name": "中国银行",
+      "action": "buy",
+      "shares": 17700,
+      "price": 5.82,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "300759",
+      "name": "康龙化成",
+      "action": "buy",
+      "shares": 3400,
+      "price": 30.07,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "605499",
+      "name": "东鹏饮料",
+      "action": "buy",
+      "shares": 500,
+      "price": 202.27,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "002475",
+      "name": "立讯精密",
+      "action": "sell",
+      "shares": 2000,
+      "price": 48.8,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "000333",
+      "name": "美的集团",
+      "action": "sell",
+      "shares": 1300,
+      "price": 76.35,
+      "reason": "评分调仓"
+    },
     {
       "date": "2026-03-31",
       "code": "002475",
