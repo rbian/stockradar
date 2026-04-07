@@ -1,0 +1,315 @@
+{
+  "date": "2026-04-07",
+  "total_reviews": 22,
+  "patterns": [],
+  "reviews": [
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "date": "2026-03-31",
+      "price": 76.35,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 0.64
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "002460",
+      "name": "赣锋锂业",
+      "action": "buy",
+      "date": "2026-03-31",
+      "price": 78.38,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.37
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "688506",
+      "name": "百利天恒",
+      "action": "buy",
+      "date": "2026-03-31",
+      "price": 278.0,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 12.55
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "603288",
+      "name": "海天味业",
+      "action": "buy",
+      "date": "2026-03-31",
+      "price": 41.0,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 1.85
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "002475",
+      "name": "立讯精密",
+      "action": "buy",
+      "date": "2026-03-31",
+      "price": 49.26,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 2.31
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "sell",
+      "date": "2026-04-03",
+      "price": 76.35,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.3
+      },
+      "outcome": "neutral",
+      "analysis": "卖出后5日+0.0%"
+    },
+    {
+      "code": "002475",
+      "name": "立讯精密",
+      "action": "sell",
+      "date": "2026-04-03",
+      "price": 48.8,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.84
+      },
+      "outcome": "neutral",
+      "analysis": "卖出后5日+0.0%"
+    },
+    {
+      "code": "605499",
+      "name": "东鹏饮料",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 202.27,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.09
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "300759",
+      "name": "康龙化成",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 30.07,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 0.1
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "601988",
+      "name": "中国银行",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 5.82,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.34
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 17.31,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.17
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "600741",
+      "name": "华域汽车",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 19.85,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 0.6
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "601127",
+      "name": "赛力斯",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 86.4,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 0.27
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "600809",
+      "name": "山西汾酒",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 141.7,
+      "reason": "评分调仓",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.28
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "601988",
+      "name": "中国银行",
+      "action": "buy",
+      "date": "2026-04-02",
+      "price": 5.87,
+      "reason": "评分调仓",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": -2.02
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "sell",
+      "date": "2026-04-02",
+      "price": 77.37,
+      "reason": "评分调仓",
+      "pnl": 1326.0,
+      "subsequent_returns": {
+        "1d": -1.32
+      },
+      "outcome": "good",
+      "analysis": "卖出后5日+0.0%，卖出时机合理"
+    },
+    {
+      "code": "601127",
+      "name": "赛力斯",
+      "action": "buy",
+      "date": "2026-04-02",
+      "price": 89.08,
+      "reason": "评分调仓",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": -3.01
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "601988",
+      "name": "中国银行",
+      "action": "sell",
+      "date": "2026-04-03",
+      "price": 5.94,
+      "reason": "腾位",
+      "pnl": 1043.0,
+      "subsequent_returns": {
+        "1d": -0.34
+      },
+      "outcome": "good",
+      "analysis": "卖出后5日+0.0%，卖出时机合理"
+    },
+    {
+      "code": "600276",
+      "name": "恒瑞医药",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 57.37,
+      "reason": "评分调仓",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": -0.46
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "603259",
+      "name": "药明康德",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 103.19,
+      "reason": "评分调仓",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": 1.31
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "002466",
+      "name": "天齐锂业",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 56.17,
+      "reason": "评分调仓",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": 2.27
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "600690",
+      "name": "海尔智家",
+      "action": "buy",
+      "date": "2026-04-03",
+      "price": 21.38,
+      "reason": "评分调仓",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": -2.27
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    }
+  ]
+}
