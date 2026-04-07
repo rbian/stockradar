@@ -503,8 +503,8 @@ def main():
 
                 if tracker.cash < 10000:
                     return
-                if len(tracker.holdings) >= 10:
-                    logger.info("持仓已达10只上限，跳过买入")
+                if len(tracker.holdings) >= 5:
+                    logger.info("持仓已达5只上限，跳过买入")
                     return
 
                 # Step 1: 因子评分排名
