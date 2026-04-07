@@ -656,6 +656,19 @@ def main():
                 threshold_rank = int(total_stocks * 0.3)  # 前30%
                 top_rank = int(total_stocks * 0.1)  # 前10%
 
+                # 获取实时价格
+                rt_codes = list(held)
+                try:
+                    rt_dq = fetch_realtime_quotes(rt_codes)
+                except Exception:
+                    rt_dq = dq
+
+                def _get_rt_price(code):
+                    row = rt_dq[rt_dq['code'] == code] if 'code' in rt_dq.columns else None
+                    if row is not None and len(row) > 0:
+                        return float(row.iloc[0]['close'])
+                    return None
+
                 # === 卖出检查: 持仓评分跌出前30% 或 技术面恶化 ===
                 sell_candidate = None
                 sell_reason = ""
@@ -689,6 +702,23 @@ def main():
                 if not sell_candidate:
                     return  # 持仓都健康，不调仓
 
+                # === 减仓模式: 持仓>5只时只卖不买 ===
+                if len(tracker.holdings) > 5:
+                    # 只卖出，不买入
+                    sell_price = _get_rt_price(sell_candidate)
+                    if not sell_price:
+                        return
+                    h = tracker.holdings[sell_candidate]
+                    tracker._sell(sell_candidate, sell_price, 'realtime', 'reduce_to_5')
+                    nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                    auto_traded_today = True
+                    msg = f"📉 **减仓** (持仓{len(tracker.holdings)+1}→{len(tracker.holdings)}): 卖出 {_sn(sell_candidate)} {h['shares']}股@¥{sell_price:.2f} ({sell_reason})"
+                    for uid in ALLOWED_USERS:
+                        await app.bot.send_message(chat_id=uid, text=msg)
+                    logger.info(f"减仓: 卖{sell_candidate} ({sell_reason})")
+                    await pages_update()
+                    return
+
                 # === 买入检查: 非持仓股进入前10% + 技术面确认 ===
                 buy_candidate = None
                 buy_reason = ""
@@ -716,19 +746,6 @@ def main():
                     return  # 没有更好的标的
 
                 # === 执行调仓: 卖1只 + 买1只 ===
-                # 获取实时价格
-                rt_codes = [sell_candidate, buy_candidate]
-                try:
-                    rt_dq = fetch_realtime_quotes(rt_codes)
-                except Exception:
-                    rt_dq = dq
-
-                def _get_rt_price(code):
-                    row = rt_dq[rt_dq['code'] == code] if 'code' in rt_dq.columns else None
-                    if row is not None and len(row) > 0:
-                        return float(row.iloc[0]['close'])
-                    return None
-
                 sell_price = _get_rt_price(sell_candidate)
                 buy_price = _get_rt_price(buy_candidate)
                 if not sell_price or not buy_price:
