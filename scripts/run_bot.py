@@ -433,6 +433,8 @@ def main():
                         # 卖出后自动买入补仓（从评分排名选）
                         if sold_count > 0:
                             await _auto_buy(dq)
+                            # 交易后同步GitHub Pages
+                            await pages_update()
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
 
