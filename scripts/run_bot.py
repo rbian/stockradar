@@ -425,16 +425,18 @@ def main():
                         await app.bot.send_message(chat_id=uid, text=msg)
                     logger.info(f"预警推送: {len(alerts)}条")
 
-                    # 方案A: 自动卖出止损/止盈触发股票
+                    # 被动卖出: 止损/止盈
                     from src.simulator.alert_system import get_auto_sell_codes
                     sell_codes = get_auto_sell_codes(alerts)
                     if sell_codes:
                         sold_count = await _auto_sell(sell_codes, dq)
-                        # 卖出后自动买入补仓（从评分排名选）
                         if sold_count > 0:
                             await _auto_buy(dq)
-                            # 交易后同步GitHub Pages
                             await pages_update()
+
+                # 主动调仓: 评分驱动 + 技术面恶化
+                if _is_trading_day():
+                    await _smart_rebalance(dq)
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
 
@@ -598,6 +600,156 @@ def main():
                     logger.info("候选股价格不满足买入条件")
             except Exception as e:
                 logger.error(f"自动买入失败: {e}")
+
+        async def _smart_rebalance(dq):
+            """评分驱动的主动调仓 — 每5分钟检查
+
+            调仓规则:
+            1. 持仓股评分跌出前30% → 卖出
+            2. 持仓股技术信号<35 → 减仓
+            3. 非持仓股评分进入前10% + 技术面确认 → 买入
+            4. 每次最多调换1只，避免频繁交易
+            5. 当天已有自动交易则跳过
+            """
+            global auto_traded_today
+            if auto_traded_today:
+                return
+            try:
+                from src.simulator.nav_tracker import NAVTracker
+                from src.factors.engine import FactorEngine
+                from src.factors.technical_signals import score_stock
+                from src.data.stock_names import stock_name as _sn
+                from src.data.sina_adapter import fetch_realtime_quotes
+                import json
+
+                nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
+                nav_data = json.loads(nav_file.read_text())
+                tracker = NAVTracker.from_dict(nav_data)
+                if len(tracker.holdings) == 0:
+                    return
+
+                # 评分排名
+                engine = FactorEngine()
+                dq_full = orch.context.read("data.daily_quote")
+                if dq_full is None:
+                    return
+                codes_list = orch.context.read("codes", [])
+                data = {"daily_quote": dq_full, "codes": codes_list}
+                scores = engine.score_all(data)
+                if scores.empty:
+                    return
+
+                held = set(tracker.holdings.keys())
+                total_stocks = len(scores)
+                threshold_rank = int(total_stocks * 0.3)  # 前30%
+                top_rank = int(total_stocks * 0.1)  # 前10%
+
+                # === 卖出检查: 持仓评分跌出前30% 或 技术面恶化 ===
+                sell_candidate = None
+                sell_reason = ""
+                worst_rank = 0
+
+                for code in held:
+                    if code not in scores.index:
+                        continue
+                    rank = list(scores.index).index(code) + 1
+                    score_val = scores.loc[code, 'score_total']
+
+                    # 技术面恶化检查
+                    stock_data = dq_full[dq_full['code'] == code].tail(60)
+                    tech = score_stock(stock_data) if len(stock_data) >= 30 else {'signal_score': 50}
+                    sig = tech.get('signal_score', 50)
+
+                    if rank > threshold_rank and rank > worst_rank:
+                        worst_rank = rank
+                        sell_candidate = code
+                        sell_reason = f"评分排名{rank}/{total_stocks}(跌出前30%)"
+                    elif sig < 35 and rank > worst_rank:
+                        worst_rank = rank
+                        sell_candidate = code
+                        sell_reason = f"技术信号={sig}(强烈卖出)"
+
+                if not sell_candidate:
+                    return  # 持仓都健康，不调仓
+
+                # === 买入检查: 非持仓股进入前10% + 技术面确认 ===
+                buy_candidate = None
+                buy_reason = ""
+
+                for code in scores.index[:top_rank]:
+                    if code in held:
+                        continue
+                    stock_data = dq_full[dq_full['code'] == code].tail(60)
+                    if len(stock_data) < 30:
+                        continue
+                    tech = score_stock(stock_data)
+                    sig = tech.get('signal_score', 0)
+                    if sig < 50:
+                        continue
+                    close = stock_data['close']
+                    ma20 = close.rolling(20).mean().iloc[-1]
+                    ma5 = close.rolling(5).mean().iloc[-1]
+                    if ma5 < ma20:
+                        continue  # 下降趋势
+                    buy_candidate = code
+                    buy_reason = f"评分{scores.loc[code, 'score_total']:.1f} 信号{sig}"
+                    break
+
+                if not buy_candidate:
+                    return  # 没有更好的标的
+
+                # === 执行调仓: 卖1只 + 买1只 ===
+                # 获取实时价格
+                rt_codes = [sell_candidate, buy_candidate]
+                try:
+                    rt_dq = fetch_realtime_quotes(rt_codes)
+                except Exception:
+                    rt_dq = dq
+
+                def _get_rt_price(code):
+                    row = rt_dq[rt_dq['code'] == code] if 'code' in rt_dq.columns else None
+                    if row is not None and len(row) > 0:
+                        return float(row.iloc[0]['close'])
+                    return None
+
+                sell_price = _get_rt_price(sell_candidate)
+                buy_price = _get_rt_price(buy_candidate)
+                if not sell_price or not buy_price:
+                    return
+
+                # 卖出
+                h = tracker.holdings[sell_candidate]
+                sell_pnl = (sell_price - h['cost_price']) * h['shares']
+                tracker._sell(sell_candidate, sell_price, 'realtime', 'smart_rebalance')
+
+                # 买入（用卖出资金）
+                sell_amount = h['shares'] * sell_price
+                buy_shares = int(sell_amount / buy_price / 100) * 100
+                if buy_shares < 100:
+                    # 钱不够买100股，回滚
+                    tracker._buy(sell_candidate, h['shares'], h['cost_price'], 'realtime', 'rollback')
+                    return
+                tracker._buy(buy_candidate, buy_shares, buy_price, 'realtime', 'smart_rebalance')
+
+                # 保存
+                nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                auto_traded_today = True
+
+                # 推送通知
+                msg = (
+                    f"🔄 **智能调仓**\n"
+                    f"  🔴 卖出: {_sn(sell_candidate)} {h['shares']}股@¥{sell_price:.2f} ({sell_reason})\n"
+                    f"  🟢 买入: {_sn(buy_candidate)} {buy_shares}股@¥{buy_price:.2f} ({buy_reason})"
+                )
+                for uid in ALLOWED_USERS:
+                    await app.bot.send_message(chat_id=uid, text=msg)
+                logger.info(f"智能调仓: 卖{sell_candidate}({sell_reason}) 买{buy_candidate}({buy_reason})")
+
+                # 同步Pages
+                await pages_update()
+            except Exception as e:
+                logger.error(f"智能调仓失败: {e}")
+
         # Morning session: 9:35-11:30 every 5 min
         scheduler.add_job(alert_check, "cron", minute='*/5',
                           hour='9-10', day_of_week="mon-fri",
