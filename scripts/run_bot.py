@@ -19,7 +19,6 @@ from scripts.system_init import create_system
 
 orch = None
 ALLOWED_USERS = set()
-auto_traded_today = False
 
 # 按钮文字 → Agent消息映射
 BUTTON_MAP = {
@@ -219,13 +218,9 @@ def main():
 
     async def post_init(app):
         await set_commands(app)
-        global auto_traded_today
-        auto_traded_today = False
         scheduler = AsyncIOScheduler()
         # 数据更新: 15:10 新浪实时行情（优先）+ mootdx备用
         async def data_update():
-            global auto_traded_today
-            auto_traded_today = False  # 新的一天重置
             if not _is_trading_day():
                 logger.info("今日休市，跳过数据更新")
                 return
@@ -473,8 +468,6 @@ def main():
                     sold.append(f"{_sn(code)} ¥{price:.2f} 盈亏{pnl:+.0f}")
 
                 if sold:
-                    global auto_traded_today
-                    auto_traded_today = True
                     nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
                     msg = f"🔴 **自动卖出执行**\n" + "\n".join(f"  • {s}" for s in sold)
                     for uid in ALLOWED_USERS:
@@ -619,11 +612,7 @@ def main():
             2. 持仓股技术信号<35 → 减仓
             3. 非持仓股评分进入前10% + 技术面确认 → 买入
             4. 每次最多调换1只，避免频繁交易
-            5. 当天已有自动交易则跳过
             """
-            global auto_traded_today
-            if auto_traded_today:
-                return
             try:
                 from datetime import date as _date
                 today = _date.today().isoformat()
@@ -711,7 +700,6 @@ def main():
                     h = tracker.holdings[sell_candidate]
                     tracker._sell(sell_candidate, sell_price, 'realtime', 'reduce_to_5')
                     nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
-                    auto_traded_today = True
                     msg = f"📉 **减仓** (持仓{len(tracker.holdings)+1}→{len(tracker.holdings)}): 卖出 {_sn(sell_candidate)} {h['shares']}股@¥{sell_price:.2f} ({sell_reason})"
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -767,7 +755,6 @@ def main():
 
                 # 保存
                 nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
-                auto_traded_today = True
 
                 # 推送通知
                 msg = (
