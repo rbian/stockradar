@@ -78,7 +78,7 @@ class TraderAgent(BaseAgent):
         if "回测" in msg:
             return Plan(actions=[{"action": "run_backtest"}])
 
-        if "调仓" in msg or "建议" in msg:
+        if "调仓" in msg and "建议" not in msg:
             return Plan(actions=[{"action": "daily_decision"}])
 
         # 持仓 — 如果空仓则先调仓
