@@ -205,25 +205,6 @@ def main():
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
     import asyncio
 
-    async def daily_rebalance():
-        """15:25 自动调仓"""
-        global auto_traded_today
-        if auto_traded_today:
-            msg = "⏭️ 盘中已触发自动交易，跳过定时调仓"
-            for uid in ALLOWED_USERS:
-                await app.bot.send_message(chat_id=uid, text=msg)
-            logger.info("定时调仓已跳过")
-            return
-        logger.info("定时调仓...")
-        try:
-            result = await asyncio.wait_for(
-                orch.process_user_message("调仓", user_id=list(ALLOWED_USERS)[0] if ALLOWED_USERS else ""), 
-                timeout=120
-            )
-            logger.info(f"调仓完成: {result[:100]}")
-        except Exception as e:
-            logger.error(f"调仓失败: {e}")
-
     async def daily_push():
         """15:30 日报推送"""
         for uid in ALLOWED_USERS:
@@ -293,10 +274,8 @@ def main():
                         logger.error(f"数据更新全部失败: {e3}")
         scheduler.add_job(data_update, "cron", hour=15, minute=10,
                           day_of_week="mon-fri", timezone="Asia/Shanghai")
-        # 调仓: 15:25
-        scheduler.add_job(daily_rebalance, "cron", hour=15, minute=25,
-                          day_of_week="mon-fri", timezone="Asia/Shanghai")
-        # IC追踪: 15:27 (调仓后)
+        # 调仓已移除 — 完全由盘中预警驱动(每5min)
+        # IC追踪: 15:27
         async def ic_track():
             if not _is_trading_day(): return
             logger.info("因子IC追踪...")
