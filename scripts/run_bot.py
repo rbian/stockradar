@@ -461,6 +461,7 @@ def main():
             """Auto-sell triggered by stop-loss / take-profit alerts. Returns count sold."""
             try:
                 from src.simulator.nav_tracker import NAVTracker
+                from src.data.stock_names import stock_name as _sn
                 import json
                 nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
                 nav_data = json.loads(nav_file.read_text())
@@ -504,6 +505,7 @@ def main():
                 from src.factors.engine import FactorEngine
                 from src.factors.technical_signals import score_stock
                 from src.data.sina_adapter import fetch_realtime_quotes
+                from src.data.stock_names import stock_name as _sn
                 import json
                 nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
                 nav_data = json.loads(nav_file.read_text())
