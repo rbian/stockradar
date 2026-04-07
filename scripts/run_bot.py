@@ -451,8 +451,15 @@ def main():
                 tracker = NAVTracker.from_dict(nav_data)
 
                 sold = []
+                from datetime import date as _date
+                today_str = _date.today().isoformat()
                 for code in codes:
                     if code not in tracker.holdings:
+                        continue
+                    # T+1: 当天买入的不能卖
+                    h = tracker.holdings[code]
+                    if h.get('buy_date', '') == today_str:
+                        logger.info(f"T+1限制: {code}今天买入，不能卖出")
                         continue
                     price_row = dq[dq['code'] == code] if 'code' in dq.columns else None
                     if price_row is not None and len(price_row) > 0:
@@ -615,6 +622,8 @@ def main():
             if auto_traded_today:
                 return
             try:
+                from datetime import date as _date
+                today = _date.today().isoformat()
                 from src.simulator.nav_tracker import NAVTracker
                 from src.factors.engine import FactorEngine
                 from src.factors.technical_signals import score_stock
@@ -651,6 +660,11 @@ def main():
 
                 for code in held:
                     if code not in scores.index:
+                        continue
+                    # T+1: 当天买入的不能卖
+                    h = tracker.holdings[code]
+                    buy_date = h.get('buy_date', '')
+                    if buy_date == today:
                         continue
                     rank = list(scores.index).index(code) + 1
                     score_val = scores.loc[code, 'score_total']
