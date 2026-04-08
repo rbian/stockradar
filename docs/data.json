@@ -5,11 +5,11 @@
     "nav": 1.0117,
     "total_return": 1.17,
     "max_drawdown": -0.09,
-    "holdings_count": 7,
-    "total_trades": 17,
+    "holdings_count": 6,
+    "total_trades": 18,
     "initial_capital": 1000000,
     "current_value": 922190.0,
-    "cash": 221152.0
+    "cash": 324996.0
   },
   "nav_history": [
     {
@@ -62,7 +62,7 @@
       "current_price": 41.53,
       "market_value": 99672.0,
       "pnl_pct": 1.29,
-      "weight": 14.0
+      "weight": 16.5
     },
     {
       "code": "605499",
@@ -72,7 +72,7 @@
       "current_price": 198.04,
       "market_value": 99020.0,
       "pnl_pct": -2.09,
-      "weight": 14.4
+      "weight": 16.9
     },
     {
       "code": "300759",
@@ -82,7 +82,7 @@
       "current_price": 30.1,
       "market_value": 102340.0,
       "pnl_pct": 0.1,
-      "weight": 14.6
+      "weight": 17.1
     },
     {
       "code": "601607",
@@ -92,17 +92,7 @@
       "current_price": 17.28,
       "market_value": 101952.0,
       "pnl_pct": -0.17,
-      "weight": 14.6
-    },
-    {
-      "code": "600741",
-      "name": "华域汽车",
-      "shares": 5200,
-      "cost_price": 19.85,
-      "current_price": 19.97,
-      "market_value": 103844.0,
-      "pnl_pct": 0.6,
-      "weight": 14.7
+      "weight": 17.1
     },
     {
       "code": "601127",
@@ -112,7 +102,7 @@
       "current_price": 86.63,
       "market_value": 95293.0,
       "pnl_pct": 0.27,
-      "weight": 13.6
+      "weight": 15.9
     },
     {
       "code": "600809",
@@ -122,10 +112,19 @@
       "current_price": 141.31,
       "market_value": 98917.0,
       "pnl_pct": -0.28,
-      "weight": 14.1
+      "weight": 16.6
     }
   ],
   "trades": [
+    {
+      "date": "realtime",
+      "code": "600741",
+      "name": "华域汽车",
+      "action": "sell",
+      "shares": 5200,
+      "price": 19.99,
+      "reason": "reduce_to_5"
+    },
     {
       "date": "realtime",
       "code": "002460",
