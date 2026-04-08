@@ -26,6 +26,17 @@ class TraderAgent(BaseAgent):
         super().__init__(config, context, message_bus)
         self.nav = self._load_nav()
 
+    def _reload_nav(self):
+        """每次操作前重新从文件加载，保持与外部写入同步"""
+        data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+        nav_file = data_dir / "nav_state_balanced.json"
+        if nav_file.exists():
+            try:
+                d = json.loads(nav_file.read_text())
+                self.nav = NAVTracker.from_dict(d)
+            except Exception:
+                pass
+
     def _load_nav(self) -> NAVTracker:
         """加载或创建NAVTracker"""
         data_dir = Path(__file__).resolve().parent.parent.parent / "data"
@@ -47,6 +58,7 @@ class TraderAgent(BaseAgent):
         nav_file.write_text(json.dumps(self.nav.to_dict(), ensure_ascii=False, default=str))
 
     async def perceive(self, context) -> Observation:
+        self._reload_nav()  # 每次交互前重新加载
         msg = context.read("user_message", "") if context else ""
         scores = context.get_scores() if context else None
         portfolio = context.get_portfolio() if context else {}
