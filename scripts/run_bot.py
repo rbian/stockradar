@@ -750,6 +750,88 @@ def main():
                         await pages_update()
                     return
 
+                # === 加减仓逻辑 ===
+                now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+                rebalance_actions = []
+
+                for code in list(held):
+                    if code not in tracker.holdings:
+                        continue
+                    h = tracker.holdings[code]
+                    price = _get_rt_price(code)
+                    if not price:
+                        continue
+
+                    # T+1: 当天买入的不能卖
+                    buy_date = h.get('buy_date', '')
+                    if buy_date == today:
+                        continue
+
+                    pnl_pct = (price - h['cost_price']) / h['cost_price']
+
+                    # 分批止损: -8%减半, -12%全清
+                    if pnl_pct <= -0.12:
+                        tracker._sell(code, price, now_str, 'stop_loss_full')
+                        rebalance_actions.append(f"🔴 全部止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
+                        continue
+                    elif pnl_pct <= -0.08:
+                        half = h['shares'] // 2 // 100 * 100
+                        if half >= 100:
+                            tracker._partial_sell(code, half, price, now_str, 'stop_loss_half')
+                            rebalance_actions.append(f"🟡 减半止损 {_sn(code)} {half}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
+                        continue
+
+                    # 技术面减弱但不到卖出线 → 减仓1/3
+                    if code in scores.index:
+                        stock_data = dq_full[dq_full['code'] == code].tail(60)
+                        if len(stock_data) >= 30:
+                            tech = score_stock(stock_data)
+                            sig = tech.get('signal_score', 50)
+                            if 35 <= sig < 50:
+                                third = h['shares'] // 3 // 100 * 100
+                                if third >= 100:
+                                    tracker._partial_sell(code, third, price, now_str, f'signal_weak_{sig}')
+                                    rebalance_actions.append(f"⚠️ 减仓1/3 {_sn(code)} {third}股@¥{price:.2f} (信号{sig})")
+
+                # === 加仓逻辑: 持仓股评分上升 + 技术面强 ===
+                if len(tracker.holdings) <= 5 and tracker.cash > 20000:
+                    for code in list(held):
+                        if code not in tracker.holdings or code not in scores.index:
+                            continue
+                        rank = list(scores.index).index(code) + 1
+                        stock_data = dq_full[dq_full['code'] == code].tail(60)
+                        if len(stock_data) < 30:
+                            continue
+                        tech = score_stock(stock_data)
+                        sig = tech.get('signal_score', 50)
+                        close = stock_data['close']
+                        ma5 = close.rolling(5).mean().iloc[-1]
+                        ma20 = close.rolling(20).mean().iloc[-1]
+
+                        # 加仓条件: 排名前15% + 信号≥70 + MA5>MA20 + 持仓<30%
+                        if rank <= int(total_stocks * 0.15) and sig >= 70 and ma5 > ma20:
+                            h = tracker.holdings[code]
+                            total_val = sum(v['shares'] * _get_rt_price(c) for c, v in tracker.holdings.items() if _get_rt_price(c))
+                            pos_weight = h['shares'] * _get_rt_price(code) / total_val if total_val > 0 else 0
+                            if pos_weight < 0.30:
+                                price = _get_rt_price(code)
+                                if not price:
+                                    continue
+                                add_amount = min(tracker.cash * 0.3, price * 100)
+                                add_shares = int(add_amount / price / 100) * 100
+                                if add_shares >= 100:
+                                    tracker._add_position(code, add_shares, price, now_str, f'add_score{scores.loc[code,"score_total"]:.0f}_sig{sig}')
+                                    rebalance_actions.append(f"🟢 加仓 {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig})")
+                                    break  # 每轮最多加仓1只
+
+                if rebalance_actions:
+                    _save_nav(tracker, dq)
+                    for uid in ALLOWED_USERS:
+                        await app.bot.send_message(chat_id=uid, text=msg)
+                    logger.info(f"仓位调整: {len(rebalance_actions)}笔")
+                    await pages_update()
+                    return  # 本轮已操作，跳过换仓
+
                 if not sell_list:
                     return  # 持仓都健康，不调仓
 

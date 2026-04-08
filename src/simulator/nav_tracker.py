@@ -153,6 +153,50 @@ class NAVTracker:
             pass
         del self.holdings[code]
 
+    def _partial_sell(self, code: str, shares: int, price: float, date, reason: str):
+        """卖出部分持仓"""
+        h = self.holdings.get(code)
+        if not h or shares <= 0 or shares >= h["shares"]:
+            return
+        cost_price = h.get("cost_price", price)
+        pnl = (price - cost_price) * shares
+        proceeds = shares * price * (1 - self.commission_rate)
+        self.cash += proceeds
+        h["shares"] -= shares
+        self.trade_log.append({
+            "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
+            "shares": shares, "price": price, "reason": reason,
+        })
+        try:
+            from src.simulator.trade_log import log_trade
+            log_trade(code, "sell", price, shares, reason, pnl)
+        except Exception:
+            pass
+
+    def _add_position(self, code: str, shares: int, price: float, date, reason: str):
+        """加仓（已有持仓增持）"""
+        h = self.holdings.get(code)
+        if not h:
+            return
+        cost = shares * price * (1 + self.commission_rate)
+        if cost > self.cash:
+            return
+        self.cash -= cost
+        # 加权平均成本
+        total_shares = h["shares"] + shares
+        h["cost_price"] = round((h["cost_price"] * h["shares"] + price * shares) / total_shares, 2)
+        h["shares"] = total_shares
+        self.trade_log.append({
+            "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",
+            "shares": shares, "price": price, "reason": reason,
+        })
+        try:
+            from src.simulator.trade_log import log_trade
+            log_trade(code, "buy", price, shares, reason, 0)
+        except Exception:
+            pass
+
+
     def update_nav(self, date, prices: dict):
         """更新每日净值"""
         market_value = 0
