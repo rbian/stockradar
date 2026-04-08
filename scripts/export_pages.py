@@ -60,7 +60,7 @@ def export():
     trades = []
     for t in nav_data.get("trade_log", [])[-30:]:
         trades.append({
-            "date": str(t["date"])[:10],
+            "date": str(t["date"])[:16] if len(str(t["date"])) > 10 else str(t["date"])[:10],
             "code": t["code"],
             "name": stock_name(t["code"]),
             "action": t["action"],

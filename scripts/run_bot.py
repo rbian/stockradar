@@ -3,6 +3,7 @@
 import asyncio
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -507,7 +508,7 @@ def main():
 
                     h = tracker.holdings[code]
                     pnl = (price - h['cost_price']) * h['shares']
-                    tracker._sell(code, price, 'realtime', 'auto_stop')
+                    tracker._sell(code, price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'auto_stop')
                     sold.append(f"{_sn(code)} ¥{price:.2f} 盈亏{pnl:+.0f}")
 
                 if sold:
@@ -633,7 +634,7 @@ def main():
                         continue
                     shares = int(per_stock / price / 100) * 100
                     if shares >= 100:
-                        tracker._buy(code, shares, price, 'realtime', 'auto_buy')
+                        tracker._buy(code, shares, price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'auto_buy')
                         bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
 
                 if bought:
@@ -741,7 +742,7 @@ def main():
                     if not sell_price:
                         return
                     h = tracker.holdings[sell_candidate]
-                    tracker._sell(sell_candidate, sell_price, 'realtime', 'reduce_to_5')
+                    tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'reduce_to_5')
                     _save_nav(tracker, dq)
                     msg = f"📉 **减仓** (持仓{len(tracker.holdings)+1}→{len(tracker.holdings)}): 卖出 {_sn(sell_candidate)} {h['shares']}股@¥{sell_price:.2f} ({sell_reason})"
                     for uid in ALLOWED_USERS:
@@ -785,16 +786,16 @@ def main():
                 # 卖出
                 h = tracker.holdings[sell_candidate]
                 sell_pnl = (sell_price - h['cost_price']) * h['shares']
-                tracker._sell(sell_candidate, sell_price, 'realtime', 'smart_rebalance')
+                tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
                 # 买入（用卖出资金）
                 sell_amount = h['shares'] * sell_price
                 buy_shares = int(sell_amount / buy_price / 100) * 100
                 if buy_shares < 100:
                     # 钱不够买100股，回滚
-                    tracker._buy(sell_candidate, h['shares'], h['cost_price'], 'realtime', 'rollback')
+                    tracker._buy(sell_candidate, h['shares'], h['cost_price'], datetime.now().strftime('%Y-%m-%d %H:%M'), 'rollback')
                     return
-                tracker._buy(buy_candidate, buy_shares, buy_price, 'realtime', 'smart_rebalance')
+                tracker._buy(buy_candidate, buy_shares, buy_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
                 # 保存
                 _save_nav(tracker, dq)

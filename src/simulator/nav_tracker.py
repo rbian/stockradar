@@ -123,7 +123,7 @@ class NAVTracker:
             self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10]}
 
         self.trade_log.append({
-            "date": str(date)[:10], "code": code, "action": "buy",
+            "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",
             "shares": shares, "price": price, "reason": reason,
         })
         # 记录到JSON交易日志
@@ -142,7 +142,7 @@ class NAVTracker:
         proceeds = h["shares"] * price * (1 - self.commission_rate)
         self.cash += proceeds
         self.trade_log.append({
-            "date": str(date)[:10], "code": code, "action": "sell",
+            "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
             "shares": h["shares"], "price": price, "reason": reason,
         })
         # 记录到JSON交易日志(含盈亏)
