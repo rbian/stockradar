@@ -380,6 +380,21 @@ def main():
             "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08",
         }
 
+        def _save_nav(tracker, dq):
+            """保存nav状态并更新nav_history"""
+            try:
+                from datetime import date as _date
+                prices = {}
+                if dq is not None and 'code' in dq.columns:
+                    latest_d = dq['date'].max()
+                    today_dq = dq[dq['date'] == latest_d]
+                    prices = dict(zip(today_dq['code'].astype(str), today_dq['close']))
+                tracker.update_nav(_date.today().isoformat(), prices)
+                nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
+                _save_nav(tracker, dq)
+            except Exception as e:
+                logger.error(f"save_nav失败: {e}")
+
         def _is_trading_day() -> bool:
             """判断今天是否为交易日"""
             from datetime import date
@@ -468,7 +483,7 @@ def main():
                     sold.append(f"{_sn(code)} ¥{price:.2f} 盈亏{pnl:+.0f}")
 
                 if sold:
-                    nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                    _save_nav(tracker, dq)
                     msg = f"🔴 **自动卖出执行**\n" + "\n".join(f"  • {s}" for s in sold)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -594,7 +609,7 @@ def main():
                         bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
 
                 if bought:
-                    nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                    _save_nav(tracker, dq)
                     msg = f"🟢 **自动买入** (5重过滤)\n可用¥{tracker.cash:,.0f}\n" + "\n".join(f"  • {s}" for s in bought)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -699,7 +714,7 @@ def main():
                         return
                     h = tracker.holdings[sell_candidate]
                     tracker._sell(sell_candidate, sell_price, 'realtime', 'reduce_to_5')
-                    nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                    _save_nav(tracker, dq)
                     msg = f"📉 **减仓** (持仓{len(tracker.holdings)+1}→{len(tracker.holdings)}): 卖出 {_sn(sell_candidate)} {h['shares']}股@¥{sell_price:.2f} ({sell_reason})"
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -754,7 +769,7 @@ def main():
                 tracker._buy(buy_candidate, buy_shares, buy_price, 'realtime', 'smart_rebalance')
 
                 # 保存
-                nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
+                _save_nav(tracker, dq)
 
                 # 推送通知
                 msg = (
