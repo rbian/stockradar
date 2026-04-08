@@ -358,6 +358,15 @@ def main():
                     n = len(result['reviews'])
                     p = len(result['patterns'])
                     logger.info(f"交易复盘完成: {n}条, {p}个模式")
+                    # 推送复盘摘要
+                    good = sum(1 for r in result['reviews'] if r.get('verdict') == 'correct')
+                    bad = sum(1 for r in result['reviews'] if r.get('verdict') == 'wrong_stop')
+                    early = sum(1 for r in result['reviews'] if r.get('verdict') == 'early_sell')
+                    msg = f"📋 **交易复盘** ({n}笔)\n  ✅ 正确: {good} | ⚠️ 提前卖出: {early} | ❌ 错误: {bad}"
+                    if result.get('patterns'):
+                        msg += f"\n  🔍 发现{p}个错误模式"
+                    for uid in ALLOWED_USERS:
+                        await app.bot.send_message(chat_id=uid, text=msg)
             except Exception as e:
                 logger.warning(f"交易复盘失败: {e}")
         scheduler.add_job(trade_review, "cron", hour=15, minute=40,
