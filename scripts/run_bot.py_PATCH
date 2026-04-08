@@ -1,0 +1,25 @@
+--- a/scripts/run_bot.py
++++ b/scripts/run_bot.py
+@@ -330,6 +330,19 @@
+                 subprocess.run(["git", "push", "origin", "master"],
+                               cwd=str(PROJECT_ROOT), timeout=30)
++                # Sync to gh-pages branch
++                subprocess.run(["git", "fetch", "origin", "gh-pages"],
++                              cwd=str(PROJECT_ROOT), timeout=10)
++                subprocess.run(["git", "checkout", "gh-pages"],
++                              cwd=str(PROJECT_ROOT), timeout=10)
++                import shutil
++                for fname in ["index.html", "data.json"]:
++                    src = str(PROJECT_ROOT / "docs" / fname)
++                    dst = str(PROJECT_ROOT / fname)
++                    shutil.copy2(src, dst)
++                subprocess.run(["git", "add", "index.html", "data.json"],
++                              cwd=str(PROJECT_ROOT), timeout=10)
++                subprocess.run(["git", "commit", "-m",
++                              f"pages: {__import__('datetime').date.today()}"],
++                              cwd=str(PROJECT_ROOT), timeout=10, capture_output=True)
++                subprocess.run(["git", "push", "origin", "gh-pages"],
++                              cwd=str(PROJECT_ROOT), timeout=30)
++                subprocess.run(["git", "checkout", "master"],
++                              cwd=str(PROJECT_ROOT), timeout=10)
+                 logger.info("GitHub Pages 已更新")

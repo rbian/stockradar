@@ -328,6 +328,24 @@ def main():
                               cwd=str(PROJECT_ROOT), timeout=10)
                 subprocess.run(["git", "push", "origin", "master"],
                               cwd=str(PROJECT_ROOT), timeout=30)
+                # Sync to gh-pages branch
+                import shutil as _shutil
+                subprocess.run(["git", "fetch", "origin", "gh-pages"],
+                              cwd=str(PROJECT_ROOT), timeout=10)
+                subprocess.run(["git", "checkout", "gh-pages"],
+                              cwd=str(PROJECT_ROOT), timeout=10)
+                for _fn in ["index.html", "data.json"]:
+                    _shutil.copy2(str(PROJECT_ROOT / "docs" / _fn),
+                                 str(PROJECT_ROOT / _fn))
+                subprocess.run(["git", "add", "index.html", "data.json"],
+                              cwd=str(PROJECT_ROOT), timeout=10)
+                subprocess.run(["git", "commit", "-m",
+                              "pages: " + str(__import__('datetime').date.today())],
+                              cwd=str(PROJECT_ROOT), timeout=10, capture_output=True)
+                subprocess.run(["git", "push", "origin", "gh-pages"],
+                              cwd=str(PROJECT_ROOT), timeout=30)
+                subprocess.run(["git", "checkout", "master"],
+                              cwd=str(PROJECT_ROOT), timeout=10)
                 logger.info("GitHub Pages 已更新")
             except Exception as e:
                 logger.warning(f"Pages更新失败(不影响主功能): {e}")
@@ -400,7 +418,8 @@ def main():
                     prices = dict(zip(today_dq['code'].astype(str), today_dq['close']))
                 tracker.update_nav(_date.today().isoformat(), prices)
                 nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
-                _save_nav(tracker, dq)
+                import json as _json2
+                nav_file.write_text(_json2.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
             except Exception as e:
                 logger.error(f"save_nav失败: {e}")
 
