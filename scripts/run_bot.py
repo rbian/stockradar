@@ -787,8 +787,11 @@ def main():
                 logger.error(f"智能调仓失败: {e}")
 
         # Morning session: 9:35-11:30 every 5 min
+        scheduler.add_job(alert_check, "cron", minute='35,40,45,50,55',
+                          hour='9', day_of_week="mon-fri",
+                          start_date='2026-01-01', timezone="Asia/Shanghai")
         scheduler.add_job(alert_check, "cron", minute='*/5',
-                          hour='9-10', day_of_week="mon-fri",
+                          hour='10', day_of_week="mon-fri",
                           start_date='2026-01-01', timezone="Asia/Shanghai")
         scheduler.add_job(alert_check, "cron", minute='0-30/5',
                           hour='11', day_of_week="mon-fri",
