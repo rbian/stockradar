@@ -703,12 +703,11 @@ def main():
                     return None
 
                 # === 卖出检查: 持仓评分跌出前30% 或 技术面恶化 ===
-                sell_candidate = None
-                sell_reason = ""
-                worst_rank = 0
-
+                # === 卖出检查: 按评分排序 ===
+                sell_list = []  # [(code, reason)]
                 for code in held:
                     if code not in scores.index:
+                        sell_list.append((code, "无评分数据"))
                         continue
                     # T+1: 当天买入的不能卖
                     h = tracker.holdings[code]
@@ -716,42 +715,48 @@ def main():
                     if buy_date == today:
                         continue
                     rank = list(scores.index).index(code) + 1
-                    score_val = scores.loc[code, 'score_total']
-
                     # 技术面恶化检查
                     stock_data = dq_full[dq_full['code'] == code].tail(60)
                     tech = score_stock(stock_data) if len(stock_data) >= 30 else {'signal_score': 50}
                     sig = tech.get('signal_score', 50)
+                    if rank > threshold_rank:
+                        sell_list.append((code, f"评分排名{rank}/{total_stocks}"))
+                    elif sig < 35:
+                        sell_list.append((code, f"技术信号={sig}"))
 
-                    if rank > threshold_rank and rank > worst_rank:
-                        worst_rank = rank
-                        sell_candidate = code
-                        sell_reason = f"评分排名{rank}/{total_stocks}(跌出前30%)"
-                    elif sig < 35 and rank > worst_rank:
-                        worst_rank = rank
-                        sell_candidate = code
-                        sell_reason = f"技术信号={sig}(强烈卖出)"
-
-                if not sell_candidate:
-                    return  # 持仓都健康，不调仓
-
-                # === 减仓模式: 持仓>5只时只卖不买 ===
+                # === 减仓模式: 持仓>5只时一次性卖出所有差的 ===
                 if len(tracker.holdings) > 5:
-                    # 只卖出，不买入
-                    sell_price = _get_rt_price(sell_candidate)
-                    if not sell_price:
+                    excess = len(tracker.holdings) - 5
+                    # 按评分从低到高排序（优先卖评分最差的）
+                    sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
+                    to_sell = sell_list[:excess]
+                    if not to_sell:
                         return
-                    h = tracker.holdings[sell_candidate]
-                    tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'reduce_to_5')
-                    _save_nav(tracker, dq)
-                    msg = f"📉 **减仓** (持仓{len(tracker.holdings)+1}→{len(tracker.holdings)}): 卖出 {_sn(sell_candidate)} {h['shares']}股@¥{sell_price:.2f} ({sell_reason})"
-                    for uid in ALLOWED_USERS:
-                        await app.bot.send_message(chat_id=uid, text=msg)
-                    logger.info(f"减仓: 卖{sell_candidate} ({sell_reason})")
-                    await pages_update()
+                    sold = []
+                    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+                    for code, reason in to_sell:
+                        price = _get_rt_price(code)
+                        if not price:
+                            continue
+                        h = tracker.holdings[code]
+                        tracker._sell(code, price, now_str, 'reduce_to_5')
+                        sold.append(f"{_sn(code)} {h['shares']}股@¥{price:.2f} ({reason})")
+                    if sold:
+                        _save_nav(tracker, dq)
+                        msg = f"📉 **一次性减仓** ({len(tracker.holdings)+len(sold)}→{len(tracker.holdings)})\n" + "\n".join(f"  • {s}" for s in sold)
+                        for uid in ALLOWED_USERS:
+                            await app.bot.send_message(chat_id=uid, text=msg)
+                        logger.info(f"减仓: 卖出{len(sold)}只")
+                        await pages_update()
                     return
 
-                # === 买入检查: 非持仓股进入前10% + 技术面确认 ===
+                if not sell_list:
+                    return  # 持仓都健康，不调仓
+
+                # 正常调仓: 卖评分最差的1只
+                sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
+                sell_candidate, sell_reason = sell_list[0]
+
                 buy_candidate = None
                 buy_reason = ""
 
