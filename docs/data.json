@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9245,
-    "total_return": -7.55,
-    "max_drawdown": -8.7,
+    "nav": 0.9247,
+    "total_return": -7.53,
+    "max_drawdown": -8.68,
     "holdings_count": 5,
-    "total_trades": 33,
+    "total_trades": 34,
     "initial_capital": 1000000,
-    "current_value": 929092.0,
-    "cash": 390509.0
+    "current_value": 929104.0,
+    "cash": 388792.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9245,
-      "market_value": 533970.0,
+      "nav": 0.9247,
+      "market_value": 535918.0,
       "holdings_count": 5
     }
   ],
@@ -78,7 +78,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.5
+      "weight": 18.4
     },
     {
       "code": "300759",
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 23.9
+      "weight": 23.8
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6500,
+      "shares": 6600,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 112385.0,
+      "market_value": 114114.0,
       "pnl_pct": -0.12,
-      "weight": 21.1
+      "weight": 21.4
     },
     {
       "code": "601127",
@@ -108,7 +108,7 @@
       "current_price": 90.0,
       "market_value": 99000.0,
       "pnl_pct": 4.17,
-      "weight": 17.9
+      "weight": 17.8
     },
     {
       "code": "600809",
@@ -122,6 +122,15 @@
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 10:45",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.15,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 10:40",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "buy",
       "shares": 2000,
       "price": 49.26,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-03-31",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "buy",
-      "shares": 2400,
-      "price": 41.0,
       "reason": "评分调仓"
     }
   ]
