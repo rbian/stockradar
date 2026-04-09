@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9251,
-    "total_return": -7.49,
-    "max_drawdown": -8.64,
+    "nav": 0.9239,
+    "total_return": -7.61,
+    "max_drawdown": -8.76,
     "holdings_count": 5,
-    "total_trades": 36,
+    "total_trades": 19,
     "initial_capital": 1000000,
-    "current_value": 929128.0,
-    "cash": 385358.0
+    "current_value": 929619.0,
+    "cash": 425730.0
   },
   "nav_history": [
     {
@@ -34,12 +34,6 @@
       "date": "2026-04-08",
       "nav": 0.9239,
       "market_value": 498174.0,
-      "holdings_count": 5
-    },
-    {
-      "date": "2026-04-09",
-      "nav": 0.9251,
-      "market_value": 539784.0,
       "holdings_count": 5
     }
   ],
@@ -78,27 +72,27 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.3
+      "weight": 19.8
     },
     {
       "code": "300759",
       "name": "康龙化成",
-      "shares": 4200,
-      "cost_price": 30.26,
+      "shares": 3400,
+      "cost_price": 30.07,
       "current_price": 30.4,
-      "market_value": 127680.0,
-      "pnl_pct": 0.46,
-      "weight": 23.6
+      "market_value": 103360.0,
+      "pnl_pct": 1.1,
+      "weight": 20.6
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6800,
+      "shares": 5900,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 117572.0,
+      "market_value": 102011.0,
       "pnl_pct": -0.12,
-      "weight": 21.9
+      "weight": 20.5
     },
     {
       "code": "601127",
@@ -108,7 +102,7 @@
       "current_price": 90.0,
       "market_value": 99000.0,
       "pnl_pct": 4.17,
-      "weight": 17.7
+      "weight": 19.1
     },
     {
       "code": "600809",
@@ -118,163 +112,10 @@
       "current_price": 143.94,
       "market_value": 100758.0,
       "pnl_pct": 1.58,
-      "weight": 18.5
+      "weight": 20.0
     }
   ],
   "trades": [
-    {
-      "date": "2026-04-09 10:55",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.16,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:50",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:45",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:40",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.16,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:35",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:30",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.19,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:25",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.2,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:20",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.19,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:15",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.19,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:10",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 30.83,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 10:05",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.02,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 10:00",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.0,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 09:55",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 30.92,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 09:50",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.29,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 09:45",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.4,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 09:40",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.11,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 09:35",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.21,
-      "reason": "add_score1_sig77"
-    },
     {
       "date": "2026-04-08 09:55",
       "code": "605499",
@@ -390,6 +231,60 @@
       "action": "sell",
       "shares": 2000,
       "price": 48.8,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-04-03",
+      "code": "000333",
+      "name": "美的集团",
+      "action": "sell",
+      "shares": 1300,
+      "price": 76.35,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "002475",
+      "name": "立讯精密",
+      "action": "buy",
+      "shares": 2000,
+      "price": 49.26,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "603288",
+      "name": "海天味业",
+      "action": "buy",
+      "shares": 2400,
+      "price": 41.0,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "688506",
+      "name": "百利天恒",
+      "action": "buy",
+      "shares": 300,
+      "price": 278.0,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "002460",
+      "name": "赣锋锂业",
+      "action": "buy",
+      "shares": 1200,
+      "price": 78.38,
+      "reason": "评分调仓"
+    },
+    {
+      "date": "2026-03-31",
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "shares": 1300,
+      "price": 76.35,
       "reason": "评分调仓"
     }
   ]
