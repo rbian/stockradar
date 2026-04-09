@@ -832,12 +832,22 @@ def main():
                                 price = _get_rt_price(code)
                                 if not price:
                                     continue
-                                # 最小加仓1万元，最大用cash的20%
-                                add_amount = max(10000, min(tracker.cash * 0.2, 50000))
+                                # 信号驱动加仓金额
+                                top5 = rank <= int(total_stocks * 0.05)
+                                if sig >= 90 and top5:
+                                    add_pct = 0.30  # 重仓: 信号极强+前5%
+                                    tier = "重仓"
+                                elif sig >= 80:
+                                    add_pct = 0.25  # 标准仓: 信号强
+                                    tier = "标准"
+                                else:
+                                    add_pct = 0.15  # 轻仓: 信号一般
+                                    tier = "轻仓"
+                                add_amount = max(10000, min(tracker.cash * add_pct, 80000))
                                 add_shares = int(add_amount / price / 100) * 100
                                 if add_shares >= 100 and add_shares * price <= tracker.cash:
                                     tracker._add_position(code, add_shares, price, now_str, f'add_score{scores.loc[code,"score_total"]:.0f}_sig{sig}')
-                                    rebalance_actions.append(f"🟢 加仓 {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig})")
+                                    rebalance_actions.append(f"🟢 加仓[{tier}] {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig} 加¥{add_amount/10000:.0f}万)")
                                     # 记录今天已加仓
                                     _added_today.add(code)
                                     _daily_adds[today_add_key] = list(_added_today)
