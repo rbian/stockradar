@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9248,
-    "total_return": -7.52,
-    "max_drawdown": -8.67,
+    "nav": 0.9245,
+    "total_return": -7.55,
+    "max_drawdown": -8.7,
     "holdings_count": 5,
-    "total_trades": 37,
+    "total_trades": 38,
     "initial_capital": 1000000,
-    "current_value": 929140.0,
-    "cash": 383641.0
+    "current_value": 929153.0,
+    "cash": 381925.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9248,
-      "market_value": 541135.0,
+      "nav": 0.9245,
+      "market_value": 542572.0,
       "holdings_count": 5
     }
   ],
@@ -78,7 +78,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.3
+      "weight": 18.2
     },
     {
       "code": "300759",
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 23.6
+      "weight": 23.5
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6900,
+      "shares": 7000,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 119301.0,
+      "market_value": 121030.0,
       "pnl_pct": -0.12,
-      "weight": 22.2
+      "weight": 22.4
     },
     {
       "code": "601127",
@@ -118,10 +118,19 @@
       "current_price": 143.94,
       "market_value": 100758.0,
       "pnl_pct": 1.58,
-      "weight": 18.4
+      "weight": 18.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 11:05",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.15,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 11:00",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "buy",
       "shares": 3400,
       "price": 30.07,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-04-03",
-      "code": "605499",
-      "name": "东鹏饮料",
-      "action": "buy",
-      "shares": 500,
-      "price": 202.27,
       "reason": "评分调仓"
     }
   ]
