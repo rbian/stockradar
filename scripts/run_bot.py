@@ -826,6 +826,7 @@ def main():
 
                 if rebalance_actions:
                     _save_nav(tracker, dq)
+                    msg = "📊 **仓位调整**\n" + "\n".join(f"  • {a}" for a in rebalance_actions)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
                     logger.info(f"仓位调整: {len(rebalance_actions)}笔")
