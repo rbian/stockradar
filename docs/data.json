@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9247,
-    "total_return": -7.53,
-    "max_drawdown": -8.68,
+    "nav": 0.925,
+    "total_return": -7.5,
+    "max_drawdown": -8.65,
     "holdings_count": 5,
-    "total_trades": 34,
+    "total_trades": 35,
     "initial_capital": 1000000,
-    "current_value": 929104.0,
-    "cash": 388792.0
+    "current_value": 929117.0,
+    "cash": 387076.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9247,
-      "market_value": 535918.0,
+      "nav": 0.925,
+      "market_value": 537898.0,
       "holdings_count": 5
     }
   ],
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 23.8
+      "weight": 23.7
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6600,
+      "shares": 6700,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 114114.0,
+      "market_value": 115843.0,
       "pnl_pct": -0.12,
-      "weight": 21.4
+      "weight": 21.6
     },
     {
       "code": "601127",
@@ -108,7 +108,7 @@
       "current_price": 90.0,
       "market_value": 99000.0,
       "pnl_pct": 4.17,
-      "weight": 17.8
+      "weight": 17.7
     },
     {
       "code": "600809",
@@ -118,10 +118,19 @@
       "current_price": 143.94,
       "market_value": 100758.0,
       "pnl_pct": 1.58,
-      "weight": 18.6
+      "weight": 18.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 10:50",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.15,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 10:45",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "sell",
       "shares": 1300,
       "price": 76.35,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-03-31",
-      "code": "002475",
-      "name": "立讯精密",
-      "action": "buy",
-      "shares": 2000,
-      "price": 49.26,
       "reason": "评分调仓"
     }
   ]
