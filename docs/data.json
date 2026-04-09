@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9258,
-    "total_return": -7.42,
-    "max_drawdown": -8.57,
+    "nav": 0.9252,
+    "total_return": -7.48,
+    "max_drawdown": -8.63,
     "holdings_count": 5,
-    "total_trades": 30,
+    "total_trades": 31,
     "initial_capital": 1000000,
-    "current_value": 929060.0,
-    "cash": 395664.0
+    "current_value": 929069.0,
+    "cash": 393944.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9258,
-      "market_value": 530120.0,
+      "nav": 0.9252,
+      "market_value": 531284.0,
       "holdings_count": 5
     }
   ],
@@ -78,7 +78,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.7
+      "weight": 18.6
     },
     {
       "code": "300759",
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 24.1
+      "weight": 24.0
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6200,
+      "shares": 6300,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 107198.0,
+      "market_value": 108927.0,
       "pnl_pct": -0.12,
-      "weight": 20.4
+      "weight": 20.6
     },
     {
       "code": "601127",
@@ -122,6 +122,15 @@
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 10:30",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.19,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 10:25",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "buy",
       "shares": 1200,
       "price": 78.38,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-03-31",
-      "code": "000333",
-      "name": "美的集团",
-      "action": "buy",
-      "shares": 1300,
-      "price": 76.35,
       "reason": "评分调仓"
     }
   ]
