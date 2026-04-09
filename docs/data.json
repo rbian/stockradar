@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9246,
-    "total_return": -7.54,
-    "max_drawdown": -8.69,
+    "nav": 0.9245,
+    "total_return": -7.55,
+    "max_drawdown": -8.7,
     "holdings_count": 5,
-    "total_trades": 32,
+    "total_trades": 33,
     "initial_capital": 1000000,
-    "current_value": 929081.0,
-    "cash": 392227.0
+    "current_value": 929092.0,
+    "cash": 390509.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9246,
-      "market_value": 532335.0,
+      "nav": 0.9245,
+      "market_value": 533970.0,
       "holdings_count": 5
     }
   ],
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 24.0
+      "weight": 23.9
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6400,
+      "shares": 6500,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 110656.0,
+      "market_value": 112385.0,
       "pnl_pct": -0.12,
-      "weight": 20.9
+      "weight": 21.1
     },
     {
       "code": "601127",
@@ -118,10 +118,19 @@
       "current_price": 143.94,
       "market_value": 100758.0,
       "pnl_pct": 1.58,
-      "weight": 18.7
+      "weight": 18.6
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 10:40",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.16,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 10:35",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "buy",
       "shares": 2400,
       "price": 41.0,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-03-31",
-      "code": "688506",
-      "name": "百利天恒",
-      "action": "buy",
-      "shares": 300,
-      "price": 278.0,
       "reason": "评分调仓"
     }
   ]
