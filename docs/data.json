@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9263,
-    "total_return": -7.37,
-    "max_drawdown": -8.52,
+    "nav": 0.9261,
+    "total_return": -7.39,
+    "max_drawdown": -8.54,
     "holdings_count": 5,
-    "total_trades": 28,
+    "total_trades": 29,
     "initial_capital": 1000000,
-    "current_value": 929045.0,
-    "cash": 399107.0
+    "current_value": 929053.0,
+    "cash": 397386.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9263,
-      "market_value": 527159.0,
+      "nav": 0.9261,
+      "market_value": 528687.0,
       "holdings_count": 5
     }
   ],
@@ -78,7 +78,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.8
+      "weight": 18.7
     },
     {
       "code": "300759",
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 24.3
+      "weight": 24.2
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6000,
+      "shares": 6100,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 103740.0,
+      "market_value": 105469.0,
       "pnl_pct": -0.12,
-      "weight": 19.8
+      "weight": 20.1
     },
     {
       "code": "601127",
@@ -108,7 +108,7 @@
       "current_price": 90.0,
       "market_value": 99000.0,
       "pnl_pct": 4.17,
-      "weight": 18.2
+      "weight": 18.1
     },
     {
       "code": "600809",
@@ -122,6 +122,15 @@
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 10:20",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.19,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 10:15",
       "code": "601607",
