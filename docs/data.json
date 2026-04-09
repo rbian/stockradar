@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9251,
-    "total_return": -7.49,
-    "max_drawdown": -8.64,
+    "nav": 0.9248,
+    "total_return": -7.52,
+    "max_drawdown": -8.67,
     "holdings_count": 5,
-    "total_trades": 36,
+    "total_trades": 37,
     "initial_capital": 1000000,
-    "current_value": 929128.0,
-    "cash": 385358.0
+    "current_value": 929140.0,
+    "cash": 383641.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9251,
-      "market_value": 539784.0,
+      "nav": 0.9248,
+      "market_value": 541135.0,
       "holdings_count": 5
     }
   ],
@@ -93,12 +93,12 @@
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 6800,
+      "shares": 6900,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 117572.0,
+      "market_value": 119301.0,
       "pnl_pct": -0.12,
-      "weight": 21.9
+      "weight": 22.2
     },
     {
       "code": "601127",
@@ -108,7 +108,7 @@
       "current_price": 90.0,
       "market_value": 99000.0,
       "pnl_pct": 4.17,
-      "weight": 17.7
+      "weight": 17.6
     },
     {
       "code": "600809",
@@ -118,10 +118,19 @@
       "current_price": 143.94,
       "market_value": 100758.0,
       "pnl_pct": 1.58,
-      "weight": 18.5
+      "weight": 18.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 11:00",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.15,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 10:55",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "buy",
       "shares": 500,
       "price": 202.27,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-04-03",
-      "code": "002475",
-      "name": "立讯精密",
-      "action": "sell",
-      "shares": 2000,
-      "price": 48.8,
       "reason": "评分调仓"
     }
   ]
