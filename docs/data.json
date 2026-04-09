@@ -1,14 +1,14 @@
 {
-  "updated": "2026-04-08",
+  "updated": "2026-04-09",
   "stats": {
-    "latest_date": "2026-04-08",
+    "latest_date": "2026-04-09",
     "nav": 0.9238,
     "total_return": -7.62,
     "max_drawdown": -8.77,
     "holdings_count": 5,
     "total_trades": 43,
     "initial_capital": 1000000,
-    "current_value": 929218.0,
+    "current_value": 923545.0,
     "cash": 373345.0
   },
   "nav_history": [
@@ -67,6 +67,10 @@
     {
       "date": "2026-04-08",
       "nav": 1.0529
+    },
+    {
+      "date": "2026-04-09",
+      "nav": 1.048
     }
   ],
   "holdings": [
@@ -85,9 +89,9 @@
       "name": "康龙化成",
       "shares": 4200,
       "cost_price": 30.26,
-      "current_price": 30.4,
-      "market_value": 127680.0,
-      "pnl_pct": 0.46,
+      "current_price": 30.55,
+      "market_value": 128310.0,
+      "pnl_pct": 0.96,
       "weight": 23.1
     },
     {
@@ -95,9 +99,9 @@
       "name": "上海医药",
       "shares": 7500,
       "cost_price": 17.31,
-      "current_price": 17.29,
-      "market_value": 129675.0,
-      "pnl_pct": -0.12,
+      "current_price": 17.09,
+      "market_value": 128175.0,
+      "pnl_pct": -1.27,
       "weight": 23.6
     },
     {
@@ -105,9 +109,9 @@
       "name": "赛力斯",
       "shares": 1100,
       "cost_price": 86.4,
-      "current_price": 90.0,
-      "market_value": 99000.0,
-      "pnl_pct": 4.17,
+      "current_price": 88.58,
+      "market_value": 97438.0,
+      "pnl_pct": 2.52,
       "weight": 17.3
     },
     {
@@ -115,9 +119,9 @@
       "name": "山西汾酒",
       "shares": 700,
       "cost_price": 141.7,
-      "current_price": 143.94,
-      "market_value": 100758.0,
-      "pnl_pct": 1.58,
+      "current_price": 139.31,
+      "market_value": 97517.0,
+      "pnl_pct": -1.69,
       "weight": 18.0
     }
   ],
