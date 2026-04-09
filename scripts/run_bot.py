@@ -794,10 +794,25 @@ def main():
                                     rebalance_actions.append(f"⚠️ 减仓1/3 {_sn(code)} {third}股@¥{price:.2f} (信号{sig})")
 
                 # === 加仓逻辑: 持仓股评分上升 + 技术面强 ===
-                if len(tracker.holdings) <= 5 and tracker.cash > 20000:
+                # 每只股票每天最多加仓1次，最小1万元
+                import json as _json_add
+                _add_log_file = PROJECT_ROOT / 'data' / 'daily_adds.json'
+                _daily_adds = {}
+                today_add_key = today
+                try:
+                    _daily_adds = _json_add.loads(_add_log_file.read_text()) if _add_log_file.exists() else {}
+                    # 清理非今天的记录
+                    _daily_adds = {k: v for k, v in _daily_adds.items() if k == today_add_key}
+                except Exception:
+                    _daily_adds = {}
+                _added_today = set(_daily_adds.get(today_add_key, []))
+
+                if len(tracker.holdings) <= 5 and tracker.cash >= 10000:
                     for code in list(held):
                         if code not in tracker.holdings or code not in scores.index:
                             continue
+                        if code in _added_today:
+                            continue  # 今天已加仓过
                         rank = list(scores.index).index(code) + 1
                         stock_data = dq_full[dq_full['code'] == code].tail(60)
                         if len(stock_data) < 30:
@@ -808,20 +823,26 @@ def main():
                         ma5 = close.rolling(5).mean().iloc[-1]
                         ma20 = close.rolling(20).mean().iloc[-1]
 
-                        # 加仓条件: 排名前15% + 信号≥70 + MA5>MA20 + 持仓<30%
-                        if rank <= int(total_stocks * 0.15) and sig >= 70 and ma5 > ma20:
+                        # 加仓条件: 排名前10% + 信号≥75 + MA5>MA20 + 持仓<25%
+                        if rank <= int(total_stocks * 0.10) and sig >= 75 and ma5 > ma20:
                             h = tracker.holdings[code]
                             total_val = sum(v['shares'] * _get_rt_price(c) for c, v in tracker.holdings.items() if _get_rt_price(c))
                             pos_weight = h['shares'] * _get_rt_price(code) / total_val if total_val > 0 else 0
-                            if pos_weight < 0.30:
+                            if pos_weight < 0.25:
                                 price = _get_rt_price(code)
                                 if not price:
                                     continue
-                                add_amount = min(tracker.cash * 0.3, price * 100)
+                                # 最小加仓1万元，最大用cash的20%
+                                add_amount = max(10000, min(tracker.cash * 0.2, 50000))
                                 add_shares = int(add_amount / price / 100) * 100
-                                if add_shares >= 100:
+                                if add_shares >= 100 and add_shares * price <= tracker.cash:
                                     tracker._add_position(code, add_shares, price, now_str, f'add_score{scores.loc[code,"score_total"]:.0f}_sig{sig}')
                                     rebalance_actions.append(f"🟢 加仓 {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig})")
+                                    # 记录今天已加仓
+                                    _added_today.add(code)
+                                    _daily_adds[today_add_key] = list(_added_today)
+                                    _add_log_file.parent.mkdir(exist_ok=True)
+                                    _add_log_file.write_text(_json_add.dumps(_daily_adds))
                                     break  # 每轮最多加仓1只
 
                 if rebalance_actions:
