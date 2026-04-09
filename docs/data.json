@@ -2,14 +2,14 @@
   "updated": "2026-04-08",
   "stats": {
     "latest_date": "2026-04-08",
-    "nav": 0.9245,
-    "total_return": -7.55,
-    "max_drawdown": -8.7,
+    "nav": 0.9239,
+    "total_return": -7.61,
+    "max_drawdown": -8.76,
     "holdings_count": 5,
-    "total_trades": 38,
+    "total_trades": 39,
     "initial_capital": 1000000,
-    "current_value": 929153.0,
-    "cash": 381925.0
+    "current_value": 929165.0,
+    "cash": 380208.0
   },
   "nav_history": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "date": "2026-04-09",
-      "nav": 0.9245,
-      "market_value": 542572.0,
+      "nav": 0.9239,
+      "market_value": 543724.0,
       "holdings_count": 5
     }
   ],
@@ -78,7 +78,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.2
+      "weight": 18.1
     },
     {
       "code": "300759",
@@ -88,17 +88,17 @@
       "current_price": 30.4,
       "market_value": 127680.0,
       "pnl_pct": 0.46,
-      "weight": 23.5
+      "weight": 23.4
     },
     {
       "code": "601607",
       "name": "上海医药",
-      "shares": 7000,
+      "shares": 7100,
       "cost_price": 17.31,
       "current_price": 17.29,
-      "market_value": 121030.0,
+      "market_value": 122759.0,
       "pnl_pct": -0.12,
-      "weight": 22.4
+      "weight": 22.6
     },
     {
       "code": "601127",
@@ -108,7 +108,7 @@
       "current_price": 90.0,
       "market_value": 99000.0,
       "pnl_pct": 4.17,
-      "weight": 17.6
+      "weight": 17.5
     },
     {
       "code": "600809",
@@ -122,6 +122,15 @@
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-09 11:10",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "buy",
+      "shares": 100,
+      "price": 17.15,
+      "reason": "add_score1_sig78"
+    },
     {
       "date": "2026-04-09 11:05",
       "code": "601607",
@@ -381,15 +390,6 @@
       "action": "buy",
       "shares": 17700,
       "price": 5.82,
-      "reason": "评分调仓"
-    },
-    {
-      "date": "2026-04-03",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 3400,
-      "price": 30.07,
       "reason": "评分调仓"
     }
   ]
