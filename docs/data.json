@@ -2,14 +2,14 @@
   "updated": "2026-04-09",
   "stats": {
     "latest_date": "2026-04-09",
-    "nav": 0.9265,
-    "total_return": -7.35,
-    "max_drawdown": -8.5,
+    "nav": 0.9259,
+    "total_return": -7.41,
+    "max_drawdown": -8.56,
     "holdings_count": 5,
-    "total_trades": 46,
+    "total_trades": 47,
     "initial_capital": 1000000,
-    "current_value": 923504.0,
-    "cash": 429028.0
+    "current_value": 923500.0,
+    "cash": 442955.0
   },
   "nav_history": [
     {
@@ -44,8 +44,8 @@
     },
     {
       "date": "2026-04-10",
-      "nav": 0.9265,
-      "market_value": 497429.0,
+      "nav": 0.9259,
+      "market_value": 482989.0,
       "holdings_count": 5
     }
   ],
@@ -88,7 +88,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 20.0
+      "weight": 20.6
     },
     {
       "code": "300759",
@@ -98,7 +98,7 @@
       "current_price": 30.55,
       "market_value": 128310.0,
       "pnl_pct": 0.96,
-      "weight": 25.8
+      "weight": 26.5
     },
     {
       "code": "601607",
@@ -108,7 +108,7 @@
       "current_price": 17.09,
       "market_value": 128175.0,
       "pnl_pct": -1.27,
-      "weight": 26.3
+      "weight": 27.1
     },
     {
       "code": "601127",
@@ -118,20 +118,29 @@
       "current_price": 88.58,
       "market_value": 97438.0,
       "pnl_pct": 2.52,
-      "weight": 19.3
+      "weight": 19.9
     },
     {
       "code": "600809",
       "name": "山西汾酒",
-      "shares": 300,
+      "shares": 200,
       "cost_price": 141.7,
       "current_price": 139.31,
-      "market_value": 41793.0,
+      "market_value": 27862.0,
       "pnl_pct": -1.69,
-      "weight": 8.6
+      "weight": 5.9
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-10 09:50",
+      "code": "600809",
+      "name": "山西汾酒",
+      "action": "sell",
+      "shares": 100,
+      "price": 139.41,
+      "reason": "signal_weak_35"
+    },
     {
       "date": "2026-04-10 09:45",
       "code": "600809",
@@ -391,15 +400,6 @@
       "action": "sell",
       "shares": 5200,
       "price": 19.99,
-      "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-08 09:45",
-      "code": "002460",
-      "name": "赣锋锂业",
-      "action": "sell",
-      "shares": 1200,
-      "price": 78.11,
       "reason": "reduce_to_5"
     }
   ]
