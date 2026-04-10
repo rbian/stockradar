@@ -2,14 +2,14 @@
   "updated": "2026-04-09",
   "stats": {
     "latest_date": "2026-04-09",
-    "nav": 0.9238,
-    "total_return": -7.62,
-    "max_drawdown": -8.77,
+    "nav": 0.9251,
+    "total_return": -7.49,
+    "max_drawdown": -8.64,
     "holdings_count": 5,
-    "total_trades": 43,
+    "total_trades": 44,
     "initial_capital": 1000000,
-    "current_value": 923545.0,
-    "cash": 373345.0
+    "current_value": 923555.0,
+    "cash": 401217.0
   },
   "nav_history": [
     {
@@ -40,6 +40,12 @@
       "date": "2026-04-09",
       "nav": 0.9238,
       "market_value": 550489.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-04-10",
+      "nav": 0.9251,
+      "market_value": 523863.0,
       "holdings_count": 5
     }
   ],
@@ -82,7 +88,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 17.9
+      "weight": 18.9
     },
     {
       "code": "300759",
@@ -92,7 +98,7 @@
       "current_price": 30.55,
       "market_value": 128310.0,
       "pnl_pct": 0.96,
-      "weight": 23.1
+      "weight": 24.4
     },
     {
       "code": "601607",
@@ -102,7 +108,7 @@
       "current_price": 17.09,
       "market_value": 128175.0,
       "pnl_pct": -1.27,
-      "weight": 23.6
+      "weight": 24.9
     },
     {
       "code": "601127",
@@ -112,20 +118,29 @@
       "current_price": 88.58,
       "market_value": 97438.0,
       "pnl_pct": 2.52,
-      "weight": 17.3
+      "weight": 18.2
     },
     {
       "code": "600809",
       "name": "山西汾酒",
-      "shares": 700,
+      "shares": 500,
       "cost_price": 141.7,
       "current_price": 139.31,
-      "market_value": 97517.0,
+      "market_value": 69655.0,
       "pnl_pct": -1.69,
-      "weight": 18.0
+      "weight": 13.6
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-10 09:35",
+      "code": "600809",
+      "name": "山西汾酒",
+      "action": "sell",
+      "shares": 200,
+      "price": 139.5,
+      "reason": "signal_weak_35"
+    },
     {
       "date": "2026-04-09 11:30",
       "code": "601607",
@@ -386,15 +401,6 @@
       "shares": 300,
       "price": 32.05,
       "reason": "auto_stop"
-    },
-    {
-      "date": "2026-04-03",
-      "code": "600809",
-      "name": "山西汾酒",
-      "action": "buy",
-      "shares": 700,
-      "price": 141.7,
-      "reason": "评分调仓"
     }
   ]
 }
