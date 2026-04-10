@@ -2,14 +2,14 @@
   "updated": "2026-04-09",
   "stats": {
     "latest_date": "2026-04-09",
-    "nav": 0.9251,
-    "total_return": -7.49,
-    "max_drawdown": -8.64,
+    "nav": 0.9263,
+    "total_return": -7.37,
+    "max_drawdown": -8.52,
     "holdings_count": 5,
-    "total_trades": 44,
+    "total_trades": 45,
     "initial_capital": 1000000,
-    "current_value": 923555.0,
-    "cash": 401217.0
+    "current_value": 923518.0,
+    "cash": 415111.0
   },
   "nav_history": [
     {
@@ -44,8 +44,8 @@
     },
     {
       "date": "2026-04-10",
-      "nav": 0.9251,
-      "market_value": 523863.0,
+      "nav": 0.9263,
+      "market_value": 511151.0,
       "holdings_count": 5
     }
   ],
@@ -88,7 +88,7 @@
       "current_price": 41.15,
       "market_value": 98760.0,
       "pnl_pct": 0.37,
-      "weight": 18.9
+      "weight": 19.4
     },
     {
       "code": "300759",
@@ -98,7 +98,7 @@
       "current_price": 30.55,
       "market_value": 128310.0,
       "pnl_pct": 0.96,
-      "weight": 24.4
+      "weight": 25.1
     },
     {
       "code": "601607",
@@ -108,7 +108,7 @@
       "current_price": 17.09,
       "market_value": 128175.0,
       "pnl_pct": -1.27,
-      "weight": 24.9
+      "weight": 25.6
     },
     {
       "code": "601127",
@@ -118,20 +118,29 @@
       "current_price": 88.58,
       "market_value": 97438.0,
       "pnl_pct": 2.52,
-      "weight": 18.2
+      "weight": 18.7
     },
     {
       "code": "600809",
       "name": "山西汾酒",
-      "shares": 500,
+      "shares": 400,
       "cost_price": 141.7,
       "current_price": 139.31,
-      "market_value": 69655.0,
+      "market_value": 55724.0,
       "pnl_pct": -1.69,
-      "weight": 13.6
+      "weight": 11.2
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-10 09:40",
+      "code": "600809",
+      "name": "山西汾酒",
+      "action": "sell",
+      "shares": 100,
+      "price": 139.08,
+      "reason": "signal_weak_35"
+    },
     {
       "date": "2026-04-10 09:35",
       "code": "600809",
@@ -392,15 +401,6 @@
       "shares": 17700,
       "price": 5.77,
       "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-08 09:35",
-      "code": "688506",
-      "name": "百利天恒",
-      "action": "sell",
-      "shares": 300,
-      "price": 32.05,
-      "reason": "auto_stop"
     }
   ]
 }
