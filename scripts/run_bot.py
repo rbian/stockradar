@@ -761,6 +761,19 @@ def main():
                     return
 
                 # === 加减仓逻辑 ===
+                # 每日操作记录 (防止重复加减仓)
+                import json as _json_act
+                _act_log_file = PROJECT_ROOT / 'data' / 'daily_actions.json'
+                _daily_actions = {}
+                today_act_key = today
+                try:
+                    _daily_actions = _json_act.loads(_act_log_file.read_text()) if _act_log_file.exists() else {}
+                    _daily_actions = {k: v for k, v in _daily_actions.items() if k == today_act_key}
+                except Exception:
+                    _daily_actions = {}
+                _today_reduced = set(_daily_actions.get(today_act_key, {}).get('reduce', []))
+                _today_added = set(_daily_actions.get(today_act_key, {}).get('add', []))
+
                 now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
                 rebalance_actions = []
 
@@ -804,19 +817,6 @@ def main():
                                         tracker._partial_sell(code, third, price, now_str, f'signal_weak_{sig}')
                                         rebalance_actions.append(f"⚠️ 减仓1/3 {_sn(code)} {third}股@¥{price:.2f} (信号{sig})")
                                         _today_reduced.add(code)
-
-                # === 每日操作记录 (防止重复加减仓) ===
-                import json as _json_act
-                _act_log_file = PROJECT_ROOT / 'data' / 'daily_actions.json'
-                _daily_actions = {}
-                today_act_key = today
-                try:
-                    _daily_actions = _json_act.loads(_act_log_file.read_text()) if _act_log_file.exists() else {}
-                    _daily_actions = {k: v for k, v in _daily_actions.items() if k == today_act_key}
-                except Exception:
-                    _daily_actions = {}
-                _today_reduced = set(_daily_actions.get(today_act_key, {}).get('reduce', []))
-                _today_added = set(_daily_actions.get(today_act_key, {}).get('add', []))
 
                 if len(tracker.holdings) <= 5 and tracker.cash >= 10000:
                     for code in list(held):
