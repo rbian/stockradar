@@ -320,33 +320,17 @@ def main():
         async def pages_update():
             logger.info("更新GitHub Pages...")
             try:
+                # Use export_pages.py which handles master commit + gh-pages deploy
                 import subprocess
-                subprocess.run(["python3", "scripts/export_pages.py"],
-                              cwd=str(PROJECT_ROOT), timeout=30)
-                subprocess.run(["git", "add", "docs/"], cwd=str(PROJECT_ROOT), timeout=10)
-                subprocess.run(["git", "commit", "-m",
-                              f"pages: {__import__('datetime').date.today()}"],
-                              cwd=str(PROJECT_ROOT), timeout=10)
-                subprocess.run(["git", "push", "origin", "master"],
-                              cwd=str(PROJECT_ROOT), timeout=30)
-                # Sync to gh-pages branch
-                import shutil as _shutil
-                subprocess.run(["git", "fetch", "origin", "gh-pages"],
-                              cwd=str(PROJECT_ROOT), timeout=10)
-                subprocess.run(["git", "checkout", "gh-pages"],
-                              cwd=str(PROJECT_ROOT), timeout=10)
-                for _fn in ["index.html", "data.json"]:
-                    _shutil.copy2(str(PROJECT_ROOT / "docs" / _fn),
-                                 str(PROJECT_ROOT / _fn))
-                subprocess.run(["git", "add", "index.html", "data.json"],
-                              cwd=str(PROJECT_ROOT), timeout=10)
-                subprocess.run(["git", "commit", "-m",
-                              "pages: " + str(__import__('datetime').date.today())],
-                              cwd=str(PROJECT_ROOT), timeout=10, capture_output=True)
-                subprocess.run(["git", "push", "origin", "gh-pages"],
-                              cwd=str(PROJECT_ROOT), timeout=30)
+                result = subprocess.run(
+                    ["python3", "scripts/export_pages.py"],
+                    cwd=str(PROJECT_ROOT), timeout=60,
+                    capture_output=True, text=True
+                )
+                # Ensure we're back on master after export_pages.py checkout
                 subprocess.run(["git", "checkout", "master"],
-                              cwd=str(PROJECT_ROOT), timeout=10)
+                              cwd=str(PROJECT_ROOT), timeout=10,
+                              capture_output=True)
                 logger.info("GitHub Pages 已更新")
             except Exception as e:
                 logger.warning(f"Pages更新失败(不影响主功能): {e}")
