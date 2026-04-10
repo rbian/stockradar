@@ -788,30 +788,31 @@ def main():
                             tech = score_stock(stock_data)
                             sig = tech.get('signal_score', 50)
                             if 35 <= sig < 50:
-                                third = h['shares'] // 3 // 100 * 100
-                                if third >= 100:
-                                    tracker._partial_sell(code, third, price, now_str, f'signal_weak_{sig}')
-                                    rebalance_actions.append(f"⚠️ 减仓1/3 {_sn(code)} {third}股@¥{price:.2f} (信号{sig})")
+                                if code not in _today_reduced:  # 今天未减仓过
+                                    third = h['shares'] // 3 // 100 * 100
+                                    if third >= 100:
+                                        tracker._partial_sell(code, third, price, now_str, f'signal_weak_{sig}')
+                                        rebalance_actions.append(f"⚠️ 减仓1/3 {_sn(code)} {third}股@¥{price:.2f} (信号{sig})")
+                                        _today_reduced.add(code)
 
-                # === 加仓逻辑: 持仓股评分上升 + 技术面强 ===
-                # 每只股票每天最多加仓1次，最小1万元
-                import json as _json_add
-                _add_log_file = PROJECT_ROOT / 'data' / 'daily_adds.json'
-                _daily_adds = {}
-                today_add_key = today
+                # === 每日操作记录 (防止重复加减仓) ===
+                import json as _json_act
+                _act_log_file = PROJECT_ROOT / 'data' / 'daily_actions.json'
+                _daily_actions = {}
+                today_act_key = today
                 try:
-                    _daily_adds = _json_add.loads(_add_log_file.read_text()) if _add_log_file.exists() else {}
-                    # 清理非今天的记录
-                    _daily_adds = {k: v for k, v in _daily_adds.items() if k == today_add_key}
+                    _daily_actions = _json_act.loads(_act_log_file.read_text()) if _act_log_file.exists() else {}
+                    _daily_actions = {k: v for k, v in _daily_actions.items() if k == today_act_key}
                 except Exception:
-                    _daily_adds = {}
-                _added_today = set(_daily_adds.get(today_add_key, []))
+                    _daily_actions = {}
+                _today_reduced = set(_daily_actions.get(today_act_key, {}).get('reduce', []))
+                _today_added = set(_daily_actions.get(today_act_key, {}).get('add', []))
 
                 if len(tracker.holdings) <= 5 and tracker.cash >= 10000:
                     for code in list(held):
                         if code not in tracker.holdings or code not in scores.index:
                             continue
-                        if code in _added_today:
+                        if code in _today_added:
                             continue  # 今天已加仓过
                         rank = list(scores.index).index(code) + 1
                         stock_data = dq_full[dq_full['code'] == code].tail(60)
@@ -849,8 +850,8 @@ def main():
                                     tracker._add_position(code, add_shares, price, now_str, f'add_score{scores.loc[code,"score_total"]:.0f}_sig{sig}')
                                     rebalance_actions.append(f"🟢 加仓[{tier}] {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig} 加¥{add_amount/10000:.0f}万)")
                                     # 记录今天已加仓
-                                    _added_today.add(code)
-                                    _daily_adds[today_add_key] = list(_added_today)
+                                    _today_added.add(code)
+                                    _daily_adds[today_add_key] = list(_today_added)
                                     _add_log_file.parent.mkdir(exist_ok=True)
                                     _add_log_file.write_text(_json_add.dumps(_daily_adds))
                                     break  # 每轮最多加仓1只
