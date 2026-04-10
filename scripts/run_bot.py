@@ -543,6 +543,16 @@ def main():
                 if len(tracker.holdings) >= 5:
                     logger.info("持仓已达5只上限，跳过买入")
                     return
+                # 仓位上限: 股票市值占总资产>=80%时停止买入
+                total_assets = tracker.cash + sum(
+                    h['shares'] * _get_rt_price(c)
+                    for c, h in tracker.holdings.items()
+                    if _get_rt_price(c)
+                )
+                position_pct = (total_assets - tracker.cash) / total_assets if total_assets > 0 else 0
+                if position_pct >= 0.80:
+                    logger.info(f"仓位已达{position_pct*100:.1f}%，保留现金，跳过买入")
+                    return
 
                 # Step 1: 因子评分排名
                 engine = FactorEngine()
