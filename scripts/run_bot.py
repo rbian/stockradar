@@ -378,9 +378,9 @@ def main():
                     p = len(result['patterns'])
                     logger.info(f"交易复盘完成: {n}条, {p}个模式")
                     # 推送复盘摘要
-                    good = sum(1 for r in result['reviews'] if r.get('verdict') == 'correct')
-                    bad = sum(1 for r in result['reviews'] if r.get('verdict') == 'wrong_stop')
-                    early = sum(1 for r in result['reviews'] if r.get('verdict') == 'early_sell')
+                    good = sum(1 for r in result['reviews'] if r.get('outcome') in ('excellent', 'good', 'correct_stop'))
+                    bad = sum(1 for r in result['reviews'] if r.get('outcome') in ('bad', 'bad_stop'))
+                    early = sum(1 for r in result['reviews'] if r.get('outcome') == 'early_sell')
                     msg = f"📋 **交易复盘** ({n}笔)\n  ✅ 正确: {good} | ⚠️ 提前卖出: {early} | ❌ 错误: {bad}"
                     if result.get('patterns'):
                         msg += f"\n  🔍 发现{p}个错误模式"
