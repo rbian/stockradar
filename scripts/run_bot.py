@@ -564,9 +564,14 @@ def main():
                     if len(stock_data) < 30:
                         continue
 
-                    # 条件1: 技术信号评分 >= 50
+                    # 条件1: 技术信号评分 (大盘择时调整)
                     tech = score_stock(stock_data)
-                    if tech.get('signal_score', 0) < 50:
+                    min_signal = 50
+                    if market_regime == "bearish":
+                        min_signal = 65  # 熊市提高门槛
+                    elif market_regime == "bullish":
+                        min_signal = 40  # 牛市降低门槛
+                    if tech.get('signal_score', 0) < min_signal:
                         continue
 
                     # 条件2: RSI未超买 (< 70)
@@ -589,9 +594,12 @@ def main():
                         if vol_ma5 > 0 and vol.iloc[-1] < vol_ma5 * 0.8:
                             continue  # 缩量，资金不关注
 
-                    # 条件5: 短期趋势偏多 (MA5 > MA20)
+                    # 条件5: 短期趋势 (大盘择时调整)
                     ma5 = close.rolling(5).mean().iloc[-1]
-                    if ma5 < ma20:
+                    if market_regime == "bearish":
+                        if ma5 < ma20 * 1.02:  # 熊市: 要求MA5显著高于MA20
+                            continue
+                    elif ma5 < ma20:
                         continue
 
                     factor_score = scores.loc[code, 'score_total'] if code in scores.index else 0
@@ -608,7 +616,8 @@ def main():
 
                 # 按(因子分*0.6 + 信号分*0.4)排序
                 candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
-                buy_list = candidates[:3]
+                max_buy = 3 if market_regime != "bearish" else 1  # 熊市最多买1只
+                buy_list = candidates[:max_buy]
 
                 # Step 3: 获取实时价格并买入
                 buy_codes = [c['code'] for c in buy_list]
