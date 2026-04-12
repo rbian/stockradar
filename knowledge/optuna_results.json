@@ -1,0 +1,92 @@
+[
+  {
+    "date": "2026-04-12 22:11",
+    "best_score": 4.5291,
+    "best_category_weights": {
+      "fundamental": 1.186,
+      "technical": 2.857,
+      "capital_flow": 2.223,
+      "llm": 1.836,
+      "market_sentiment": 0.552
+    },
+    "best_factor_weights": {
+      "fundamental_roe": 0.481,
+      "fundamental_pe_percentile": 0.305,
+      "fundamental_revenue_yoy": 1.759,
+      "technical_price_vs_ma20": 1.282,
+      "technical_price_vs_ma60": 1.475,
+      "technical_ma20_slope": 0.237,
+      "capital_flow_northbound_net_5d": 1.946,
+      "capital_flow_northbound_consecutive_days": 1.698,
+      "capital_flow_main_force_net_1d": 0.582,
+      "llm_earnings_sentiment": 0.527,
+      "llm_news_sentiment_7d": 0.53,
+      "llm_research_consensus": 0.748,
+      "market_sentiment_turnover_anomaly": 1.145,
+      "market_sentiment_limit_up_count": 0.978,
+      "market_sentiment_high_low_position": 0.724
+    },
+    "n_trials": 5,
+    "improvement": "+0.0%"
+  },
+  {
+    "date": "2026-04-12 22:25",
+    "best_score": 6.7941,
+    "best_category_weights": {
+      "fundamental": 1.186,
+      "technical": 2.857,
+      "capital_flow": 2.223,
+      "llm": 1.836,
+      "market_sentiment": 0.552
+    },
+    "best_factor_weights": {
+      "fundamental_roe": 0.481,
+      "fundamental_pe_percentile": 0.305,
+      "fundamental_revenue_yoy": 1.759,
+      "technical_price_vs_ma20": 1.282,
+      "technical_price_vs_ma60": 1.475,
+      "technical_ma20_slope": 0.237,
+      "capital_flow_northbound_net_5d": 1.946,
+      "capital_flow_northbound_consecutive_days": 1.698,
+      "capital_flow_main_force_net_1d": 0.582,
+      "llm_earnings_sentiment": 0.527,
+      "llm_news_sentiment_7d": 0.53,
+      "llm_research_consensus": 0.748,
+      "market_sentiment_turnover_anomaly": 1.145,
+      "market_sentiment_limit_up_count": 0.978,
+      "market_sentiment_high_low_position": 0.724
+    },
+    "n_trials": 10,
+    "improvement": "+0.0%"
+  },
+  {
+    "date": "2026-04-12 22:30",
+    "best_score": 7.2101,
+    "best_category_weights": {
+      "fundamental": 1.167,
+      "technical": 1.934,
+      "capital_flow": 1.937,
+      "llm": 1.654,
+      "market_sentiment": 0.362
+    },
+    "best_factor_weights": {
+      "fundamental_roe": 1.704,
+      "fundamental_pe_percentile": 0.777,
+      "fundamental_revenue_yoy": 0.536,
+      "technical_price_vs_ma20": 0.273,
+      "technical_price_vs_ma60": 1.264,
+      "technical_ma20_slope": 1.42,
+      "capital_flow_northbound_net_5d": 0.23,
+      "capital_flow_northbound_consecutive_days": 1.122,
+      "capital_flow_main_force_net_1d": 0.608,
+      "llm_earnings_sentiment": 1.361,
+      "llm_news_sentiment_7d": 0.514,
+      "llm_research_consensus": 1.444,
+      "market_sentiment_turnover_anomaly": 0.896,
+      "market_sentiment_limit_up_count": 1.886,
+      "market_sentiment_high_low_position": 0.448
+    },
+    "n_trials": 10,
+    "improvement": "+130.5%"
+  }
+]

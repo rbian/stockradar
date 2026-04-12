@@ -71,7 +71,8 @@ def run_optuna_optimization(n_trials: int = 50, backtest_days: int = 60) -> dict
                 factor_weights[f"{cat}.{fname}"] = fw
 
         # Run simplified backtest
-        score = _quick_backtest(data, cat_weights, factor_weights, backtest_days)
+        score = _quick_backtest(data, cat_weights, factor_weights, backtest_days,
+                                score_cache=score_cache)
 
         trial_log.append({
             "trial": trial.number,
@@ -82,6 +83,11 @@ def run_optuna_optimization(n_trials: int = 50, backtest_days: int = 60) -> dict
 
         return score
 
+    # Pre-compute scores once for all trials
+    score_cache = _precompute_scores(data)
+    if not score_cache:
+        logger.warning("Score cache empty, using fallback")
+        score_cache = None
     # Run optimization
     study = optuna.create_study(
         direction="maximize",
@@ -149,70 +155,91 @@ def _load_historical_data() -> dict | None:
         return None
 
 
-def _quick_backtest(data: dict, cat_weights: dict, factor_weights: dict, days: int) -> float:
-    """Simplified backtest using factor scores
 
-    Uses a fast scoring approach:
-    1. Score stocks with trial weights
-    2. Pick top N
-    3. Calculate next-period return
-    4. Return risk-adjusted score (Sharpe-like)
-    """
+def _precompute_scores(data: dict) -> dict:
+    """Pre-compute factor scores for all rebalance dates using FactorEngine."""
+    from src.factors.engine import FactorEngine
+
+    df = data["df"]
+    dates = sorted(df["date"].unique())
+    # Use last 20 rebalance points (~100 trading days) for speed
+    n_rebalance = 20
+    rebalance_dates = dates[-(n_rebalance + 1):-1] if len(dates) > n_rebalance + 1 else dates[-(len(dates)//5+1):-1]
+
+    logger.info(f"Pre-computing scores for {len(rebalance_dates)} dates...")
+    engine = FactorEngine()
+    score_cache = {}
+
+    for i, d in enumerate(rebalance_dates):
+        d_str = str(d)[:10]
+        hist_data = df[df["date"] <= d].copy()
+        day_data = df[df["date"] == d].copy()
+        if len(day_data) < 20:
+            continue
+        codes = day_data["code"].astype(str).str[:6].tolist()
+        try:
+            scores_df = engine.score_all({"daily_quote": hist_data, "codes": codes})
+            if not scores_df.empty:
+                score_cache[d_str] = scores_df[["score_fundamental", "score_technical", "score_capital_flow", "score_llm", "score_market_sentiment", "score_total"]].to_dict("index")
+        except Exception:
+            pass
+        if (i + 1) % 5 == 0:
+            logger.info(f"  Scored {i+1}/{len(rebalance_dates)} dates")
+
+    logger.info(f"Score cache ready: {len(score_cache)} dates")
+    return score_cache
+
+
+def _quick_backtest(data: dict, cat_weights: dict, factor_weights: dict, days: int,
+                    score_cache: dict = None) -> float:
+    """Backtest using pre-computed scores or price momentum fallback."""
     df = data["df"]
     if df.empty or "date" not in df.columns:
         return 0.0
 
-    # Get unique dates
-    dates = sorted(df["date"].unique())
-    if len(dates) < days + 5:
-        return 0.0
+    # Build price lookup
+    price_map = {}
+    for _, row in df.iterrows():
+        key = (str(row["code"])[:6], str(row["date"])[:10])
+        price_map[key] = row["close"]
 
-    # Use last N rebalance points
-    rebalance_dates = dates[-(days // 5 + 1):-1]  # every ~5 days
+    if score_cache:
+        rebalance_dates = sorted(score_cache.keys())
+    else:
+        dates = sorted(df["date"].unique())
+        rebalance_dates = dates[-(days // 5 + 1):-1]
 
     returns = []
     for i in range(len(rebalance_dates) - 1):
-        d = rebalance_dates[i]
-        d_next = rebalance_dates[i + 1]
+        d_str, d_next_str = rebalance_dates[i], rebalance_dates[i + 1]
 
-        # Get stocks on this date
-        mask = df["date"] == d
-        day_data = df[mask].copy()
+        if score_cache and d_str in score_cache:
+            stock_scores = score_cache[d_str]
+            # Apply trial category weights to compute weighted score
+            weighted = {}
+            for code, info in stock_scores.items():
+                if isinstance(info, dict):
+                    s = 0.0
+                    for cat, w in cat_weights.items():
+                        col = f"score_{cat}"
+                        if col in info:
+                            s += info[col] * w
+                    weighted[code] = s
+            top_codes = sorted(weighted, key=weighted.get, reverse=True)[:10]
+        else:
+            # Fallback: pick top by price momentum
+            day_data = df[df["date"] == d_str].copy() if d_str in price_map.values() else pd.DataFrame()
+            if day_data.empty or len(day_data) < 20:
+                continue
+            top_codes = day_data.nlargest(10, "change_pct")["code"].astype(str).str[:6].tolist()
 
-        if len(day_data) < 20:
-            continue
-
-        # Simple scoring: use available numeric columns
-        score_cols = [c for c in day_data.columns if day_data[c].dtype in ["float64", "int64"] and c not in ["date", "open", "high", "low", "close", "volume", "amount", "turn"]]
-        if not score_cols:
-            continue
-
-        # Calculate score
-        scores = pd.Series(0.0, index=day_data.index)
-        for col in score_cols[:5]:  # limit to avoid noise
-            std = day_data[col].std()
-            if std > 0:
-                scores += (day_data[col] - day_data[col].mean()) / std
-
-        # Pick top 10
-        top_idx = scores.nlargest(10).index
-        top_codes = day_data.loc[top_idx, "code"].tolist()
-
-        # Calculate forward return
-        mask_next = df["date"] == d_next
-        day_next = df[mask_next].copy()
-
-        port_return = 0.0
-        matched = 0
+        port_return, matched = 0.0, 0
         for code in top_codes:
-            row = day_next[day_next["code"] == code]
-            curr = day_data[day_data["code"] == code]
-            if len(row) > 0 and len(curr) > 0:
-                curr_close = curr["close"].values[0]
-                next_close = row["close"].values[0]
-                if curr_close > 0:
-                    port_return += (next_close - curr_close) / curr_close
-                    matched += 1
+            curr_p = price_map.get((str(code)[:6], d_str))
+            next_p = price_map.get((str(code)[:6], d_next_str))
+            if curr_p and next_p and curr_p > 0:
+                port_return += (next_p - curr_p) / curr_p
+                matched += 1
 
         if matched > 0:
             returns.append(port_return / matched)
@@ -220,17 +247,14 @@ def _quick_backtest(data: dict, cat_weights: dict, factor_weights: dict, days: i
     if len(returns) < 3:
         return 0.0
 
-    # Risk-adjusted return (Sharpe-like)
     returns = np.array(returns)
-    mean_ret = returns.mean()
-    std_ret = returns.std()
-
+    mean_ret, std_ret = returns.mean(), returns.std()
     if std_ret == 0:
         return 0.0
 
     sharpe = mean_ret / std_ret * np.sqrt(252)
-    return sharpe
-
+    total = (1 + returns).prod() - 1
+    return sharpe * (1 if mean_ret >= 0 else -1) * (1 + abs(total))
 
 def apply_optimized_weights(result: dict) -> bool:
     """Apply optimized weights to factor config (human approval needed)"""
