@@ -602,6 +602,27 @@ def main():
                     elif ma5 < ma20:
                         continue
 
+                    # 条件6: 个股风险过滤
+                    # 6a: 近20日最大回撤 > 15% → 波动太大，避开
+                    if len(close) >= 20:
+                        rolling_max = close.rolling(20, min_periods=10).max()
+                        drawdown = (close - rolling_max) / rolling_max
+                        max_dd = drawdown.min()
+                        if max_dd < -0.15:
+                            continue  # 近20日最大回撤超15%
+
+                    # 6b: 价格连续3日下跌 → 短期弱势
+                    if len(close) >= 3:
+                        if all(close.iloc[-i] < close.iloc[-i-1] for i in range(1, min(4, len(close)))):
+                            continue  # 连续下跌中
+
+                    # 6c: 成交额过低（日均<5000万）→ 流动性差
+                    vol = stock_data.get('volume', pd.Series(dtype=float))
+                    if len(vol) >= 5:
+                        avg_vol = vol.tail(5).mean()
+                        if avg_vol < 50000:  # ~50M volume
+                            continue
+
                     factor_score = scores.loc[code, 'score_total'] if code in scores.index else 0
                     candidates.append({
                         'code': code,

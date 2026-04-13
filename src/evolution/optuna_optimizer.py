@@ -210,6 +210,9 @@ def _quick_backtest(data: dict, cat_weights: dict, factor_weights: dict, days: i
         rebalance_dates = dates[-(days // 5 + 1):-1]
 
     returns = []
+    # A-share trading costs: commission 0.025% each way + stamp tax 0.05% (sell only)
+    BUY_COST = 0.00025
+    SELL_COST = 0.00075  # 0.025% commission + 0.05% stamp tax
     for i in range(len(rebalance_dates) - 1):
         d_str, d_next_str = rebalance_dates[i], rebalance_dates[i + 1]
 
@@ -238,7 +241,9 @@ def _quick_backtest(data: dict, cat_weights: dict, factor_weights: dict, days: i
             curr_p = price_map.get((str(code)[:6], d_str))
             next_p = price_map.get((str(code)[:6], d_next_str))
             if curr_p and next_p and curr_p > 0:
-                port_return += (next_p - curr_p) / curr_p
+                gross_ret = (next_p - curr_p) / curr_p
+                net_ret = gross_ret - BUY_COST - SELL_COST  # each rebalance = sell old + buy new
+                port_return += net_ret
                 matched += 1
 
         if matched > 0:
