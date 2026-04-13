@@ -134,43 +134,43 @@ def _judge_sell(trade: dict, returns: dict) -> dict:
     reason = trade.get("reason", "")
 
     if r5d is None:
-        return {"verdict": "insufficient_data", "analysis": "数据不足，无法评估"}
+        return {"outcome": "insufficient_data", "analysis": "数据不足，无法评估"}
 
     if pnl > 0 and r5d < -2:
         return {
-            "verdict": "excellent",
-            "analysis": f"卖出后5日跌{r5d:+.1f}%，成功止盈"
+            "outcome": "excellent",
+            "analysis": f"卖出后{r5d:+.1f}%，成功止盈"
         }
     elif pnl > 0 and r5d < 2:
         return {
-            "verdict": "good",
-            "analysis": f"卖出后5日{r5d:+.1f}%，卖出时机合理"
+            "outcome": "good",
+            "analysis": f"卖出后{r5d:+.1f}%，卖出时机合理"
         }
     elif pnl > 0 and r5d >= 2:
         return {
-            "verdict": "early_sell",
+            "outcome": "early_sell",
             "analysis": f"卖出后5日涨{r5d:+.1f}%，可能卖早了",
             "pattern": "卖飞",
         }
     elif pnl < 0 and r5d >= 0:
         return {
-            "verdict": "bad_stop",
-            "analysis": f"止损后5日反弹{r5d:+.1f}%，止损可能过早",
+            "outcome": "bad_stop",
+            "analysis": f"止损后反弹{r5d:+.1f}%，止损可能过早",
             "pattern": "过早止损",
         }
     elif pnl <= 0 and r5d < -2:
         return {
-            "verdict": "correct_stop",
+            "outcome": "correct_stop",
             "analysis": f"卖出后5日继续跌{r5d:+.1f}%，止损正确"
         }
     elif "止损" in reason:
         return {
-            "verdict": "stop_loss",
+            "outcome": "stop_loss",
             "analysis": f"止损{pnl:+.0f}元，后续{r5d:+.1f}%",
         }
     else:
         return {
-            "verdict": "neutral",
+            "outcome": "neutral",
             "analysis": f"卖出后5日{r5d:+.1f}%",
         }
 
@@ -181,27 +181,27 @@ def _judge_buy(trade: dict, returns: dict) -> dict:
     r10d = returns.get("10d", 0)
 
     if r5d is None:
-        return {"verdict": "insufficient_data", "analysis": "数据不足"}
+        return {"outcome": "insufficient_data", "analysis": "数据不足"}
 
     if r5d >= 3:
         return {
-            "verdict": "excellent",
-            "analysis": f"买入后5日涨{r5d:+.1f}%，选股正确",
+            "outcome": "excellent",
+            "analysis": f"买入后涨{r5d:+.1f}%，选股正确",
         }
     elif r5d >= 0:
         return {
-            "verdict": "good",
+            "outcome": "good",
             "analysis": f"买入后5日{r5d:+.1f}%，表现尚可",
         }
     elif r5d >= -3:
         return {
-            "verdict": "mediocre",
+            "outcome": "mediocre",
             "analysis": f"买入后5日跌{r5d:+.1f}%，需观察",
         }
     else:
         return {
-            "verdict": "bad",
-            "analysis": f"买入后5日跌{r5d:+.1f}%，选股失误",
+            "outcome": "bad",
+            "analysis": f"买入后{r5d:+.1f}%，选股失误",
             "pattern": "买入失误",
         }
 
@@ -210,23 +210,40 @@ def _extract_patterns(reviews: list[dict]) -> list[dict]:
     """Extract recurring error patterns"""
     from collections import Counter
 
-    # Count pattern types
+    # Count pattern types from outcomes
     patterns = []
-    verdict_counts = Counter(r["outcome"] for r in reviews)
-    pattern_counts = Counter(r.get("pattern") for r in reviews if "pattern" in r)
+
+    # Map outcomes to actionable patterns
+    outcome_to_pattern = {
+        "bad": "买入失误",
+        "bad_stop": "过早止损",
+        "early_sell": "卖飞",
+        "mediocre": "买入一般",
+    }
+
+    pattern_counts = Counter()
+    for r in reviews:
+        outcome = r.get("outcome", "")
+        pattern = outcome_to_pattern.get(outcome)
+        if pattern:
+            pattern_counts[pattern] += 1
+        # Also check explicit pattern field
+        if "pattern" in r:
+            pattern_counts[r["pattern"]] += 1
 
     for pattern, count in pattern_counts.most_common(5):
-        examples = [r for r in reviews if r.get("pattern") == pattern][:3]
+        examples = [r for r in reviews if outcome_to_pattern.get(r.get("outcome","")) == pattern or r.get("pattern") == pattern][:3]
         avg_cost = 0
         for r in examples:
-            pnl = r.get("pnl", 0) or r.get("subsequent_returns", {}).get("5d", 0)
-            avg_cost += abs(pnl) if pnl else 0
+            pnl = r.get("pnl", 0) or 0
+            r5d = r.get("subsequent_returns", {}).get("5d", 0) or 0
+            avg_cost += abs(pnl) if pnl else abs(r5d)
         avg_cost /= len(examples) if examples else 1
 
         patterns.append({
             "pattern": pattern,
             "count": count,
-            "avg_cost": round(avg_cost, 0),
+            "avg_cost": round(avg_cost, 1),
             "examples": [
                 {"code": e["code"], "name": e["name"], "date": e["date"],
                  "analysis": e["analysis"]}
@@ -267,7 +284,7 @@ def format_review_report(reviews: list[dict], patterns: list[dict]) -> str:
 
         lines.append(f"  {emoji} {r['date']} {action} **{r['name']}**({r['code']}) @{r['price']}")
 
-        rets_str = f" → 5日:{r5}%"
+        rets_str = f" → 5日:{r5}" + "%" if isinstance(r5, (int, float)) else ""
         if r10 != "N/A":
             rets_str += f" 10日:{r10}%"
         if r.get("pnl") and r["pnl"] != 0:
