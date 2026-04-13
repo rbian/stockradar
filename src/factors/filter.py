@@ -94,6 +94,17 @@ def hard_filter(stock_info_df: pd.DataFrame,
             codes -= high_gw
             filter_log.append(f"排除高商誉(>{max_goodwill_ratio}%): {len(high_gw)} 只")
 
+    # 8. 排除连续涨停追高风险（近5日涨停≥2次）
+    if daily_df is not None and not daily_df.empty:
+        recent_cutoff = date_ts - pd.Timedelta(days=7)
+        recent = daily_df[(daily_df["date"] >= recent_cutoff) & (daily_df["code"].isin(codes))]
+        if not recent.empty and "change_pct" in recent.columns:
+            limit_up_counts = recent[recent["change_pct"] >= 9.8].groupby("code").size()
+            chase_codes = set(limit_up_counts[limit_up_counts >= 2].index)
+            codes -= chase_codes
+            if chase_codes:
+                filter_log.append(f"排除连续涨停追高: {len(chase_codes)} 只")
+
     logger.info(
         f"硬筛选: {initial_count} → {len(codes)} 只 "
         f"(排除 {initial_count - len(codes)} 只)"

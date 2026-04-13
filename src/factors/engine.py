@@ -37,6 +37,8 @@ class FactorEngine:
             calc_peg, calc_operating_leverage, calc_inventory_turnover, calc_accrual_ratio,
         )
         from src.factors.technical import (
+        calc_atr,
+        calc_volume_trend,
             calc_price_vs_ma, calc_ma_slope, calc_momentum,
             calc_volatility, calc_max_drawdown,
             calc_rsi, calc_macd_signal, calc_bollinger_width,
@@ -83,6 +85,8 @@ class FactorEngine:
             "volume_price_divergence": lambda d: calc_volume_price_divergence(d.get("daily_quote", pd.DataFrame()), 20),
             "turnover_rate_change": lambda d: calc_turnover_rate_change(d.get("daily_quote", pd.DataFrame()), 5),
             "amplitude": lambda d: calc_amplitude(d.get("daily_quote", pd.DataFrame()), 10),
+            "atr_14d": lambda d: calc_atr(d.get("daily_quote", pd.DataFrame()), 14),
+            "volume_trend": lambda d: calc_volume_trend(d.get("daily_quote", pd.DataFrame())),
             # Capital flow (5) — 接收 daily_quote + northbound
             "northbound_net_5d": lambda d: calc_northbound_net(d.get("daily_quote", pd.DataFrame()), d.get("northbound", pd.DataFrame())),
             "northbound_consecutive_days": lambda d: calc_northbound_consecutive(d.get("northbound", pd.DataFrame())),

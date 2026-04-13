@@ -287,3 +287,75 @@ def calc_amplitude(daily_df: pd.DataFrame, period: int = 10) -> pd.Series:
         return amplitude.mean()
 
     return daily_df.groupby("code").apply(amp)
+
+
+def calc_atr(daily_df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """ATR (Average True Range) - 真实波幅均值
+
+    经典波动率因子，广泛用于仓位管理：
+    - ATR大 → 波动大 → 仓位应减少
+    - ATR小 → 波动小 → 仓位可增大
+    参考: Wilder (1978), Qlib/聚宽等主流量化框架
+
+    TR = max(high-low, |high-prev_close|, |low-prev_close|)
+    ATR = SMA(TR, period)
+
+    Args:
+        daily_df: 日线行情DataFrame
+        period: ATR周期
+
+    Returns:
+        Series, index=code, value=ATR占收盘价百分比(归一化)
+    """
+    def atr(group):
+        if len(group) < period + 1:
+            return np.nan
+        group = group.sort_values("date")
+        high = group["high"]
+        low = group["low"]
+        prev_close = group["close"].shift(1)
+        tr = pd.concat([
+            high - low,
+            (high - prev_close).abs(),
+            (low - prev_close).abs(),
+        ], axis=1).max(axis=1)
+        atr_val = tr.rolling(period).mean().iloc[-1]
+        close_val = group["close"].iloc[-1]
+        if close_val == 0 or pd.isna(atr_val):
+            return np.nan
+        return atr_val / close_val * 100  # 归一化为百分比
+
+    return daily_df.groupby("code").apply(atr)
+
+
+def calc_volume_trend(daily_df: pd.DataFrame, fast: int = 5, slow: int = 20) -> pd.Series:
+    """成交量趋势因子 (简化版Klinger思路)
+
+    短期均量 vs 长期均量，结合价格趋势方向加权：
+    - 价涨 + 量增 → 强势
+    - 价跌 + 量缩 → 弱势
+
+    Args:
+        daily_df: 日线行情DataFrame
+        fast: 短期天数
+        slow: 长期天数
+
+    Returns:
+        Series, index=code, value=成交量趋势信号
+    """
+    def vtrend(group):
+        if len(group) < slow:
+            return np.nan
+        group = group.sort_values("date")
+        recent = group.tail(slow)
+        vol_fast = recent["volume"].tail(fast).mean()
+        vol_slow = recent["volume"].mean()
+        if vol_slow == 0:
+            return np.nan
+        vol_signal = vol_fast / vol_slow - 1  # 量比变化
+        # 价格趋势方向
+        price_change = (recent["close"].iloc[-1] / recent["close"].iloc[-fast] - 1)
+        # 同向加强，反向减弱
+        return vol_signal * np.sign(price_change) if price_change != 0 else vol_signal * 0.5
+
+    return daily_df.groupby("code").apply(vtrend)

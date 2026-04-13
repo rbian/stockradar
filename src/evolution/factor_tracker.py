@@ -12,9 +12,12 @@
 
 from dataclasses import dataclass, field
 
+import json
+
 import numpy as np
 import pandas as pd
 import yaml
+from pathlib import Path
 from loguru import logger
 from scipy import stats
 
@@ -62,6 +65,7 @@ class FactorTracker:
             config_path = str(CONFIG_DIR / "factors.yaml")
         self.config_path = config_path
         self.store = store  # DuckDB store，用于持久化
+        self._json_backup_path = Path("data/cache/factor_ic_state.json")
 
         with open(config_path, "r", encoding="utf-8") as f:
             self.config = yaml.safe_load(f)
@@ -83,46 +87,73 @@ class FactorTracker:
         self._restore_from_store()
 
     def _restore_from_store(self):
-        """从DuckDB恢复历史IC数据，避免重启后丢失"""
-        if self.store is None:
-            return
+        """从DuckDB或JSON备份恢复历史IC数据，避免重启后丢失"""
+        restored = False
 
+        # 优先从DuckDB恢复
+        if self.store is not None:
+            try:
+                ic_df = self.store.get_table("factor_ic_history")
+                if ic_df is not None and not ic_df.empty:
+                    for name, status in self.factor_statuses.items():
+                        factor_history = ic_df[ic_df["factor"] == name].sort_values("date")
+                        if factor_history.empty:
+                            continue
+                        for _, row in factor_history.iterrows():
+                            status.ic_history.append({"date": row["date"], "ic": row.get("ic", 0)})
+                        latest = factor_history.iloc[-1]
+                        restored_weight = latest.get("weight", status.original_weight)
+                        if status.original_weight > 0:
+                            status.weight_multiplier = restored_weight / status.original_weight
+                        status.is_suspended = latest.get("is_suspended", False)
+                        if status.is_suspended:
+                            status.weight_multiplier = 0.0
+                        status.consecutive_low_ic_days = latest.get("consecutive_low_ic", 0)
+                        recent_ics = [h["ic"] for h in status.ic_history[-self.ic_window:]]
+                        status.ic_20d_avg = np.mean(recent_ics) if recent_ics else 0
+                    logger.info(f"从DB恢复 {len(self.factor_statuses)} 个因子的IC历史")
+                    restored = True
+            except Exception as e:
+                logger.debug(f"DB恢复IC历史失败: {e}")
+
+        # 回退：从JSON备份恢复
+        if not restored and self._json_backup_path.exists():
+            try:
+                with open(self._json_backup_path, "r") as f:
+                    backup = json.load(f)
+                factors_data = backup.get("factors", {})
+                for name, fdata in factors_data.items():
+                    if name in self.factor_statuses:
+                        status = self.factor_statuses[name]
+                        status.ic_history = fdata.get("ic_history", [])[-60:]  # 保留最近60天
+                        status.weight_multiplier = fdata.get("weight_multiplier", 1.0)
+                        status.is_suspended = fdata.get("is_suspended", False)
+                        status.consecutive_low_ic_days = fdata.get("consecutive_low_ic_days", 0)
+                        status.consecutive_recovery_days = fdata.get("consecutive_recovery_days", 0)
+                        recent_ics = [h["ic"] for h in status.ic_history[-self.ic_window:]]
+                        status.ic_20d_avg = np.mean(recent_ics) if recent_ics else 0
+                logger.info(f"从JSON备份恢复 {len(factors_data)} 个因子的IC历史")
+            except Exception as e:
+                logger.debug(f"JSON备份恢复失败: {e}")
+
+    def _save_to_json(self):
+        """将IC状态保存到JSON备份文件（每次daily_update后调用）"""
         try:
-            ic_df = self.store.get_table("factor_ic_history")
-            if ic_df is None or ic_df.empty:
-                return
-
-            # 恢复每个因子的IC历史和状态
+            self._json_backup_path.parent.mkdir(parents=True, exist_ok=True)
+            backup = {"factors": {}}
             for name, status in self.factor_statuses.items():
-                factor_history = ic_df[ic_df["factor"] == name].sort_values("date")
-                if factor_history.empty:
-                    continue
-
-                # 恢复IC历史
-                for _, row in factor_history.iterrows():
-                    status.ic_history.append({
-                        "date": row["date"],
-                        "ic": row.get("ic", 0),
-                    })
-
-                # 取最新一条恢复状态
-                latest = factor_history.iloc[-1]
-                restored_weight = latest.get("weight", status.original_weight)
-                # 反推 multiplier = weight / original_weight
-                if status.original_weight > 0:
-                    status.weight_multiplier = restored_weight / status.original_weight
-                status.is_suspended = latest.get("is_suspended", False)
-                if status.is_suspended:
-                    status.weight_multiplier = 0.0
-                status.consecutive_low_ic_days = latest.get("consecutive_low_ic", 0)
-
-                # 计算IC_30d_avg
-                recent_ics = [h["ic"] for h in status.ic_history[-self.ic_window:]]
-                status.ic_20d_avg = np.mean(recent_ics) if recent_ics else 0
-
-            logger.info(f"从DB恢复 {len(self.factor_statuses)} 个因子的IC历史")
+                backup["factors"][name] = {
+                    "weight_multiplier": status.weight_multiplier,
+                    "is_suspended": status.is_suspended,
+                    "consecutive_low_ic_days": status.consecutive_low_ic_days,
+                    "consecutive_recovery_days": status.consecutive_recovery_days,
+                    "ic_20d_avg": status.ic_20d_avg,
+                    "ic_history": status.ic_history[-60:],
+                }
+            with open(self._json_backup_path, "w") as f:
+                json.dump(backup, f)
         except Exception as e:
-            logger.debug(f"恢复IC历史失败（不影响运行）: {e}")
+            logger.debug(f"JSON备份保存失败: {e}")
 
     def _init_statuses(self):
         """初始化因子状态 — 读取因子级权重"""
