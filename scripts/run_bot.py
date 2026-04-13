@@ -617,7 +617,46 @@ def main():
                 # 按(因子分*0.6 + 信号分*0.4)排序
                 candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
                 max_buy = 3 if market_regime != "bearish" else 1  # 熊市最多买1只
+
+                # === 板块分散度检查 ===
+                sector_file = PROJECT_ROOT / "data" / "sector_map.json"
+                sector_map = {}
+                if sector_file.exists():
+                    import json as _json_sec
+                    try:
+                        sector_map = _json_sec.loads(sector_file.read_text())
+                    except Exception:
+                        pass
+
+                # 统计当前持仓板块分布
+                sector_counts = {}
+                for h_code in held:
+                    if h_code in sector_map:
+                        sector = sector_map[h_code].get("sector", "未知")
+                        sector_counts[sector] = sector_counts.get(sector, 0) + 1
+
+                # 调整候选优先级：降低已集中板块的权重
+                def _sector_penalty(code, score):
+                    if code not in sector_map:
+                        return score
+                    sector = sector_map[code].get("sector", "未知")
+                    count = sector_counts.get(sector, 0)
+                    if count >= 2:
+                        return score * 0.7  # 已有2+只，权重降30%
+                    elif count >= 1:
+                        return score * 0.85  # 已有1只，权重降15%
+                    return score
+
+                candidates.sort(key=lambda x: _sector_penalty(x['code'], x['factor_score'] * 0.6 + x['signal_score'] * 0.4), reverse=True)
+
                 buy_list = candidates[:max_buy]
+
+                # 检查板块集中度
+                new_sector = None
+                if buy_list and buy_list[0]['code'] in sector_map:
+                    new_sector = sector_map[buy_list[0]['code']].get("sector", "未知")
+                if new_sector and sector_counts.get(new_sector, 0) >= 2:
+                    logger.warning(f"⚠️ 板块集中: {new_sector}已有{sector_counts[new_sector]}只，考虑分散")
 
                 # Step 3: 获取实时价格并买入
                 buy_codes = [c['code'] for c in buy_list]
@@ -785,12 +824,12 @@ def main():
 
                     pnl_pct = (price - h['cost_price']) / h['cost_price']
 
-                    # 分批止损: -8%减半, -12%全清
-                    if pnl_pct <= -0.12:
+                    # 分批止损: -10%减半, -15%全清
+                    if pnl_pct <= -0.15:
                         tracker._sell(code, price, now_str, 'stop_loss_full')
                         rebalance_actions.append(f"🔴 全部止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
                         continue
-                    elif pnl_pct <= -0.08:
+                    elif pnl_pct <= -0.10:
                         half = h['shares'] // 2 // 100 * 100
                         if half >= 100:
                             tracker._partial_sell(code, half, price, now_str, 'stop_loss_half')
