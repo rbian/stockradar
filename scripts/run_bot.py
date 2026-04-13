@@ -787,11 +787,44 @@ def main():
                     elif sig < 35:
                         sell_list.append((code, f"技术信号={sig}"))
 
+                # === 持仓相关性计算 ===
+                def _calc_avg_correlation(code, held_codes, dq_data):
+                    """Calculate average correlation of code with all other held stocks."""
+                    try:
+                        import numpy as np
+                        target = dq_data[dq_data['code'] == code].tail(60)['close']
+                        if len(target) < 30:
+                            return 0.0
+                        target_ret = target.pct_change().dropna().values
+                        corrs = []
+                        for other in held_codes:
+                            if other == code:
+                                continue
+                            other_series = dq_data[dq_data['code'] == other].tail(60)['close']
+                            if len(other_series) < 30:
+                                continue
+                            other_ret = other_series.pct_change().dropna().values
+                            min_len = min(len(target_ret), len(other_ret))
+                            t, o = target_ret[-min_len:], other_ret[-min_len:]
+                            if np.std(t) > 0 and np.std(o) > 0:
+                                c = np.corrcoef(t, o)[0, 1]
+                                if not np.isnan(c):
+                                    corrs.append(c)
+                        return np.mean(corrs) if corrs else 0.0
+                    except Exception:
+                        return 0.0
+
                 # === 减仓模式: 持仓>5只时一次性卖出所有差的 ===
                 if len(tracker.holdings) > 5:
                     excess = len(tracker.holdings) - 5
-                    # 按评分从低到高排序（优先卖评分最差的）
-                    sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
+                    # 排序：评分低优先 + 相关性高优先
+                    def _sell_priority(item):
+                        code = item[0]
+                        rank = list(scores.index).index(code) + 1 if code in scores.index else 999
+                        avg_corr = _calc_avg_correlation(code, held, dq_full)
+                        # Higher rank (worse) = sell first, higher corr = sell first
+                        return rank - avg_corr * 30  # correlation gives ~9 rank units bonus
+                    sell_list.sort(key=_sell_priority, reverse=True)
                     to_sell = sell_list[:excess]
                     if not to_sell:
                         return
