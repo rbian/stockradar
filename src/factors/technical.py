@@ -359,3 +359,126 @@ def calc_volume_trend(daily_df: pd.DataFrame, fast: int = 5, slow: int = 20) -> 
         return vol_signal * np.sign(price_change) if price_change != 0 else vol_signal * 0.5
 
     return daily_df.groupby("code").apply(vtrend)
+
+
+def calc_adx(daily_df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """ADX (Average Directional Index) - 趋势强度指标
+
+    ADX衡量趋势强度（而非方向），用于动态调整风控参数：
+    - ADX < 20: 弱趋势或震荡，收紧止损(multiplier=2.0)
+    - 20 <= ADX < 25: 中等趋势，标准止损(multiplier=2.5)
+    - ADX >= 25: 强趋势，放宽止损避免被震荡洗出(multiplier=3.0)
+
+    计算步骤：
+    1. +DM = high - prev_high (if > low - prev_low, else 0)
+    2. -DM = low - prev_low (if > high - prev_high, else 0)
+    3. TR = max(high-low, |high-prev_close|, |low-prev_close|)
+    4. +DI = SMA(+DM) / SMA(TR) * 100
+    5. -DI = SMA(-DM) / SMA(TR) * 100
+    6. DX = |+DI - -DI| / (+DI + -DI) * 100
+    7. ADX = SMA(DX)
+
+    参考: Wilder (1978),广泛应用于Qlib/Backtrader等框架
+
+    Args:
+        daily_df: 日线行情DataFrame，需包含high/low/close列
+        period: ADX计算周期，默认14
+
+    Returns:
+        Series, index=code, value=ADX值(0-100)
+    """
+    def adx_for_group(group):
+        if len(group) < period * 2:
+            return np.nan
+
+        group = group.sort_values("date")
+        high = group["high"].values
+        low = group["low"].values
+        close = group["close"].values
+
+        # 计算DM (Directional Movement)
+        up_move = np.diff(high)
+        down_move = -np.diff(low)
+
+        plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+        minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+
+        # 计算TR (True Range)
+        tr = np.zeros(len(group))
+        for i in range(1, len(group)):
+            tr[i] = max(
+                high[i] - low[i],
+                abs(high[i] - close[i-1]),
+                abs(low[i] - close[i-1])
+            )
+
+        # 平滑处理（使用Wilder's smoothing: alpha = 1/period）
+        alpha = 1.0 / period
+
+        # 初始SMA
+        tr_smooth = np.zeros_like(tr)
+        plus_dm_smooth = np.zeros_like(plus_dm)
+        minus_dm_smooth = np.zeros_like(minus_dm)
+
+        # 从第period个值开始
+        if len(tr) > period:
+            tr_smooth[period] = np.mean(tr[1:period+1])
+            plus_dm_smooth[period] = np.mean(plus_dm[:period])
+            minus_dm_smooth[period] = np.mean(minus_dm[:period])
+
+            # 使用指数移动平均平滑
+            for i in range(period + 1, len(tr)):
+                tr_smooth[i] = alpha * tr[i] + (1 - alpha) * tr_smooth[i-1]
+                plus_dm_smooth[i] = alpha * plus_dm[i-1] + (1 - alpha) * plus_dm_smooth[i-1]
+                minus_dm_smooth[i] = alpha * minus_dm[i-1] + (1 - alpha) * minus_dm_smooth[i-1]
+
+            # 计算DI (Directional Index)
+            plus_di = np.zeros_like(tr_smooth)
+            minus_di = np.zeros_like(tr_smooth)
+
+            for i in range(period, len(tr_smooth)):
+                if tr_smooth[i] != 0:
+                    plus_di[i] = (plus_dm_smooth[i] / tr_smooth[i]) * 100
+                    minus_di[i] = (minus_dm_smooth[i] / tr_smooth[i]) * 100
+
+            # 计算DX (Directional Index)
+            dx = np.zeros_like(plus_di)
+            for i in range(period, len(plus_di)):
+                di_sum = plus_di[i] + minus_di[i]
+                if di_sum != 0:
+                    dx[i] = abs(plus_di[i] - minus_di[i]) / di_sum * 100
+
+            # 平滑DX得到ADX
+            adx = np.zeros_like(dx)
+            if len(dx) > period:
+                adx[period] = np.mean(dx[period:period*2])
+                for i in range(period + 1, len(dx)):
+                    adx[i] = alpha * dx[i] + (1 - alpha) * adx[i-1]
+
+            return adx[-1] if not np.isnan(adx[-1]) else np.nan
+
+        return np.nan
+
+    return daily_df.groupby("code").apply(adx_for_group)
+
+
+def get_adx_multiplier(adx_value: float) -> float:
+    """根据ADX值获取ATR止损倍数
+
+    趋势越强，止损距离越远（避免被震荡洗出）：
+    - ADX < 20: 弱趋势 → multiplier = 2.0
+    - 20 <= ADX < 25: 中趋势 → multiplier = 2.5
+    - ADX >= 25: 强趋势 → multiplier = 3.0
+
+    Args:
+        adx_value: ADX值
+
+    Returns:
+        ATR multiplier
+    """
+    if adx_value < 20:
+        return 2.0
+    elif adx_value < 25:
+        return 2.5
+    else:
+        return 3.0

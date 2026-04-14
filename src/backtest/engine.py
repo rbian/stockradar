@@ -22,6 +22,7 @@ from src.backtest.a_share_constraints import (
 )
 from src.factors.engine import FactorEngine
 from src.strategy.continuous_score import ContinuousScoreStrategy
+from src.risk_management.risk_manager import RiskManager
 from src.infra.config import get_settings
 
 
@@ -62,6 +63,10 @@ class BacktestEngine:
         if strategy is None:
             factor_engine = FactorEngine()
             self.strategy = ContinuousScoreStrategy(engine=factor_engine)
+
+        # 初始化风险管理器
+        risk_cfg = settings.get("risk_management", {})
+        self.risk_manager = RiskManager(risk_cfg)
         else:
             self.strategy = strategy
 
