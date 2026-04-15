@@ -1,14 +1,14 @@
 {
-  "updated": "2026-04-14",
+  "updated": "2026-04-15",
   "stats": {
-    "latest_date": "2026-04-14",
+    "latest_date": "2026-04-15",
     "nav": 0.9259,
     "total_return": -7.41,
     "max_drawdown": -8.56,
     "holdings_count": 5,
     "total_trades": 47,
     "initial_capital": 1000000,
-    "current_value": 926940.0,
+    "current_value": 926960.0,
     "cash": 442955.0
   },
   "nav_history": [
@@ -89,6 +89,10 @@
     {
       "date": "2026-04-14",
       "nav": 1.0805
+    },
+    {
+      "date": "2026-04-15",
+      "nav": 1.0749
     }
   ],
   "holdings": [
@@ -97,9 +101,9 @@
       "name": "海天味业",
       "shares": 2400,
       "cost_price": 41.0,
-      "current_price": 40.77,
-      "market_value": 97848.0,
-      "pnl_pct": -0.56,
+      "current_price": 40.92,
+      "market_value": 98208.0,
+      "pnl_pct": -0.2,
       "weight": 20.6
     },
     {
@@ -107,9 +111,9 @@
       "name": "康龙化成",
       "shares": 4200,
       "cost_price": 30.26,
-      "current_price": 31.38,
-      "market_value": 131796.0,
-      "pnl_pct": 3.7,
+      "current_price": 31.3,
+      "market_value": 131460.0,
+      "pnl_pct": 3.44,
       "weight": 26.5
     },
     {
@@ -117,9 +121,9 @@
       "name": "上海医药",
       "shares": 7500,
       "cost_price": 17.31,
-      "current_price": 17.02,
-      "market_value": 127650.0,
-      "pnl_pct": -1.68,
+      "current_price": 17.25,
+      "market_value": 129375.0,
+      "pnl_pct": -0.35,
       "weight": 27.1
     },
     {
@@ -127,9 +131,9 @@
       "name": "赛力斯",
       "shares": 1100,
       "cost_price": 86.4,
-      "current_price": 89.89,
-      "market_value": 98879.0,
-      "pnl_pct": 4.04,
+      "current_price": 88.32,
+      "market_value": 97152.0,
+      "pnl_pct": 2.22,
       "weight": 19.9
     },
     {
@@ -137,9 +141,9 @@
       "name": "山西汾酒",
       "shares": 200,
       "cost_price": 141.7,
-      "current_price": 139.06,
-      "market_value": 27812.0,
-      "pnl_pct": -1.86,
+      "current_price": 139.05,
+      "market_value": 27810.0,
+      "pnl_pct": -1.87,
       "weight": 5.9
     }
   ],
