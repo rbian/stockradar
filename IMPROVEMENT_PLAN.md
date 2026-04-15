@@ -191,3 +191,39 @@
 - **来源**: PyPortfolioOpt (3.5k stars)
 - **思路**: 相关性仓位限制
 - **优先级**: 中
+
+---
+
+## 2026-04-16 (周四) 改进记录 - 数据+基建日
+
+### 改进1: 修复交易复盘verdict KeyError (关键BUG)
+- **问题**: trade_reviewer.py中_judge_buy/_judge_sell返回`{"outcome": ...}`，但_review_single_trade读取`outcome["verdict"]`
+- **影响**: 每日15:40交易复盘持续失败，报错`'verdict'` KeyError
+- **修复**: 改为`outcome.get("outcome", "unknown")`安全访问
+- **验证**: 单元测试通过，buy/sell各场景返回正确outcome
+
+### 改进2: Tushare API重试+缓存机制
+- **GitHub学习**: 量化数据系统中resilience pattern是标配（Qlib有完整的DataFetcher+Cache体系）
+- **实现**:
+  - `_retry_api_call()`: 指数退避重试，3次(2s/4s/8s延迟)
+  - Tushare专用Parquet缓存层: `_save_tushare_cache()` / `_load_tushare_cache()`
+  - 缓存策略: northbound/sector/dragon_tiger 1天TTL, macro 30天TTL
+  - API失败时自动回退到7天内缓存
+- **效果**: 解决ConnectionResetError导致的数据丢失，减少API调用次数
+- **验证**: 单元测试确认缓存读写和重试逻辑
+
+### 改进3: Tushare缓存 + graceful degradation
+- 上述缓存机制中已包含: API不可用时回退到7天内旧缓存
+- 确保即使Tushare完全不可用，报告生成不会中断
+
+### Phase 4进度更新
+- [x] 因子IC追踪 → 淘汰无效因子
+- [x] 风控模块(RiskManager)已完成
+- [ ] Optuna结果自动应用到实盘
+- [ ] 复盘发现 → 自动调参闭环
+- [ ] 策略A/B测试框架
+
+### Git提交
+- Commit: `fix: 交易复盘verdict KeyError + Tushare重试+缓存`
+- 推送至: origin/master
+- 变更: 2 files, 233 insertions
