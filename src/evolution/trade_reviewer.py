@@ -121,7 +121,7 @@ def _review_single_trade(trade: dict, dq: pd.DataFrame, review_date) -> dict | N
         "reason": trade.get("reason", ""),
         "pnl": trade.get("pnl", 0),
         "subsequent_returns": returns,
-        "outcome": outcome["verdict"],
+        "outcome": outcome.get("outcome", "unknown"),
         "analysis": outcome["analysis"],
     }
 
