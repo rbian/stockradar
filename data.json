@@ -2,14 +2,14 @@
   "updated": "2026-04-15",
   "stats": {
     "latest_date": "2026-04-15",
-    "nav": 0.9259,
-    "total_return": -7.41,
-    "max_drawdown": -8.56,
+    "nav": 0.9279,
+    "total_return": -7.21,
+    "max_drawdown": -8.36,
     "holdings_count": 5,
-    "total_trades": 47,
+    "total_trades": 48,
     "initial_capital": 1000000,
-    "current_value": 926960.0,
-    "cash": 442955.0
+    "current_value": 927175.0,
+    "cash": 475906.0
   },
   "nav_history": [
     {
@@ -46,6 +46,12 @@
       "date": "2026-04-10",
       "nav": 0.9259,
       "market_value": 482989.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-04-16",
+      "nav": 0.9279,
+      "market_value": 452035.0,
       "holdings_count": 5
     }
   ],
@@ -99,12 +105,12 @@
     {
       "code": "603288",
       "name": "海天味业",
-      "shares": 2400,
+      "shares": 1600,
       "cost_price": 41.0,
       "current_price": 40.92,
-      "market_value": 98208.0,
+      "market_value": 65472.0,
       "pnl_pct": -0.2,
-      "weight": 20.6
+      "weight": 14.7
     },
     {
       "code": "300759",
@@ -114,7 +120,7 @@
       "current_price": 31.3,
       "market_value": 131460.0,
       "pnl_pct": 3.44,
-      "weight": 26.5
+      "weight": 28.5
     },
     {
       "code": "601607",
@@ -124,7 +130,7 @@
       "current_price": 17.25,
       "market_value": 129375.0,
       "pnl_pct": -0.35,
-      "weight": 27.1
+      "weight": 29.1
     },
     {
       "code": "601127",
@@ -134,7 +140,7 @@
       "current_price": 88.32,
       "market_value": 97152.0,
       "pnl_pct": 2.22,
-      "weight": 19.9
+      "weight": 21.3
     },
     {
       "code": "600809",
@@ -144,10 +150,19 @@
       "current_price": 139.05,
       "market_value": 27810.0,
       "pnl_pct": -1.87,
-      "weight": 5.9
+      "weight": 6.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-16 09:35",
+      "code": "603288",
+      "name": "海天味业",
+      "action": "sell",
+      "shares": 800,
+      "price": 41.23,
+      "reason": "signal_weak_48"
+    },
     {
       "date": "2026-04-10 09:50",
       "code": "600809",
@@ -407,15 +422,6 @@
       "action": "sell",
       "shares": 500,
       "price": 201.67,
-      "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-08 09:50",
-      "code": "600741",
-      "name": "华域汽车",
-      "action": "sell",
-      "shares": 5200,
-      "price": 19.99,
       "reason": "reduce_to_5"
     }
   ]
