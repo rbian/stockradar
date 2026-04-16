@@ -230,3 +230,49 @@ def run_all_tests():
 if __name__ == "__main__":
     success = run_all_tests()
     exit(0 if success else 1)
+
+    def test_inverse_volatility_weights(self):
+        """测试Inverse Volatility权重分配"""
+        rm = RiskManager()
+
+        # 模拟3只股票：低/中/高波动率
+        np.random.seed(42)
+        low_vol_prices = 100 + np.cumsum(np.random.normal(0, 0.005, 30))  # 低波动
+        mid_vol_prices = 50 + np.cumsum(np.random.normal(0, 0.02, 30))   # 中波动
+        high_vol_prices = 200 + np.cumsum(np.random.normal(0, 0.05, 30)) # 高波动
+
+        daily_quote = {
+            "low_vol": low_vol_prices,
+            "mid_vol": mid_vol_prices,
+            "high_vol": high_vol_prices,
+        }
+
+        weights = rm.inverse_volatility_weights(
+            ["low_vol", "mid_vol", "high_vol"],
+            daily_quote
+        )
+
+        # 验证基本属性
+        assert len(weights) == 3
+        assert abs(sum(weights.values()) - 1.0) < 0.01  # 权重总和≈1
+
+        # 低波动股票应该获得更高权重
+        assert weights["low_vol"] > weights["high_vol"], \
+            f"低波动应获得更高权重: {weights}"
+
+        # 所有权重在5%-25%之间
+        for code, w in weights.items():
+            assert 0.05 <= w <= 0.25, f"{code}权重{w:.2%}超出范围"
+
+    def test_inverse_volatility_empty(self):
+        """测试空输入"""
+        rm = RiskManager()
+        assert rm.inverse_volatility_weights([], {}) == {}
+
+    def test_inverse_volatility_insufficient_data(self):
+        """测试数据不足时回退到等权"""
+        rm = RiskManager()
+        short_prices = np.array([100.0, 101.0, 102.0])
+        daily_quote = {"code1": short_prices, "code2": short_prices}
+        weights = rm.inverse_volatility_weights(["code1", "code2"], daily_quote)
+        assert abs(weights["code1"] - 0.5) < 0.01

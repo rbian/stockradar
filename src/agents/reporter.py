@@ -113,7 +113,6 @@ class ReporterAgent(BaseAgent):
                 lines.append(f"  💰 净值: {info['nav']:.4f} | 收益: {info['total_return']:+.2f}%")
                 lines.append(f"  📦 持仓: {info['holdings_count']}只 | 交易: {info['trades']}笔")
                 if nav.holdings:
-                    from src.data.stock_names import stock_name
                     for code, h in sorted(nav.holdings.items()):
                         lines.append(f"  · {stock_name(code)} {h['shares']}股@¥{h['cost_price']:.2f}")
             except Exception:

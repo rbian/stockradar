@@ -64,9 +64,9 @@ class BacktestEngine:
             factor_engine = FactorEngine()
             self.strategy = ContinuousScoreStrategy(engine=factor_engine)
 
-        # 初始化风险管理器
-        risk_cfg = settings.get("risk_management", {})
-        self.risk_manager = RiskManager(risk_cfg)
+            # 初始化风险管理器
+            risk_cfg = settings.get("risk_management", {})
+            self.risk_manager = RiskManager(risk_cfg)
         else:
             self.strategy = strategy
 

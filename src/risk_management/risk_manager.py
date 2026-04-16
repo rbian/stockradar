@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 from loguru import logger
 
-from src.backtest.a_share_constraints import Position
+# Position imported lazily to avoid circular import
 from src.factors.technical import get_adx_multiplier
 
 
@@ -121,7 +121,7 @@ class RiskManager:
 
         return stop_signals
 
-    def should_trail_stop(self, position: Position, daily_quote: dict,
+    def should_trail_stop(self, position, daily_quote: dict,
                           date: str, stop_signals: dict) -> bool:
         """判断是否触发移动止损"""
         code = position.code
@@ -278,3 +278,74 @@ class RiskManager:
                 self.adx_cache.pop(trade.code, None)
             elif trade.action == "buy":
                 self.highest_atr[trade.code] = 0.0
+
+
+    def inverse_volatility_weights(self, portfolio_codes: list, daily_quote: dict) -> dict:
+        """Inverse Volatility Portfolio权重分配 (灵感来自skfolio/PyPortfolioOpt)
+
+        核心思想：每只股票的权重与其近期波动率成反比。
+        低波动股票获得更高权重，高波动股票获得更低权重。
+        这比等权分配能显著降低组合波动率和最大回撤。
+
+        Reference: skfolio (skfolio.org) - scikit-learn compatible portfolio optimization
+        Method: 1/N volatility-scaled (DeMiguel, 2007 improved variant)
+
+        Args:
+            portfolio_codes: 目标持仓代码列表
+            daily_quote: {code: price_array} 每只股票的收盘价序列
+
+        Returns:
+            {code: weight} 权重字典，总和=1.0
+        """
+        if not portfolio_codes:
+            return {}
+
+        volatilities = {}
+        min_data_len = 20  # 至少20天数据
+
+        for code in portfolio_codes:
+            prices = daily_quote.get(code)
+            if prices is None or len(prices) < min_data_len:
+                # 数据不足，使用平均波动率
+                volatilities[code] = None
+                continue
+
+            # 计算近20日日收益率标准差 → 年化波动率
+            price_arr = np.array(prices[-min_data_len:])
+            returns = np.diff(price_arr) / price_arr[:-1]
+            daily_vol = np.std(returns)
+            annual_vol = daily_vol * np.sqrt(252)
+            volatilities[code] = max(annual_vol, 0.01)  # 下限防止除零
+
+        # 对数据不足的使用中位数波动率
+        valid_vols = [v for v in volatilities.values() if v is not None]
+        if not valid_vols:
+            # 全部等权
+            equal_w = 1.0 / len(portfolio_codes)
+            return {code: equal_w for code in portfolio_codes}
+
+        median_vol = np.median(valid_vols)
+        for code in volatilities:
+            if volatilities[code] is None:
+                volatilities[code] = median_vol
+
+        # Inverse volatility: weight_i = (1/vol_i) / Σ(1/vol_j)
+        inv_vols = {code: 1.0 / vol for code, vol in volatilities.items()}
+        total_inv = sum(inv_vols.values())
+
+        weights = {}
+        for code in portfolio_codes:
+            w = inv_vols[code] / total_inv
+            # 限制单只股票权重在5%-25%之间
+            w = max(0.05, min(0.25, w))
+            weights[code] = w
+
+        # 重新归一化
+        total_w = sum(weights.values())
+        weights = {code: w / total_w for code, w in weights.items()}
+
+        logger.info(
+            f"Inverse Volatility权重分配: "
+            + ", ".join(f"{code}:{w:.1%}" for code, w in sorted(weights.items(), key=lambda x: -x[1]))
+        )
+        return weights
