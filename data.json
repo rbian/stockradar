@@ -2,14 +2,14 @@
   "updated": "2026-04-15",
   "stats": {
     "latest_date": "2026-04-15",
-    "nav": 0.9272,
-    "total_return": -7.28,
-    "max_drawdown": -8.43,
+    "nav": 0.9279,
+    "total_return": -7.21,
+    "max_drawdown": -8.36,
     "holdings_count": 5,
-    "total_trades": 51,
+    "total_trades": 52,
     "initial_capital": 1000000,
-    "current_value": 927346.0,
-    "cash": 516997.0
+    "current_value": 927352.0,
+    "cash": 525187.0
   },
   "nav_history": [
     {
@@ -50,8 +50,8 @@
     },
     {
       "date": "2026-04-16",
-      "nav": 0.9272,
-      "market_value": 410160.0,
+      "nav": 0.9279,
+      "market_value": 402711.0,
       "holdings_count": 5
     }
   ],
@@ -105,12 +105,12 @@
     {
       "code": "603288",
       "name": "海天味业",
-      "shares": 600,
+      "shares": 400,
       "cost_price": 41.0,
       "current_price": 40.92,
-      "market_value": 24552.0,
+      "market_value": 16368.0,
       "pnl_pct": -0.2,
-      "weight": 6.1
+      "weight": 4.1
     },
     {
       "code": "300759",
@@ -120,7 +120,7 @@
       "current_price": 31.3,
       "market_value": 131460.0,
       "pnl_pct": 3.44,
-      "weight": 31.4
+      "weight": 32.0
     },
     {
       "code": "601607",
@@ -130,7 +130,7 @@
       "current_price": 17.25,
       "market_value": 129375.0,
       "pnl_pct": -0.35,
-      "weight": 32.1
+      "weight": 32.7
     },
     {
       "code": "601127",
@@ -140,7 +140,7 @@
       "current_price": 88.32,
       "market_value": 97152.0,
       "pnl_pct": 2.22,
-      "weight": 23.5
+      "weight": 24.0
     },
     {
       "code": "600809",
@@ -150,10 +150,19 @@
       "current_price": 139.05,
       "market_value": 27810.0,
       "pnl_pct": -1.87,
-      "weight": 7.0
+      "weight": 7.1
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-16 09:55",
+      "code": "603288",
+      "name": "海天味业",
+      "action": "sell",
+      "shares": 200,
+      "price": 40.99,
+      "reason": "signal_weak_48"
+    },
     {
       "date": "2026-04-16 09:50",
       "code": "603288",
@@ -413,15 +422,6 @@
       "action": "buy",
       "shares": 100,
       "price": 31.29,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 09:45",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.4,
       "reason": "add_score1_sig77"
     }
   ]
