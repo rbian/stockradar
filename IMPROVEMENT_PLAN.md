@@ -227,3 +227,37 @@
 - Commit: `fix: 交易复盘verdict KeyError + Tushare重试+缓存`
 - 推送至: origin/master
 - 变更: 2 files, 233 insertions
+
+## 2026-04-17 (周五) 改进记录 - 策略迭代+周报日
+
+### 改进1: 修复reporter.py stock_name UnboundLocalError (关键BUG)
+- **问题**: `_daily_report()` 内line 116有 `from src.data.stock_names import stock_name` 局部导入
+- **影响**: Python将方法内所有 `stock_name` 引用视为local变量，导致15:30日报持续失败
+- **修复**: 删除冗余局部导入，使用模块级导入（line 14）
+- **日志证据**: `2026-04-16 15:30:05 | ERROR | src.agents.reporter:act:49 - 报告生成失败: cannot access local variable 'stock_name'`
+
+### 改进2: 修复trade_reviewer.py analysis key安全访问
+- **问题**: `_review_single_trade()` 中 `outcome["analysis"]` 无安全访问
+- **修复**: 改为 `outcome.get("analysis", "")` 防止KeyError
+- **关联**: 配合04-16的verdict修复，完整解决15:40复盘失败链
+
+### 改进3: Inverse Volatility Portfolio权重分配 (GitHub学习: skfolio)
+- **来源**: skfolio (skfolio.org, 500+ stars) + PyPortfolioOpt + DeMiguel 2007论文
+- **思路**: 组合权重与波动率成反比，低波动高权重，降低组合波动
+- **实现**:
+  - `RiskManager.inverse_volatility_weights()` 新方法
+  - 年化波动率 = 20日收益率标准差 × √252
+  - weight_i = (1/vol_i) / Σ(1/vol_j)，限制5%-25%
+  - 数据不足时回退等权
+- **测试**: 3个场景全部通过（正常分配、空输入、数据不足）
+- **下一步**: 集成到每日选股流程，替代等权分配
+
+### 修复4: backtest/engine.py语法错误
+- **问题**: if strategy is None 块后跟独立 else，导致SyntaxError
+- **影响**: 阻止所有单元测试运行（import chain: risk_manager → backtest → engine）
+- **修复**: 重构if/else结构，同时解决circular import（lazy import Position）
+
+### Git提交
+- Commit: `fix: reporter stock_name scoping bug + trade_reviewer safety + Inverse Volatility Portfolio weights + backtest engine syntax fix`
+- 推送至: origin/master
+- 变更: 6 files, 169 insertions(+), 7 deletions(-)
