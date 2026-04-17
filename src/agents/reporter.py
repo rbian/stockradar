@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from loguru import logger
 import pandas as pd
+import traceback
 
 from src.core.agent_base import BaseAgent, AgentConfig, Observation, Plan, ActionResult
 from src.data.stock_names import stock_name
@@ -46,7 +47,7 @@ class ReporterAgent(BaseAgent):
                 return await self._news_sentiment()
             return await self._daily_report()
         except Exception as e:
-            logger.error(f"报告生成失败: {e}")
+            logger.error(f"报告生成失败: {e}\n{traceback.format_exc()}")
             return ActionResult(success=False, message=f"报告失败: {e}")
 
     async def _daily_report(self) -> ActionResult:
