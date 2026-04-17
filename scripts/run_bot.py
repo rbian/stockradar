@@ -534,7 +534,7 @@ def main():
                     if _get_rt_price(c)
                 )
                 position_pct = (total_assets - tracker.cash) / total_assets if total_assets > 0 else 0
-                if position_pct >= 0.80:
+                if position_pct >= 0.90:
                     logger.info(f"仓位已达{position_pct*100:.1f}%，保留现金，跳过买入")
                     return
 
@@ -556,7 +556,7 @@ def main():
                 for code in scores.index:
                     if code in held:
                         continue
-                    if len(candidates) >= 5:
+                    if len(candidates) >= 10:
                         break
 
                     # 获取该股历史数据
@@ -566,11 +566,11 @@ def main():
 
                     # 条件1: 技术信号评分 (大盘择时调整)
                     tech = score_stock(stock_data)
-                    min_signal = 50
+                    min_signal = 35
                     if market_regime == "bearish":
-                        min_signal = 65  # 熊市提高门槛
+                        min_signal = 50  # bearish: moderate
                     elif market_regime == "bullish":
-                        min_signal = 40  # 牛市降低门槛
+                        min_signal = 30  # bullish: low
                     if tech.get('signal_score', 0) < min_signal:
                         continue
 
@@ -591,7 +591,7 @@ def main():
                     vol = stock_data.get('volume', pd.Series(dtype=float))
                     if len(vol) >= 2:
                         vol_ma5 = vol.tail(6).iloc[:-1].mean()
-                        if vol_ma5 > 0 and vol.iloc[-1] < vol_ma5 * 0.8:
+                        if vol_ma5 > 0 and vol.iloc[-1] < vol_ma5 * 0.5:
                             continue  # 缩量，资金不关注
 
                     # 条件5: 短期趋势 (大盘择时调整)
@@ -608,19 +608,19 @@ def main():
                         rolling_max = close.rolling(20, min_periods=10).max()
                         drawdown = (close - rolling_max) / rolling_max
                         max_dd = drawdown.min()
-                        if max_dd < -0.15:
+                        if max_dd < -0.20:
                             continue  # 近20日最大回撤超15%
 
-                    # 6b: 价格连续3日下跌 → 短期弱势
+                    # 6b: 价格连续5日下跌 → 短期弱势
                     if len(close) >= 3:
-                        if all(close.iloc[-i] < close.iloc[-i-1] for i in range(1, min(4, len(close)))):
+                        if all(close.iloc[-i] < close.iloc[-i-1] for i in range(1, min(6, len(close)))):
                             continue  # 连续下跌中
 
                     # 6c: 成交额过低（日均<5000万）→ 流动性差
                     vol = stock_data.get('volume', pd.Series(dtype=float))
                     if len(vol) >= 5:
                         avg_vol = vol.tail(5).mean()
-                        if avg_vol < 50000:  # ~50M volume
+                        if avg_vol < 20000:  # ~50M volume
                             continue
 
                     factor_score = scores.loc[code, 'score_total'] if code in scores.index else 0
