@@ -697,6 +697,17 @@ def main():
                         continue
                     shares = int(per_stock / price / 100) * 100
                     if shares >= 100:
+                        # Devil's advocate check
+                        try:
+                            from src.evolution.devils_advocate import challenge_buy
+                            review = challenge_buy(code, _sn(code), 
+                                c.get('factor_score', 0), c.get('signal_score', 0),
+                                c.get('reason', ''), tracker.holdings, market_regime)
+                            if not review['approved']:
+                                logger.warning(f"魔鬼代言人拒绝买入 {code}: {review['concerns']}")
+                                continue
+                        except Exception:
+                            pass  # If devil's advocate fails, don't block trade
                         tracker._buy(code, shares, price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'auto_buy')
                         bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
 
