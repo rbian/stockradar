@@ -261,3 +261,69 @@
 - Commit: `fix: reporter stock_name scoping bug + trade_reviewer safety + Inverse Volatility Portfolio weights + backtest engine syntax fix`
 - 推送至: origin/master
 - 变更: 6 files, 169 insertions(+), 7 deletions(-)
+
+## 2026-04-20 (周一) 改进记录 - 复盘+策略日
+
+### 周度复盘结果
+- 总交易: 33卖/46买
+- **胜率: 30% | 盈亏比: 0.04** (极差)
+- 平均盈利: ¥1,863 vs 平均亏损: ¥-23,587
+- 最大亏损来源: 688506(百利天恒) ¥-73,785 × 3笔，占Top5亏损82%
+- 趋势: 📉 恶化
+
+### 改进1: Kelly Criterion仓位管理 (GitHub学习: 量化金融经典)
+- **来源**: Kelly(1956) + Thorp(1969) + 多个量化项目实践
+- **思路**: 根据历史胜率和盈亏比计算最优仓位比例
+- **实现**: `src/risk_management/kelly_position.py`
+  - Full Kelly = (p*b - q) / b, 使用1/4 fractional Kelly降波动
+  - 当前数据: 胜率30%, 盈亏比0.08, Full Kelly=-8.52 → 自动降为4%保守仓位
+  - JSON持久化，状态跨重启保存
+- **效果**: 策略亏钱时自动降低仓位保护本金
+- **测试**: 4个场景全部通过（正常/亏损策略/数据不足/持久化）
+
+### 改进2: 多因子一致性过滤器 (GitHub学习: ashare-neural-network ensemble方法)
+- **来源**: heyixuan2/ashare-neural-network - LSTM-Transformer ensemble预测
+- **思路**: ensemble多模型一致性投票 → 多因子5维度一致性检查
+- **实现**: `src/factors/agreement_filter.py`
+  - 5维度: 趋势(MA排列) / 量价配合 / 基本面(PE+ROE) / 资金流向(北向) / 动量
+  - 买入门槛: ≥3维度看多 且 ≤1维度看空
+  - 批量过滤: Top30评分股逐一检查，不通过的直接排除
+- **效果**: 解决30%胜率核心问题 — 单一维度假信号太多
+- **测试**: 5个场景全部通过（上涨股/下跌股/批量过滤/维度检查）
+
+### 改进3: 周度复盘自动分析器
+- **实现**: `src/evolution/weekly_reviewer.py`
+  - 自动分析胜率/盈亏比/亏损集中度/交易时间模式
+  - 生成4条参数调整建议:
+    1. 信号门槛 75→80 (胜率太低)
+    2. 止损 10%→5% (盈亏比极差)
+    3. 单只上限 15%→10% (亏损集中度高)
+    4. 切换防御模式 (趋势恶化)
+  - JSON报告自动保存到 `data/weekly_reviews/`
+- **效果**: 每周一自动执行，为后续自动调参闭环提供数据基础
+- **测试**: 2个场景通过（正常分析/无数据）
+
+### Phase 4进度更新
+- [x] Kelly Criterion仓位管理 ✅
+- [x] 多因子一致性过滤器 ✅
+- [x] 周度复盘自动分析器 ✅ (为闭环做准备)
+- [ ] 复盘发现 → 自动调参闭环 (下一步: 将weekly_reviewer建议自动应用)
+- [ ] Optuna结果自动应用到实盘
+- [ ] 策略A/B测试框架
+
+### 代码变更
+- 新增 `src/risk_management/kelly_position.py` - Kelly仓位管理
+- 新增 `src/factors/agreement_filter.py` - 多因子一致性过滤器
+- 新增 `src/evolution/weekly_reviewer.py` - 周度复盘分析器
+- 新增 `tests/test_kelly_agreement_weekly.py` - 9个测试全部通过
+- 新增 `data/weekly_reviews/2026-04-20.json` - 首份自动复盘报告
+
+### Git提交
+- Commit: `feat: Kelly Criterion仓位管理 + 多因子一致性过滤 + 周度复盘分析器`
+- 推送至: origin/master
+- 变更: 4 files, 893 insertions(+)
+
+### 下一步重点
+1. **将agreement_filter集成到trader.py选股流程** (直接影响胜率)
+2. **将kelly_position集成到仓位计算** (直接控制风险)
+3. **自动调参闭环**: weekly_reviewer建议 → 自动修改配置 → 回测验证
