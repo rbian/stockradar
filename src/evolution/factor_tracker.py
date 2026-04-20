@@ -329,11 +329,15 @@ class FactorTracker:
             if len(common) < 30:
                 return 0.0
 
-            # Spearman rank相关
-            corr, _ = stats.spearmanr(
-                aligned_factors.reindex(common).values,
-                aligned_returns.reindex(common).values,
-            )
+            # Spearman rank相关 (跳过常量输入)
+            fvals = aligned_factors.reindex(common).values
+            rvals = aligned_returns.reindex(common).values
+            if np.std(fvals) == 0 or np.std(rvals) == 0:
+                return 0.0  # 常量输入，IC=0
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                corr, _ = stats.spearmanr(fvals, rvals)
             return corr if not np.isnan(corr) else 0.0
 
         except Exception as e:

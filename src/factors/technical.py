@@ -482,3 +482,145 @@ def get_adx_multiplier(adx_value: float) -> float:
         return 2.5
     else:
         return 3.0
+
+
+def calc_mean_reversion_score(daily_df: pd.DataFrame, fast: int = 5, slow: int = 20) -> pd.Series:
+    """均值回归评分因子
+
+    衡量短期超卖/超买程度，用于捕捉反弹机会：
+    - 计算短期收益率相对长期均值的偏离
+    - 负偏离越大 → 超卖越严重 → 反弹概率越高（得分越高）
+    - 结合换手率确认（放量下跌后反弹更可靠）
+
+    灵感来源: mean reversion literature (De Bondt & Thaler 1985),
+    je-suis-tm/quant-trading的reversal策略, 以及A股短线反弹实战
+
+    Args:
+        daily_df: 日线行情DataFrame
+        fast: 短期天数
+        slow: 长期天数
+
+    Returns:
+        Series, index=code, value=均值回归评分(-100~100, 越高越可能反弹)
+    """
+    def mrev(group):
+        if len(group) < slow:
+            return np.nan
+        group = group.sort_values("date")
+        recent = group.tail(slow)
+        close = recent["close"]
+
+        # 短期收益率
+        fast_return = close.iloc[-1] / close.iloc[-fast] - 1 if len(close) >= fast else 0
+
+        # 长期收益率均值
+        daily_returns = close.pct_change().dropna()
+        if len(daily_returns) < 5:
+            return np.nan
+        long_avg_return = daily_returns.mean()
+        long_std = daily_returns.std()
+        if long_std == 0:
+            return np.nan
+
+        # Z-score: 偏离程度（负偏离=超卖=高得分）
+        z_score = (fast_return - fast * long_avg_return) / (np.sqrt(fast) * long_std)
+
+        # 换手率变化确认（放量下跌后反弹更可靠）
+        vol_recent = recent["volume"].tail(fast).mean()
+        vol_older = recent["volume"].iloc[:-fast].mean() if len(recent) > fast else vol_recent
+        vol_ratio = vol_recent / vol_older if vol_older > 0 else 1.0
+
+        # 下跌且放量 → 更强的均值回归信号
+        if fast_return < 0:
+            score = abs(z_score) * min(vol_ratio, 2.0)  # cap vol_ratio at 2x
+        else:
+            score = -abs(z_score) * 0.5  # 上涨时不给反转分
+
+        return np.clip(score, -100, 100)
+
+    return daily_df.groupby("code").apply(mrev)
+
+
+def calc_williams_r(daily_df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """Williams %R 因子 - 超买超卖指标
+
+    衡量当前价格在近期价格范围中的位置：
+    - Williams %R = (Highest High - Close) / (Highest High - Lowest Low) * (-100)
+    - 值范围: -100 到 0
+    - < -80: 超卖区域（可能反弹）
+    - > -20: 超买区域（可能回调）
+
+    在选股评分中：超卖股票得分高（higher_better方向反转）
+    参考: Larry Williams (1973), 广泛用于趋势反转判断
+
+    Args:
+        daily_df: 日线行情DataFrame
+        period: 回看天数
+
+    Returns:
+        Series, index=code, value=Williams %R (-100 ~ 0)
+    """
+    def wr(group):
+        if len(group) < period:
+            return np.nan
+        group = group.sort_values("date")
+        recent = group.tail(period)
+        highest = recent["high"].max()
+        lowest = recent["low"].min()
+        close_val = recent["close"].iloc[-1]
+        if highest == lowest:
+            return np.nan
+        return (highest - close_val) / (highest - lowest) * (-100)
+
+    return daily_df.groupby("code").apply(wr)
+
+
+def calc_ichimoku_signal(daily_df: pd.DataFrame, tenkan: int = 9, kijun: int = 26) -> pd.Series:
+    """一目均衡表信号因子 (Ichimoku Cloud)
+
+    日本最流行的技术指标之一，综合判断趋势方向和支撑/阻力：
+    - 转换线(Tenkan): (highest high + lowest low) / 2 over tenkan period
+    - 基准线(Kijun): (highest high + lowest low) / 2 over kijun period
+    - 信号 = 转换线相对基准线的位置 + 价格相对转换线的位置
+
+    得分: 正值=多头信号, 负值=空头信号
+    参考: 一目山人(1930s), 日本主流量化指标
+
+    Args:
+        daily_df: 日线行情DataFrame
+        tenkan: 转换线周期
+        kijun: 基准线周期
+
+    Returns:
+        Series, index=code, value=信号强度(-100~100)
+    """
+    def ichimoku(group):
+        if len(group) < kijun:
+            return np.nan
+        group = group.sort_values("date")
+
+        high = group["high"]
+        low = group["low"]
+        close = group["close"]
+
+        # 转换线
+        recent_t = group.tail(tenkan)
+        tenkan_val = (recent_t["high"].max() + recent_t["low"].min()) / 2
+
+        # 基准线
+        recent_k = group.tail(kijun)
+        kijun_val = (recent_k["high"].max() + recent_k["low"].min()) / 2
+
+        close_val = close.iloc[-1]
+        if kijun_val == 0:
+            return np.nan
+
+        # 信号1: 转换线 vs 基准线 (金叉/死叉方向)
+        tk_signal = (tenkan_val - kijun_val) / kijun_val * 100
+
+        # 信号2: 价格 vs 转换线 (价格在转换线上方=强势)
+        pc_signal = (close_val - tenkan_val) / tenkan_val * 100
+
+        return np.clip(tk_signal + pc_signal, -100, 100)
+
+    return daily_df.groupby("code").apply(ichimoku)
