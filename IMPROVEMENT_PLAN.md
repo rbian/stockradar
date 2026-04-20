@@ -327,3 +327,44 @@
 1. **将agreement_filter集成到trader.py选股流程** (直接影响胜率)
 2. **将kelly_position集成到仓位计算** (直接控制风险)
 3. **自动调参闭环**: weekly_reviewer建议 → 自动修改配置 → 回测验证
+
+## 2026-04-21 (周二) 改进记录 - 选股+因子日
+
+### 改进1: 均值回归评分因子 (Mean Reversion Score)
+- **GitHub学习**: je-suis-tm/quant-trading(1.1k⭐)的reversal策略 + De Bondt & Thaler均值回归理论
+- **实现**: `calc_mean_reversion_score()` - 短期收益率Z-score偏离 + 换手率确认
+- **逻辑**: 下跌且放量时评分高 → 捕捉超卖反弹机会；上涨时反向扣分
+- **回测**: mock数据测试通过，值域[-100, 100]合理
+
+### 改进2: Williams %R 超买超卖因子
+- **GitHub学习**: Larry Williams经典指标，广泛用于趋势反转判断
+- **实现**: `calc_williams_r()` - 当前价格在近期高低范围中的位置
+- **逻辑**: <-80超卖(得分高) → 反弹信号；>-20超买(得分低) → 回调风险
+- **回测**: mock数据值在[-100, 0]范围，符合预期
+
+### 改进3: 一目均衡表信号因子 (Ichimoku Cloud)
+- **GitHub学习**: 日本主流量化指标，综合趋势判断
+- **实现**: `calc_ichimoku_signal()` - 转换线vs基准线 + 价格vs转换线
+- **逻辑**: 双重信号确认趋势方向和强度
+- **回测**: mock数据值在[-100, 100]范围合理
+
+### 改进4: FactorTracker ConstantInputWarning修复
+- **问题**: factor_tracker.py在IC计算时频繁出现ConstantInputWarning
+- **实现**: 计算spearmanr前检查输入std，常量输入直接返回IC=0
+- **效果**: 消除日志噪音，IC计算更稳健
+
+### Phase 4 进度推进
+- 因子IC追踪: ✅ 修复ConstantInputWarning
+- 新增3个选股因子 → Phase 4因子库扩充
+
+### 代码变更
+- 扩展 `src/factors/technical.py` - 新增3个因子(142行)
+- 修改 `src/factors/engine.py` - 注册新因子
+- 修改 `config/factors.yaml` - 新因子配置
+- 修改 `src/evolution/factor_tracker.py` - IC计算bugfix
+- Git: a0ca18c pushed to master
+
+### 下次TODO
+- [ ] 观察3个新因子的IC值，淘汰持续为负的
+- [ ] 推进Phase 4: Optuna结果自动应用
+- [ ] 推进Phase 4: 复盘→自动调参闭环
