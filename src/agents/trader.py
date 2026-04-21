@@ -236,6 +236,38 @@ class TraderAgent(BaseAgent):
         if self.context:
             self.context.set_scores(scores)
 
+        # ===== 风控仓位调整 (2026-04-22 集成) =====
+        position_multiplier = 1.0
+        signal_bonus = 0
+        try:
+            from src.risk_management.time_stop import ConsecutiveLossProtector
+            clp = ConsecutiveLossProtector()
+            # 从trade_log更新连续亏损状态
+            recent_sells = [t for t in self.nav.trade_log if t.get("action") == "sell"][-10:]
+            clp.update_from_trades(recent_sells)
+            position_multiplier = clp.get_position_multiplier()
+            signal_bonus = clp.get_signal_threshold_bonus()
+            status = clp.get_status()
+            if status["mode"] != "normal":
+                logger.warning(f"连续亏损保护: mode={status['mode']}, streak={status['loss_streak']}, pos×{position_multiplier}")
+        except Exception as e:
+            logger.debug(f"连续亏损保护跳过: {e}")
+
+        # Kelly仓位调整
+        kelly_pct = 0.08  # 默认8%
+        try:
+            from src.risk_management.kelly_position import KellyPositionManager
+            kpm = KellyPositionManager()
+            kelly_pct = kpm.get_position_pct()
+            logger.info(f"Kelly建议仓位: {kelly_pct*100:.1f}%")
+        except Exception:
+            pass
+
+        # 应用信号门槛提升 + Kelly仓位
+        if signal_bonus > 0:
+            scores["score_total"] = scores["score_total"] - signal_bonus
+            scores = scores.sort_values("score_total", ascending=False)
+
         # Technical signal filter — penalize death cross / overbought stocks
         try:
             from src.factors.technical_signals import score_stock

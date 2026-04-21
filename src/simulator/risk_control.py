@@ -1,10 +1,11 @@
-"""轻量风控 — 止损/减仓/集中度控制
+"""轻量风控 — 止损/减仓/集中度控制 + 时间止损
 
 规则:
 - 单票止损: -15% 清仓
 - 单票减仓: -8% 减半
 - 行业集中度: 同行业最多3只
 - 大盘暴跌: 当日-5%以上触发全体减仓70%
+- 时间止损: 持仓过久未达预期收益 (新增 2026-04-22)
 """
 
 import json
@@ -14,12 +15,13 @@ from loguru import logger
 DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 
 
-def check_risk(holdings: dict, prices: dict) -> list:
+def check_risk(holdings: dict, prices: dict, include_time_stop: bool = True) -> list:
     """风控检查
     
     Args:
         holdings: {code: {"shares": int, "cost_price": float}}
         prices: {code: current_price}
+        include_time_stop: 是否包含时间止损检查
     
     Returns:
         list of {code, action, reason, urgency}
@@ -55,6 +57,18 @@ def check_risk(holdings: dict, prices: dict) -> list:
                 "reason": f"关注 (亏损{pnl_pct*100:.1f}%)",
                 "urgency": "low",
             })
+    
+    # 时间止损检查 (新增)
+    if include_time_stop and holdings:
+        try:
+            from src.risk_management.time_stop import TimeStopManager
+            tsm = TimeStopManager()
+            time_alerts = tsm.batch_check(holdings, prices)
+            for ta in time_alerts:
+                ta["reason"] = f"⏱️ {ta['reason']}"
+                alerts.append(ta)
+        except Exception as e:
+            logger.debug(f"时间止损检查跳过: {e}")
     
     # 行业集中度检查
     try:

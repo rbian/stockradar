@@ -126,6 +126,13 @@ class NAVTracker:
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",
             "shares": shares, "price": price, "reason": reason,
         })
+        # 记录买入时间给时间止损
+        try:
+            from src.risk_management.time_stop import TimeStopManager
+            tsm = TimeStopManager()
+            tsm.record_entry(code, str(date)[:10])
+        except Exception:
+            pass
         # 记录到JSON交易日志
         try:
             from src.simulator.trade_log import log_trade
