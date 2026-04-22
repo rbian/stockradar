@@ -460,24 +460,6 @@ def main():
                 # 主动调仓: 评分驱动 + 技术面恶化
                 if _is_trading_day():
                     await _smart_rebalance(dq)
-
-                # 主动建仓: 每轮都检查是否有机会用现金买入（不限于卖出后）
-                if _is_trading_day():
-                    try:
-                        nav_data_now = json.load(open(PROJECT_ROOT / 'data' / 'nav_state_balanced.json'))
-                        holdings_now = nav_data_now.get('holdings', {})
-                        cash_now = nav_data_now.get('cash', 0)
-                        total_assets_now = cash_now + sum(
-                            h['shares'] * _get_rt_price(c)
-                            for c, h in holdings_now.items()
-                            if _get_rt_price(c)
-                        ) if hasattr(_get_rt_price, '__call__') else cash_now
-                        pos_pct = (total_assets_now - cash_now) / total_assets_now if total_assets_now > 0 else 0
-                        # 仓位<80%且有现金>5万，且持仓<5只时，尝试主动买入
-                        if cash_now >= 50000 and len(holdings_now) < 5 and pos_pct < 0.80:
-                            await _auto_buy(dq)
-                    except Exception as e:
-                        logger.debug(f'主动建仓检查失败: {e}')
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
 
@@ -584,11 +566,11 @@ def main():
 
                     # 条件1: 技术信号评分 (大盘择时调整)
                     tech = score_stock(stock_data)
-                    min_signal = 30
+                    min_signal = 35
                     if market_regime == "bearish":
-                        min_signal = 40  # bearish: moderate
+                        min_signal = 50  # bearish: moderate
                     elif market_regime == "bullish":
-                        min_signal = 25  # bullish: low
+                        min_signal = 30  # bullish: low
                     if tech.get('signal_score', 0) < min_signal:
                         continue
 
@@ -615,9 +597,9 @@ def main():
                     # 条件5: 短期趋势 (大盘择时调整)
                     ma5 = close.rolling(5).mean().iloc[-1]
                     if market_regime == "bearish":
-                        if ma5 < ma20 * 0.98:  # 熊市: MA5不低于MA20太多
+                        if ma5 < ma20 * 1.02:  # 熊市: 要求MA5显著高于MA20
                             continue
-                    elif ma5 < ma20 * 0.98:
+                    elif ma5 < ma20:
                         continue
 
                     # 条件6: 个股风险过滤
@@ -655,7 +637,7 @@ def main():
 
                 # 按(因子分*0.6 + 信号分*0.4)排序
                 candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
-                max_buy = min(5 - len(held), 3) if market_regime != "bearish" else 1
+                max_buy = 3 if market_regime != "bearish" else 1  # 熊市最多买1只
 
                 # === 板块分散度检查 ===
                 sector_file = PROJECT_ROOT / "data" / "sector_map.json"
@@ -949,8 +931,8 @@ def main():
                         ma5 = close.rolling(5).mean().iloc[-1]
                         ma20 = close.rolling(20).mean().iloc[-1]
 
-                        # 加仓条件: 排名前15% + 信号≥60 + MA5>MA20*0.99 + 持仓<25%
-                        if rank <= int(total_stocks * 0.15) and sig >= 60 and ma5 > ma20 * 0.99:
+                        # 加仓条件: 排名前10% + 信号≥75 + MA5>MA20 + 持仓<25%
+                        if rank <= int(total_stocks * 0.10) and sig >= 75 and ma5 > ma20:
                             h = tracker.holdings[code]
                             total_val = sum(v['shares'] * _get_rt_price(c) for c, v in tracker.holdings.items() if _get_rt_price(c))
                             pos_weight = h['shares'] * _get_rt_price(code) / total_val if total_val > 0 else 0

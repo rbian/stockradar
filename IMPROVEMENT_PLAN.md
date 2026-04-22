@@ -368,3 +368,63 @@
 - [ ] 观察3个新因子的IC值，淘汰持续为负的
 - [ ] 推进Phase 4: Optuna结果自动应用
 - [ ] 推进Phase 4: 复盘→自动调参闭环
+
+## 2026-04-22 (周三) 改进记录 - 风控+仓位日
+
+### 改进1: TimeStopManager - 时间止损 (GitHub学习)
+- **来源**: 量化交易经典时间止损概念 + systematic-investing实践
+- **思路**: 价格止损管"亏多少"，时间止损管"等多久"，两者互补
+- **规则**:
+  - 持仓>30天(约) 且 收益<5% → 清仓(错过主升浪)
+  - 持仓>20天 且 收益<2% → 清仓(资金效率低)
+  - 持仓>10天 且 收益<-3% → 减仓50%(趋势判断失误)
+- **实现**: `src/risk_management/time_stop.py` - TimeStopManager类
+- **效果**: 解决"长期套牢"问题，提高资金周转效率
+- **集成**: 接入 `risk_control.py` 的 check_risk() 自动检查
+- **测试**: 4个场景通过(长持未达标/收益达标/中期亏损/短期不触发)
+
+### 改进2: ConsecutiveLossProtector - 连续亏损保护 (GitHub学习)
+- **来源**: Larry Hite / Ed Seykota 赌注管理理论
+- **思路**: 连续亏损不是运气问题，而是市场环境或策略失效信号
+- **规则**:
+  - 连续3次亏损 → 防御模式: 仓位×0.5, 信号门槛+5
+  - 连续5次亏损 → 保守模式: 仓位×0.3, 信号门槛+10
+  - 盈利一次 → 恢复正常
+- **实现**: `src/risk_management/time_stop.py` - ConsecutiveLossProtector类
+- **效果**: 避免"追损"，30%胜率策略下自动降仓位保护本金
+- **测试**: 4个场景通过(正常/防御/保守/恢复)
+
+### 改进3: 风控模块统一集成到trader决策流程
+- **集成内容**:
+  - Kelly仓位管理 → trader._daily_decision()
+  - ConsecutiveLossProtector → trader._daily_decision()
+  - TimeStopManager → risk_control.check_risk() + nav_tracker._buy()
+- **效果**: 每日交易决策自动考虑: Kelly最优仓位 + 连续亏损降仓位 + 时间止损清仓
+- **数据流**: trade_log → ConsecutiveLoss更新 → 仓位调整 → 评分门槛提升 → 调仓
+
+### Phase 4 进度更新
+- [x] Kelly Criterion仓位管理 ✅ (已集成)
+- [x] 多因子一致性过滤器 ✅
+- [x] 周度复盘自动分析器 ✅
+- [x] 时间止损 ✅ (新增)
+- [x] 连续亏损保护 ✅ (新增)
+- [ ] 复盘发现 → 自动调参闭环 (下一步)
+- [ ] Optuna结果自动应用到实盘
+- [ ] 策略A/B测试框架
+
+### 代码变更
+- 新增 `src/risk_management/time_stop.py` - TimeStopManager + ConsecutiveLossProtector
+- 修改 `src/simulator/risk_control.py` - 集成时间止损到check_risk()
+- 修改 `src/agents/trader.py` - 集成Kelly + 连续亏损保护到决策流程
+- 修改 `src/simulator/nav_tracker.py` - 买入时记录时间止损entry
+- 新增 `tests/test_time_stop_loss.py` - 4个测试全部通过
+
+### Git提交
+- Commit: `feat: 时间止损+连续亏损保护+风控集成Kelly/Agreement到trader`
+- 推送至: origin/master
+- 变更: 5 files, 457 insertions(+), 2 deletions(-)
+
+### 下次TODO
+- [ ] 观察时间止损和连续亏损保护的实际触发情况
+- [ ] 推进Phase 4: 复盘→自动调参闭环
+- [ ] 推进Phase 4: Optuna结果自动应用
