@@ -428,3 +428,44 @@
 - [ ] 观察时间止损和连续亏损保护的实际触发情况
 - [ ] 推进Phase 4: 复盘→自动调参闭环
 - [ ] 推进Phase 4: Optuna结果自动应用
+
+## 2026-04-24 (周五) 改进记录 - 策略迭代+周报日
+
+### 改进1: DualMomentumStrategy 双动量策略 (GitHub学习)
+- **来源**: Gary Antonacci《Dual Momentum Investing》+ schlafen318/dual-momentum
+- **思路**: 绝对动量(大盘趋势过滤) + 相对动量(评分选股) 双重确认
+- **实现**: `src/strategy/dual_momentum.py`
+  - 绝对动量: 沪深300价格 vs 20日均线 + 6个月收益率双确认
+  - 牛市: 正常选股; 中性: 减半持仓; 熊市: 全部清仓转现金
+  - 与ContinuousScore互补: 大盘不好时空仓，解决30%胜率根源
+- **回测**: bull/bear/neutral三场景测试通过
+
+### 改进2: Bot "Event loop is closed" 崩溃修复
+- **问题**: run_polling()关闭event loop后重试重建Application仍用旧loop
+- **修复**: 每次重试前 `asyncio.set_event_loop(asyncio.new_event_loop())`
+- **效果**: 解决04-22连续5次崩溃无法恢复的问题
+
+### 改进3: AutoTuner 自动调参闭环 (Phase 4推进)
+- **来源**: Phase 4目标 - "复盘发现→自动调参闭环"
+- **实现**: `src/evolution/auto_tuner.py`
+  - 读取weekly_reviews最新报告 → 解析参数建议 → 安全边界验证 → 保存pending
+  - 支持: 信号门槛/止损/仓位上限/防御模式 自动调整
+  - 参数边界保护: 防止调整失控
+  - promote_pending(): 开盘前自动生效
+- **测试**: 解析3条建议全部正确，边界拒绝测试通过
+
+### Phase 4 进度更新
+- [x] Kelly Criterion仓位管理 ✅
+- [x] 多因子一致性过滤器 ✅
+- [x] 周度复盘自动分析器 ✅
+- [x] 时间止损 ✅
+- [x] 连续亏损保护 ✅
+- [x] **自动调参闭环** ✅ (新增)
+- [x] 双动量策略 ✅ (新增)
+- [ ] Optuna结果自动应用到实盘
+- [ ] 策略A/B测试框架
+
+### Git提交
+- Commit: `feat: 双动量策略 + Event loop崩溃修复 + 自动调参闭环`
+- 推送至: origin/master
+- 变更: 7 files, 1470 insertions(+), 4 deletions(-)
