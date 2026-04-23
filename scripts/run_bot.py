@@ -1147,6 +1147,8 @@ def main():
         try:
             # 每次重试都重建Application（event loop关闭后无法复用）
             if attempt > 0:
+                # 关键: 必须创建新event loop，旧的已被run_polling关闭
+                asyncio.set_event_loop(asyncio.new_event_loop())
                 app = Application.builder().token(token).build()
                 app.add_handler(CommandHandler("start", cmd_start))
                 app.add_handler(CommandHandler("help", cmd_help))
