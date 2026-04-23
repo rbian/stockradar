@@ -467,17 +467,26 @@ def main():
                         nav_data_now = json.load(open(PROJECT_ROOT / 'data' / 'nav_state_balanced.json'))
                         holdings_now = nav_data_now.get('holdings', {})
                         cash_now = nav_data_now.get('cash', 0)
-                        total_assets_now = cash_now + sum(
-                            h['shares'] * _get_rt_price(c)
-                            for c, h in holdings_now.items()
-                            if _get_rt_price(c)
-                        ) if hasattr(_get_rt_price, '__call__') else cash_now
-                        pos_pct = (total_assets_now - cash_now) / total_assets_now if total_assets_now > 0 else 0
+                        # 用实时行情计算持仓市值
+                        def _get_price_now(code):
+                            row = dq[dq['code'] == code] if 'code' in dq.columns else None
+                            if row is not None and len(row) > 0:
+                                return float(row.iloc[0]['close'])
+                            return None
+                        held_value = sum(
+                            h['shares'] * p for c, h in holdings_now.items()
+                            if (p := _get_price_now(c)) is not None
+                        )
+                        total_assets_now = cash_now + held_value
+                        pos_pct = held_value / total_assets_now if total_assets_now > 0 else 0
                         # 仓位<80%且有现金>5万，且持仓<5只时，尝试主动买入
                         if cash_now >= 50000 and len(holdings_now) < 5 and pos_pct < 0.80:
+                            logger.info(f'主动建仓检查: 仓位{pos_pct*100:.0f}% 现金¥{cash_now:.0f} 持仓{len(holdings_now)}只 → 触发买入')
                             await _auto_buy(dq)
+                        else:
+                            logger.info(f'主动建仓跳过: 仓位{pos_pct*100:.0f}% 现金¥{cash_now:.0f} 持仓{len(holdings_now)}只')
                     except Exception as e:
-                        logger.debug(f'主动建仓检查失败: {e}')
+                        logger.warning(f'主动建仓检查失败: {e}')
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
 
@@ -1146,6 +1155,8 @@ def main():
                 app.add_handler(CommandHandler("report", lambda u, c: _quick_cmd(u, c, "日报")))
                 app.add_handler(CommandHandler("factors", lambda u, c: _quick_cmd(u, c, "因子状态")))
                 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+                # 关键: 重试时也必须设置post_init，否则scheduler不会启动
+                app.post_init = post_init
             
             app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
         except KeyboardInterrupt:
