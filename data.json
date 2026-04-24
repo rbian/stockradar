@@ -2,14 +2,14 @@
   "updated": "2026-04-23",
   "stats": {
     "latest_date": "2026-04-23",
-    "nav": 0.9275,
-    "total_return": -7.25,
-    "max_drawdown": -8.4,
+    "nav": 0.9178,
+    "total_return": -8.22,
+    "max_drawdown": -9.36,
     "holdings_count": 5,
-    "total_trades": 54,
+    "total_trades": 58,
     "initial_capital": 1000000,
-    "current_value": 923172.0,
-    "cash": 533373.0
+    "current_value": 918894.0,
+    "cash": 223531.0
   },
   "nav_history": [
     {
@@ -52,6 +52,12 @@
       "date": "2026-04-16",
       "nav": 0.9275,
       "market_value": 394173.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-04-24",
+      "nav": 0.9178,
+      "market_value": 694219.0,
       "holdings_count": 5
     }
   ],
@@ -130,17 +136,7 @@
       "current_price": 39.58,
       "market_value": 7916.0,
       "pnl_pct": -3.46,
-      "weight": 2.1
-    },
-    {
-      "code": "300759",
-      "name": "康龙化成",
-      "shares": 4200,
-      "cost_price": 30.26,
-      "current_price": 29.62,
-      "market_value": 124404.0,
-      "pnl_pct": -2.12,
-      "weight": 32.7
+      "weight": 1.2
     },
     {
       "code": "601607",
@@ -150,17 +146,7 @@
       "current_price": 16.97,
       "market_value": 127275.0,
       "pnl_pct": -1.96,
-      "weight": 33.4
-    },
-    {
-      "code": "601127",
-      "name": "赛力斯",
-      "shares": 1100,
-      "cost_price": 86.4,
-      "current_price": 92.48,
-      "market_value": 101728.0,
-      "pnl_pct": 7.04,
-      "weight": 24.5
+      "weight": 18.6
     },
     {
       "code": "600809",
@@ -170,10 +156,66 @@
       "current_price": 142.38,
       "market_value": 28476.0,
       "pnl_pct": 0.48,
-      "weight": 7.3
+      "weight": 4.1
+    },
+    {
+      "code": "688169",
+      "name": "石头科技",
+      "shares": 2300,
+      "cost_price": 115.89,
+      "current_price": 118.14,
+      "market_value": 271722.0,
+      "pnl_pct": 1.94,
+      "weight": 38.2
+    },
+    {
+      "code": "603369",
+      "name": "今世缘",
+      "shares": 9900,
+      "cost_price": 26.75,
+      "current_price": 26.26,
+      "market_value": 259974.0,
+      "pnl_pct": -1.83,
+      "weight": 38.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-24 14:15",
+      "code": "601127",
+      "name": "赛力斯",
+      "action": "sell",
+      "shares": 1100,
+      "price": 90.28,
+      "reason": "reduce_to_5"
+    },
+    {
+      "date": "2026-04-24 14:15",
+      "code": "300759",
+      "name": "康龙化成",
+      "action": "sell",
+      "shares": 4200,
+      "price": 29.28,
+      "reason": "reduce_to_5"
+    },
+    {
+      "date": "2026-04-24 14:10",
+      "code": "603369",
+      "name": "今世缘",
+      "action": "buy",
+      "shares": 9900,
+      "price": 26.75,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-04-24 14:10",
+      "code": "688169",
+      "name": "石头科技",
+      "action": "buy",
+      "shares": 2300,
+      "price": 115.89,
+      "reason": "auto_buy"
+    },
     {
       "date": "2026-04-16 10:05",
       "code": "603288",
@@ -407,42 +449,6 @@
       "shares": 100,
       "price": 17.19,
       "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:15",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.19,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:10",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 30.83,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 10:05",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.02,
-      "reason": "add_score1_sig77"
-    },
-    {
-      "date": "2026-04-09 10:00",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "buy",
-      "shares": 100,
-      "price": 31.0,
-      "reason": "add_score1_sig77"
     }
   ]
 }
