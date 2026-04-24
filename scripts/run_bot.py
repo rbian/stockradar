@@ -554,10 +554,21 @@ def main():
                 # 持仓已满5只时，仍然允许加仓已有持仓（用闲置现金）
                 # 不再硬性return
                 # 仓位上限: 股票市值占总资产>=80%时停止买入
+                # 获取实时行情用于价格计算
+                try:
+                    rt_codes = list(tracker.holdings.keys())
+                    rt_data = fetch_realtime_quotes(rt_codes)
+                except Exception:
+                    rt_data = dq_full
+                def _auto_buy_price(code):
+                    row = rt_data[rt_data['code'] == code] if 'code' in rt_data.columns else None
+                    if row is not None and len(row) > 0:
+                        return float(row.iloc[0]['close'])
+                    return None
                 total_assets = tracker.cash + sum(
-                    h['shares'] * _get_rt_price(c)
+                    h['shares'] * _auto_buy_price(c)
                     for c, h in tracker.holdings.items()
-                    if _get_rt_price(c)
+                    if _auto_buy_price(c)
                 )
                 position_pct = (total_assets - tracker.cash) / total_assets if total_assets > 0 else 0
                 if position_pct >= 0.90:
