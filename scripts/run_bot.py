@@ -479,8 +479,8 @@ def main():
                         )
                         total_assets_now = cash_now + held_value
                         pos_pct = held_value / total_assets_now if total_assets_now > 0 else 0
-                        # 仓位<80%且有现金>5万，且持仓<5只时，尝试主动买入
-                        if cash_now >= 50000 and len(holdings_now) < 5 and pos_pct < 0.80:
+                        # 仓位<80%且有现金>5万时，尝试主动买入（新建仓或加仓已有持仓）
+                        if cash_now >= 50000 and pos_pct < 0.80:
                             logger.info(f'主动建仓检查: 仓位{pos_pct*100:.0f}% 现金¥{cash_now:.0f} 持仓{len(holdings_now)}只 → 触发买入')
                             await _auto_buy(dq)
                         else:
@@ -551,9 +551,8 @@ def main():
 
                 if tracker.cash < 10000:
                     return
-                if len(tracker.holdings) >= 5:
-                    logger.info("持仓已达5只上限，跳过买入")
-                    return
+                # 持仓已满5只时，仍然允许加仓已有持仓（用闲置现金）
+                # 不再硬性return
                 # 仓位上限: 股票市值占总资产>=80%时停止买入
                 total_assets = tracker.cash + sum(
                     h['shares'] * _get_rt_price(c)
@@ -577,12 +576,15 @@ def main():
                     return
 
                 held = set(tracker.holdings.keys())
+                full_holdings = len(held) >= 5  # 持仓已满标志
 
                 # Step 2: 多条件过滤候选股
                 candidates = []
                 for code in scores.index:
-                    if code in held:
-                        continue
+                    if code in held and not full_holdings:
+                        continue  # 未满时跳过已持仓
+                    if code in held and full_holdings:
+                        pass  # 已满时不跳过，允许加仓已有持仓
                     if len(candidates) >= 10:
                         break
 
