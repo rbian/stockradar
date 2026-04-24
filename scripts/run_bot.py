@@ -588,6 +588,12 @@ def main():
 
                 held = set(tracker.holdings.keys())
                 full_holdings = len(held) >= 5  # 持仓已满标志
+                
+                # 获取大盘趋势（DualMomentum判断）
+                try:
+                    market_regime, regime_conf = orch.context.get_market_regime()
+                except Exception:
+                    market_regime = "neutral"  # 默认中性
 
                 # Step 2: 多条件过滤候选股
                 candidates = []
