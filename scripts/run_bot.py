@@ -689,7 +689,11 @@ def main():
 
                 # 按(因子分*0.6 + 信号分*0.4)排序
                 candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
-                max_buy = min(5 - len(held), 3) if market_regime != "bearish" else 1
+                # 持仓已满时，允许加仓1-2只已有持仓
+                if full_holdings:
+                    max_buy = min(2, 3) if market_regime != "bearish" else 1
+                else:
+                    max_buy = min(5 - len(held), 3) if market_regime != "bearish" else 1
 
                 # === 板块分散度检查 ===
                 sector_file = PROJECT_ROOT / "data" / "sector_map.json"
