@@ -598,6 +598,7 @@ def main():
 
                 # Step 2: 多条件过滤候选股
                 candidates = []
+                filter_stats = {"total": 0, "no_data": 0, "signal": 0, "rsi": 0, "bias": 0, "vol": 0, "trend": 0, "risk": 0}
                 for code in scores.index:
                     if code in held and not full_holdings:
                         continue  # 未满时跳过已持仓
@@ -605,10 +606,12 @@ def main():
                         pass  # 已满时不跳过，允许加仓已有持仓
                     if len(candidates) >= 10:
                         break
+                    filter_stats["total"] += 1
 
                     # 获取该股历史数据
                     stock_data = dq_full[dq_full['code'] == code].tail(60)
                     if len(stock_data) < 30:
+                        filter_stats["no_data"] += 1
                         continue
 
                     # 条件1: 技术信号评分 (大盘择时调整)
@@ -619,6 +622,7 @@ def main():
                     elif market_regime == "bullish":
                         min_signal = 25  # bullish: low
                     if tech.get('signal_score', 0) < min_signal:
+                        filter_stats["signal"] += 1
                         continue
 
                     # 条件2: RSI未超买 (< 70)
@@ -646,8 +650,9 @@ def main():
                     if market_regime == "bearish":
                         if ma5 < ma20 * 0.98:  # 熊市: MA5不低于MA20太多
                             continue
-                    elif ma5 < ma20 * 0.98:
-                        continue
+                    # Removed: default MA5<MA20 filter was too strict, blocking all candidates
+                    # elif ma5 < ma20 * 0.98:
+                    #     continue
 
                     # 条件6: 个股风险过滤
                     # 6a: 近20日最大回撤 > 15% → 波动太大，避开
@@ -679,7 +684,7 @@ def main():
                     })
 
                 if not candidates:
-                    logger.info("无符合条件的买入候选")
+                    logger.info(f"无符合条件的买入候选 (过滤统计: {filter_stats})")
                     return
 
                 # 按(因子分*0.6 + 信号分*0.4)排序
@@ -767,7 +772,8 @@ def main():
                 else:
                     logger.info("候选股价格不满足买入条件")
             except Exception as e:
-                logger.error(f"自动买入失败: {e}")
+                import traceback
+                logger.error(f"自动买入失败: {e}\n{traceback.format_exc()}")
 
         async def _smart_rebalance(dq):
             """评分驱动的主动调仓 — 每5分钟检查
