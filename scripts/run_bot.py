@@ -545,6 +545,7 @@ def main():
                 from src.data.sina_adapter import fetch_realtime_quotes
                 from src.data.stock_names import stock_name as _sn
                 import json
+                import pandas as pd
                 nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
                 nav_data = json.loads(nav_file.read_text())
                 tracker = NAVTracker.from_dict(nav_data)
