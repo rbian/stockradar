@@ -469,3 +469,30 @@
 - Commit: `feat: 双动量策略 + Event loop崩溃修复 + 自动调参闭环`
 - 推送至: origin/master
 - 变更: 7 files, 1470 insertions(+), 4 deletions(-)
+
+## 2026-04-27 (周一) 改进记录
+
+### 改进1: Recovery-aware Stop Loss (恢复感知止损)
+- **GitHub学习**: Microsoft Qlib的CAT(Cluster-Aware Trading)概念 — 在止损触发前检查恢复信号，避免恐慌低点止损
+- **问题驱动**: 立讯精密两次过早止损后反弹+22.2%，是最大单笔亏损来源
+- **实现**: `src/risk_management/recovery_stop.py` — 3层恢复检查(价格回升2%+/缩量下跌/RSI<30)，最多3天宽限期
+- **集成**: RiskManager.generate_risk_actions() 止损触发前先检查恢复信号
+- **预期效果**: 减少"过早止损"错误模式
+
+### 改进2: Stock Blacklist (股票黑名单)
+- **GitHub学习**: Qlib因子无效自动淘汰思路，延伸到个股级别
+- **问题驱动**: 复盘显示"买入一般"(10次)和"买入失误"(5次)是Top2错误模式，部分股票反复亏损
+- **实现**: `src/risk_management/stock_blacklist.py` — 30天内同股票亏损2次→黑名单，信号惩罚x0.5
+- **集成**: FactorEngine评分时自动对黑名单股票降权
+- **预期效果**: 减少对"毒股"的反复买入
+
+### 改进3: Expression Factor Generator (表达式因子生成器)
+- **GitHub学习**: Qlib/RD-Agent的自动因子挖掘 — 用基础算子自动组合生成新因子
+- **实现**: `src/factors/expression_gen.py` — 15个表达式模板(趋势/波动/量价/动量反转/RSI-like)
+- **筛选标准**: |IC|>0.03 + IC一致性>60% → 自动保留
+- **状态**: 框架就绪，待下次有历史数据时运行scan_factors()发现有效因子
+- **Phase 4推进**: 新增"表达式因子自动发现"子任务
+
+### Bot运行状态
+- Telegram网络偶发ReadError（非代码问题，网络波动）
+- 无代码级ERROR
