@@ -12,6 +12,7 @@ from loguru import logger
 
 # Position imported lazily to avoid circular import
 from src.factors.technical import get_adx_multiplier
+from src.risk_management.recovery_stop import RecoveryStop
 
 
 class RiskManager:
@@ -42,6 +43,9 @@ class RiskManager:
         self.peak_nav = 1.0  # 净值峰值
         self.highest_atr = {}  # {code: highest_atr}
         self.adx_cache = {}  # {code: adx_value} 缓存ADX值
+
+        # Recovery-aware stop loss (恢复感知止损)
+        self.recovery_stop = RecoveryStop(config)
 
     def _get_default_config(self):
         """默认配置"""
@@ -228,6 +232,18 @@ class RiskManager:
         for code, position in positions.items():
             if self.should_trail_stop(position, daily_quote, date, stop_signals):
                 multiplier = get_adx_multiplier(adx_values.get(code, 0)) if adx_values else self.atr_multiplier_base
+                
+                # Recovery-aware check: 暂缓止损检查
+                price_arr = daily_quote.get(code, [])
+                vol_arr = None  # TODO: pass volume data when available
+                recovery = self.recovery_stop.check_recovery(code, 
+                    np.array(price_arr) if hasattr(price_arr, '__len__') else np.array([price_arr]),
+                    vol_arr)
+                
+                if recovery["should_delay"]:
+                    logger.info(f"[RecoveryStop] {code} 止损暂缓: {recovery['reasons']}, 宽限剩余{recovery['grace_remaining']}天")
+                    continue
+                
                 risk_actions.append({
                     "action": "sell",
                     "code": code,
@@ -276,6 +292,7 @@ class RiskManager:
                 self.trailing_stops.pop(trade.code, None)
                 self.highest_atr.pop(trade.code, None)
                 self.adx_cache.pop(trade.code, None)
+                self.recovery_stop.on_position_closed(trade.code)
             elif trade.action == "buy":
                 self.highest_atr[trade.code] = 0.0
 

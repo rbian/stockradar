@@ -14,6 +14,7 @@ import yaml
 from loguru import logger
 
 from src.infra.config import CONFIG_DIR
+from src.risk_management.stock_blacklist import StockBlacklist
 
 
 class FactorEngine:
@@ -23,6 +24,7 @@ class FactorEngine:
         if config_path is None:
             config_path = str(CONFIG_DIR / "factors.yaml")
 
+        self.blacklist = StockBlacklist()
         self.config_path = config_path
         with open(config_path, "r", encoding="utf-8") as f:
             self.config = yaml.safe_load(f)
@@ -175,6 +177,14 @@ class FactorEngine:
         score_df = pd.DataFrame(results, index=all_codes)
         score_cols = [c for c in score_df.columns if c.startswith("score_") and c != "score_total"]
         score_df["score_total"] = score_df[score_cols].sum(axis=1)
+        
+        # Apply blacklist penalty: blacklisted stocks get reduced score
+        for code in score_df.index:
+            modifier = self.blacklist.get_signal_modifier(str(code))
+            if modifier < 1.0:
+                score_df.loc[code, "score_total"] *= modifier
+                logger.info(f"[Blacklist] {code} 信号惩罚 x{modifier}")
+        
         score_df = score_df.sort_values("score_total", ascending=False)
         score_df["rank"] = range(1, len(score_df) + 1)
 
