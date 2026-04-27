@@ -299,14 +299,8 @@ def main():
                 result = tracker.daily_update(data, date=calc_date, factor_engine=engine, daily_quote=dq)
                 n_adjusted = len(result)
                 
-                # 保存IC状态
-                import json as _json
-                state = {}
-                for name, s in tracker.factor_statuses.items():
-                    state[name] = {"ic_today": round(s.ic_today, 4), "ic_20d_avg": round(s.ic_20d_avg, 4),
-                                   "current_weight": round(s.current_weight, 3), "is_suspended": s.is_suspended}
-                from pathlib import Path as _Path
-                _Path("data/cache/factor_ic_state.json").write_text(_json.dumps(state, indent=2))
+                # 保存IC状态（使用tracker内置持久化，保证格式一致）
+                tracker._save_to_json()
                 
                 logger.info(f"IC追踪完成: {calc_date}, {n_adjusted}个因子调整")
             except Exception as e:
@@ -674,6 +668,16 @@ def main():
                         avg_vol = vol.tail(5).mean()
                         if avg_vol < 20000:  # ~50M volume
                             continue
+
+                    # 条件7: 板块相对动量 — 跑输板块太多则跳过（板块拖累/个股弱势）
+                    try:
+                        from src.factors.technical import calc_sector_relative_momentum
+                        srm = calc_sector_relative_momentum(dq_full[dq_full['code'].isin(scores.index)])
+                        if code in srm.index and not pd.isna(srm.get(code, 0)):
+                            if srm[code] < -8:  # 跑输板块均值8%以上
+                                continue
+                    except Exception:
+                        pass  # 板块数据不可用时跳过此条件
 
                     factor_score = scores.loc[code, 'score_total'] if code in scores.index else 0
                     candidates.append({

@@ -121,7 +121,11 @@ class FactorTracker:
             try:
                 with open(self._json_backup_path, "r") as f:
                     backup = json.load(f)
-                factors_data = backup.get("factors", {})
+                # 兼容两种格式: {"factors": {...}} 和扁平 {...}
+                if "factors" in backup:
+                    factors_data = backup["factors"]
+                else:
+                    factors_data = backup
                 for name, fdata in factors_data.items():
                     if name in self.factor_statuses:
                         status = self.factor_statuses[name]
@@ -273,6 +277,9 @@ class FactorTracker:
                     f"({adj.get('old_weight', 0):.3f} → {adj.get('new_weight', 0):.3f}, "
                     f"mult={adj.get('multiplier', '?'):.3f})"
                 )
+
+        # 持久化IC状态到JSON
+        self._save_to_json()
 
         return adjustments
 

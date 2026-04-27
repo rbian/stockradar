@@ -175,6 +175,13 @@ categories:
         params:
           tenkan: 9
           kijun: 26
+      sector_relative_momentum:
+        direction: higher_better
+        clip:
+        - -20
+        - 20
+        params:
+          period: 20
   capital_flow:
     weight: 0.2
     factors:

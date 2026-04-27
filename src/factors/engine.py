@@ -45,6 +45,7 @@ class FactorEngine:
             calc_rsi, calc_macd_signal, calc_bollinger_width,
             calc_volume_price_divergence, calc_turnover_rate_change, calc_amplitude,
             calc_mean_reversion_score, calc_williams_r, calc_ichimoku_signal,
+            calc_sector_relative_momentum,
         )
         from src.factors.capital_flow import (
             calc_northbound_net, calc_northbound_consecutive,
@@ -92,6 +93,7 @@ class FactorEngine:
             "mean_reversion_score": lambda d: calc_mean_reversion_score(d.get("daily_quote", pd.DataFrame())),
             "williams_r": lambda d: calc_williams_r(d.get("daily_quote", pd.DataFrame())),
             "ichimoku_signal": lambda d: calc_ichimoku_signal(d.get("daily_quote", pd.DataFrame())),
+            "sector_relative_momentum": lambda d: calc_sector_relative_momentum(d.get("daily_quote", pd.DataFrame())),
             # Capital flow (5) — 接收 daily_quote + northbound
             "northbound_net_5d": lambda d: calc_northbound_net(d.get("daily_quote", pd.DataFrame()), d.get("northbound", pd.DataFrame())),
             "northbound_consecutive_days": lambda d: calc_northbound_consecutive(d.get("northbound", pd.DataFrame())),

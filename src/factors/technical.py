@@ -624,3 +624,70 @@ def calc_ichimoku_signal(daily_df: pd.DataFrame, tenkan: int = 9, kijun: int = 2
         return np.clip(tk_signal + pc_signal, -100, 100)
 
     return daily_df.groupby("code").apply(ichimoku)
+
+
+def calc_sector_relative_momentum(daily_df: pd.DataFrame, period: int = 20) -> pd.Series:
+    """板块相对动量因子 (Sector Relative Momentum)
+
+    灵感来源: GitHub上的Relative Rotation Graph (RRG)概念。
+    核心思想: 个股动量相对同板块均值的偏离度。
+    - 正值 = 跑赢板块均值 → 可能有个股alpha
+    - 负值 = 跑输板块均值 → 可能是板块拖累或个股弱势
+
+    计算方法:
+    1. 计算每只股票的N日动量(涨跌幅)
+    2. 按行业分组，计算行业平均动量
+    3. 个股动量 - 行业平均动量 = 相对动量
+
+    在选股中: 相对动量高的股票值得额外加分（行业内的强者）
+
+    Args:
+        daily_df: 日线行情DataFrame
+        period: 动量回看天数
+
+    Returns:
+        Series, index=code, value=板块相对动量(%)
+    """
+    from src.data.industry import _load_industry
+
+    # 1. 计算个股动量
+    def mom(group):
+        if len(group) < period:
+            return np.nan
+        group = group.sort_values("date")
+        return (group["close"].iloc[-1] / group["close"].iloc[-period] - 1) * 100
+
+    stock_momentum = daily_df.groupby("code").apply(mom)
+
+    # 2. 获取行业分类
+    industry_df = _load_industry()
+    if industry_df.empty:
+        return stock_momentum  # fallback: 无行业数据时退化为普通动量
+
+    # 确保code格式一致（去掉sz./sh.前缀）
+    industry_df = industry_df.copy()
+    industry_df["code"] = industry_df["code"].astype(str).str.replace(r"^(sz|sh)\.?", "", regex=True)
+
+    stock_momentum_df = pd.DataFrame({"momentum": stock_momentum.values}, index=stock_momentum.index)
+    stock_momentum_df = stock_momentum_df.reset_index()
+    stock_momentum_df.columns = ["code", "momentum"]
+    stock_momentum_df["code"] = stock_momentum_df["code"].astype(str).str.replace(r"^(sz|sh)\.?", "", regex=True)
+
+    merged = stock_momentum_df.merge(industry_df[["code", "industry"]], on="code", how="left")
+    merged["industry"] = merged["industry"].fillna("unknown")
+
+    # 3. 计算行业平均动量
+    industry_avg = merged.groupby("industry")["momentum"].mean()
+
+    # 4. 相对动量 = 个股动量 - 行业均值
+    merged["industry_avg_momentum"] = merged["industry"].map(industry_avg)
+    merged["relative_momentum"] = merged["momentum"] - merged["industry_avg_momentum"]
+    merged["relative_momentum"] = merged["relative_momentum"].fillna(0)
+
+    result = pd.Series(
+        merged["relative_momentum"].values,
+        index=stock_momentum.index
+    )
+    # Keep only valid (non-NaN) values
+    return result
+    return result
