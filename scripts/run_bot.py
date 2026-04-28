@@ -1034,7 +1034,40 @@ def main():
                     return  # 本轮已操作，跳过换仓
 
                 if not sell_list:
-                    return  # 持仓都健康，不调仓
+                    # 持仓都健康，但检查是否有明显更好的标的 → 强制换仓
+                    # 找持仓中评分最低的
+                    held_ranks = [(code, list(scores.index).index(code)+1, scores.loc[code, 'score_total']) 
+                                  for code in held if code in scores.index]
+                    held_ranks.sort(key=lambda x: x[1], reverse=True)  # 排名最差排前面
+                    if not held_ranks:
+                        return
+                    worst_held_code, worst_held_rank, worst_held_score = held_ranks[0]
+                    
+                    # 找场外最好的非持仓股
+                    best_outside = None
+                    for code in scores.index[:top_rank]:  # 场外前10%
+                        if code in held:
+                            continue
+                        stock_data = dq_full[dq_full['code'] == code].tail(60)
+                        if len(stock_data) < 30:
+                            continue
+                        tech = score_stock(stock_data)
+                        sig = tech.get('signal_score', 0)
+                        if sig < 50:
+                            continue
+                        best_outside = (code, scores.loc[code, 'score_total'], sig)
+                        break
+                    
+                    # 强制换仓条件: 场外标的评分比持仓最差的高30%以上
+                    if best_outside and worst_held_score > 0:
+                        score_improvement = (best_outside[1] - worst_held_score) / worst_held_score
+                        if score_improvement >= 0.30:
+                            sell_list = [(worst_held_code, f"评分{worst_held_score:.1f}(排名{worst_held_rank}) 远低于场外{best_outside[1]:.1f}")]
+                            logger.info(f"强制换仓: {worst_held_code}(评分{worst_held_score:.1f}) → {best_outside[0]}(评分{best_outside[1]:.1f}) 提升{score_improvement*100:.0f}%")
+                        else:
+                            return
+                    else:
+                        return
 
                 # 正常调仓: 卖评分最差的1只
                 sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
