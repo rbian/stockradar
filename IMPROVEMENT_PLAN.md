@@ -507,3 +507,46 @@
 ### Bot运行状态
 - Telegram网络偶发ReadError（非代码问题，网络波动）
 - 无代码级ERROR
+
+## 2026-04-29 (周三) 改进记录 - 风控+仓位日
+
+### 改进1: 移动止盈 (Trailing Take-Profit) (GitHub学习)
+- **来源**: 海龟交易法则 (Richard Dennis) + O'Neil CANSLIM策略
+- **问题驱动**: 赣锋锂业卖飞+11.8%，立讯精密过早止损后反弹+22%
+- **实现**: `src/risk_management/trailing_take_profit.py`
+  - 峰值阶梯: 曾达10%/20%/30%+盈利 → 回撤6%/8%/8%触发止盈
+  - 快速拉升保护: 5日涨15%+后回撤5%即止盈
+  - JSON状态持久化峰值价格
+- **集成**: `risk_control.check_risk()` 自动检查
+- **测试**: 8个场景全部通过
+
+### 改进2: Risk Parity仓位分配 (GitHub学习)
+- **来源**: convexfi/riskparity.py (320 stars) + PyPortfolioOpt (5678 stars) + Spinu (2013)
+- **实现**: `src/risk_management/risk_parity.py`
+  - 迭代MRC法 (比Spinu更稳定)
+  - 自适应约束: 小N放宽上限，大N收紧
+  - 5股测试: V1(低波动)=40% vs V5(高波动)=8%
+- **效果**: 替代等权分配，低波动股自然获得更高权重
+
+### 改进3: 相关性集中度风控 (GitHub学习)
+- **来源**: PyPortfolioOpt (5678 stars) 相关性矩阵分析
+- **实现**: 集成到 `src/simulator/risk_control.py`
+  - 同行业持仓市值>40% → 警告
+  - 同行业持仓市值>50% → 建议减仓
+- **效果**: 防止行业过度集中
+
+### Bot状态
+- 无ERROR，运行正常
+
+### Git提交
+- Commit: 635e19b
+- 推送至: origin/master
+- 变更: 7 files, 1607 insertions
+
+### Phase 4 进度更新
+- [x] 移动止盈 (新增) ✅
+- [x] Risk Parity仓位分配 ✅
+- [x] 相关性集中度风控 ✅
+- [ ] Optuna结果自动应用到实盘
+- [ ] 策略A/B测试框架
+- [ ] 表达式因子自动发现 (框架就绪，待运行)
