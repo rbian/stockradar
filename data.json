@@ -1,14 +1,14 @@
 {
-  "updated": "2026-04-27",
+  "updated": "2026-04-28",
   "stats": {
-    "latest_date": "2026-04-27",
+    "latest_date": "2026-04-28",
     "nav": 0.9175,
     "total_return": -8.25,
     "max_drawdown": -9.39,
     "holdings_count": 5,
     "total_trades": 60,
     "initial_capital": 1000000,
-    "current_value": 915020.0,
+    "current_value": 910347.0,
     "cash": 9392.0
   },
   "nav_history": [
@@ -133,6 +133,10 @@
     {
       "date": "2026-04-27",
       "nav": 1.1112
+    },
+    {
+      "date": "2026-04-28",
+      "nav": 1.1023
     }
   ],
   "holdings": [
@@ -141,9 +145,9 @@
       "name": "海天味业",
       "shares": 200,
       "cost_price": 41.0,
-      "current_price": 39.85,
-      "market_value": 7970.0,
-      "pnl_pct": -2.8,
+      "current_price": 39.26,
+      "market_value": 7852.0,
+      "pnl_pct": -4.24,
       "weight": 0.9
     },
     {
@@ -151,9 +155,9 @@
       "name": "上海医药",
       "shares": 7500,
       "cost_price": 17.31,
-      "current_price": 16.68,
-      "market_value": 125100.0,
-      "pnl_pct": -3.64,
+      "current_price": 16.93,
+      "market_value": 126975.0,
+      "pnl_pct": -2.2,
       "weight": 14.2
     },
     {
@@ -161,9 +165,9 @@
       "name": "山西汾酒",
       "shares": 200,
       "cost_price": 141.7,
-      "current_price": 138.31,
-      "market_value": 27662.0,
-      "pnl_pct": -2.39,
+      "current_price": 138.72,
+      "market_value": 27744.0,
+      "pnl_pct": -2.1,
       "weight": 3.1
     },
     {
@@ -171,9 +175,9 @@
       "name": "石头科技",
       "shares": 3200,
       "cost_price": 115.95,
-      "current_price": 118.68,
-      "market_value": 379776.0,
-      "pnl_pct": 2.36,
+      "current_price": 117.17,
+      "market_value": 374944.0,
+      "pnl_pct": 1.06,
       "weight": 40.7
     },
     {
@@ -181,9 +185,9 @@
       "name": "今世缘",
       "shares": 14000,
       "cost_price": 26.75,
-      "current_price": 26.08,
-      "market_value": 365120.0,
-      "pnl_pct": -2.5,
+      "current_price": 25.96,
+      "market_value": 363440.0,
+      "pnl_pct": -2.95,
       "weight": 41.1
     }
   ],
