@@ -550,3 +550,18 @@
 - [ ] Optuna结果自动应用到实盘
 - [ ] 策略A/B测试框架
 - [ ] 表达式因子自动发现 (框架就绪，待运行)
+
+## 2026-04-30 (周四) 改进记录
+
+### 代码审查发现
+- 🔴 **严重bug**: `_daily_adds`/`_add_log_file`未定义，导致调仓每5分钟NameError（从4/29 14:10开始连续失败）
+- 🟡 tushare `top_list`无权限但每次重试3次浪费~10秒
+- 🟢 `alert_check`内重复import json/pandas（13次），热路径应提至顶部
+
+### 今日改进 (3项)
+1. **fix: `_daily_adds`未定义bug** → 添加daily_adds.json初始化逻辑，修复调仓连续失败
+2. **feat: 因子衰退检测(Factor Decay)** → 从GitHub Factor-Research学到IC趋势衰退检测，10d vs 30d IC均值比较，衰退>30%提前降权
+3. **opt: Tushare API权限黑名单缓存** → 首次检测到无权限接口后缓存，后续直接跳过
+
+### GitHub学到的新思路
+- **Factor-Research项目** (ML-powered stock prediction): 因子IC衰退检测思路 — 不等连续60天低IC才暂停，而是检测IC趋势性下降提前降权
