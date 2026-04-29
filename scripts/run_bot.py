@@ -1099,12 +1099,22 @@ def main():
                     break
 
                 if not buy_candidate:
+                    logger.info(f"调仓: 卖出候选={sell_candidate}({sell_reason}) 但无更好买入标的")
                     return  # 没有更好的标的
 
                 # === 执行调仓: 卖1只 + 买1只 ===
                 sell_price = _get_rt_price(sell_candidate)
+                # 买入候选可能不在持仓中，需要单独获取价格
                 buy_price = _get_rt_price(buy_candidate)
+                if buy_price is None:
+                    try:
+                        buy_rt = fetch_realtime_quotes([buy_candidate])
+                        if buy_rt is not None and len(buy_rt) > 0 and 'close' in buy_rt.columns:
+                            buy_price = float(buy_rt.iloc[0]['close'])
+                    except Exception:
+                        pass
                 if not sell_price or not buy_price:
+                    logger.info(f"调仓: 无法获取价格 sell={sell_price} buy={buy_price}")
                     return
 
                 # 卖出
@@ -1116,6 +1126,7 @@ def main():
                 sell_amount = h['shares'] * sell_price
                 buy_shares = int(sell_amount / buy_price / 100) * 100
                 if buy_shares < 100:
+                    logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
                     # 钱不够买100股，回滚
                     tracker._buy(sell_candidate, h['shares'], h['cost_price'], datetime.now().strftime('%Y-%m-%d %H:%M'), 'rollback')
                     return
