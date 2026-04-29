@@ -2,14 +2,14 @@
   "updated": "2026-04-28",
   "stats": {
     "latest_date": "2026-04-28",
-    "nav": 0.9175,
-    "total_return": -8.25,
-    "max_drawdown": -9.39,
+    "nav": 0.936,
+    "total_return": -6.4,
+    "max_drawdown": -7.56,
     "holdings_count": 5,
-    "total_trades": 60,
+    "total_trades": 62,
     "initial_capital": 1000000,
-    "current_value": 910347.0,
-    "cash": 9392.0
+    "current_value": 910385.0,
+    "cash": 9526.0
   },
   "nav_history": [
     {
@@ -58,6 +58,12 @@
       "date": "2026-04-24",
       "nav": 0.9175,
       "market_value": 908108.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-04-29",
+      "nav": 0.936,
+      "market_value": 926512.0,
       "holdings_count": 5
     }
   ],
@@ -141,16 +147,6 @@
   ],
   "holdings": [
     {
-      "code": "603288",
-      "name": "海天味业",
-      "shares": 200,
-      "cost_price": 41.0,
-      "current_price": 39.26,
-      "market_value": 7852.0,
-      "pnl_pct": -4.24,
-      "weight": 0.9
-    },
-    {
       "code": "601607",
       "name": "上海医药",
       "shares": 7500,
@@ -189,9 +185,37 @@
       "market_value": 363440.0,
       "pnl_pct": -2.95,
       "weight": 41.1
+    },
+    {
+      "code": "300015",
+      "name": "爱尔眼科",
+      "shares": 700,
+      "cost_price": 10.91,
+      "current_price": 11.08,
+      "market_value": 7756.0,
+      "pnl_pct": 1.56,
+      "weight": 0.8
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-29 11:15",
+      "code": "300015",
+      "name": "爱尔眼科",
+      "action": "buy",
+      "shares": 700,
+      "price": 10.91,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-04-29 11:15",
+      "code": "603288",
+      "name": "海天味业",
+      "action": "sell",
+      "shares": 200,
+      "price": 38.93,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-04-24 14:15",
       "code": "603369",
@@ -442,24 +466,6 @@
       "action": "buy",
       "shares": 100,
       "price": 17.16,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:35",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:30",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.19,
       "reason": "add_score1_sig78"
     }
   ]
