@@ -35,6 +35,7 @@ class FactorStatus:
     ic_20d_avg: float
     consecutive_low_ic_days: int  # 连续IC<0.01天数
     consecutive_recovery_days: int  # 连续IC>0.02天数（恢复用）
+    ic_decay_pct: float = 0.0  # IC衰退百分比: (ic_10d - ic_30d) / |ic_30d|，负值=衰退
     is_suspended: bool
     weight_history: list = field(default_factory=list)
     ic_history: list = field(default_factory=list)
@@ -172,6 +173,7 @@ class FactorTracker:
                     weight_multiplier=1.0,
                     ic_today=0.0,
                     ic_20d_avg=0.0,
+                    ic_decay_pct=0.0,
                     consecutive_low_ic_days=0,
                     consecutive_recovery_days=0,
                     is_suspended=False,
@@ -224,6 +226,29 @@ class FactorTracker:
                         "multiplier": status.weight_multiplier,
                     }
             else:
+                # 因子衰退检测: 最近10天IC vs 30天IC趋势
+                recent_10 = status.ic_history[-10:] if len(status.ic_history) >= 10 else status.ic_history
+                recent_30 = status.ic_history[-30:] if len(status.ic_history) >= 10 else status.ic_history
+                ic_10d = np.mean(recent_10) if recent_10 else 0
+                ic_30d = np.mean(recent_30) if recent_30 else 0
+                if abs(ic_30d) > 0.005:
+                    status.ic_decay_pct = (ic_10d - ic_30d) / abs(ic_30d)
+                else:
+                    status.ic_decay_pct = 0.0
+
+                # 衰退>30%时额外降权（不等到60天连续低IC）
+                if status.ic_decay_pct < -0.3 and ic_10d < 0.02:
+                    decay_penalty = max(0.85, 1.0 + status.ic_decay_pct)  # 衰退30%→×0.7, 衰退50%→×0.5
+                    status.weight_multiplier = max(
+                        status.weight_multiplier * decay_penalty,
+                        self.min_weight_mult
+                    )
+                    adjustments[factor_name] = adjustments.get(factor_name, {})
+                    adjustments[factor_name].setdefault('action', 'decay_penalty')
+                    adjustments[factor_name]['ic_decay_pct'] = f"{status.ic_decay_pct:.1%}"
+                    adjustments[factor_name]['ic_10d'] = f"{ic_10d:.4f}"
+                    adjustments[factor_name]['ic_30d'] = f"{ic_30d:.4f}"
+
                 # 基于 IC 一致性调整 multiplier
                 if positive_ratio > 0.7 and status.ic_20d_avg > 0.02:
                     # IC持续为正且一致 → 小幅加大 multiplier
