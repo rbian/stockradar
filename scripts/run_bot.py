@@ -934,6 +934,15 @@ def main():
 
                 now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
                 rebalance_actions = []
+                import json as _json_add
+                from pathlib import Path as _Path_add
+                _add_log_file = PROJECT_ROOT / "data" / "daily_adds.json"
+                _daily_adds = {}
+                try:
+                    _daily_adds = _json_add.loads(_add_log_file.read_text()) if _add_log_file.exists() else {}
+                    _daily_adds = {k: v for k, v in _daily_adds.items() if k == today}
+                except Exception:
+                    _daily_adds = {}
 
                 for code in list(held):
                     if code not in tracker.holdings:
