@@ -1034,6 +1034,9 @@ def main():
                     return  # 本轮已操作，跳过换仓
 
                 if not sell_list:
+                                        # 诊断日志
+                    held_info = {c: (list(scores.index).index(c)+1 if c in scores.index else 999, round(scores.loc[c,'score_total'],1) if c in scores.index else 0) for c in held}
+                    logger.info(f'调仓检查: 持仓评分={held_info}')
                     # 持仓都健康，但检查是否有明显更好的标的 → 强制换仓
                     # 找持仓中评分最低的
                     held_ranks = [(code, list(scores.index).index(code)+1, scores.loc[code, 'score_total']) 
@@ -1058,10 +1061,10 @@ def main():
                         best_outside = (code, scores.loc[code, 'score_total'], sig)
                         break
                     
-                    # 强制换仓条件: 场外标的评分比持仓最差的高30%以上
+                    # 强制换仓条件: 场外标的评分比持仓最差的高15%以上
                     if best_outside and worst_held_score > 0:
                         score_improvement = (best_outside[1] - worst_held_score) / worst_held_score
-                        if score_improvement >= 0.30:
+                        if score_improvement >= 0.15:
                             sell_list = [(worst_held_code, f"评分{worst_held_score:.1f}(排名{worst_held_rank}) 远低于场外{best_outside[1]:.1f}")]
                             logger.info(f"强制换仓: {worst_held_code}(评分{worst_held_score:.1f}) → {best_outside[0]}(评分{best_outside[1]:.1f}) 提升{score_improvement*100:.0f}%")
                         else:
