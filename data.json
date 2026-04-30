@@ -1,15 +1,15 @@
 {
-  "updated": "2026-04-28",
+  "updated": "2026-04-30",
   "stats": {
-    "latest_date": "2026-04-28",
-    "nav": 0.936,
-    "total_return": -6.4,
-    "max_drawdown": -7.56,
+    "latest_date": "2026-04-30",
+    "nav": 0.9374,
+    "total_return": -6.26,
+    "max_drawdown": -7.43,
     "holdings_count": 5,
-    "total_trades": 62,
+    "total_trades": 64,
     "initial_capital": 1000000,
-    "current_value": 910385.0,
-    "cash": 9526.0
+    "current_value": 925808.0,
+    "cash": 19822.0
   },
   "nav_history": [
     {
@@ -62,8 +62,8 @@
     },
     {
       "date": "2026-04-29",
-      "nav": 0.936,
-      "market_value": 926512.0,
+      "nav": 0.9374,
+      "market_value": 917606.0,
       "holdings_count": 5
     }
   ],
@@ -143,61 +143,87 @@
     {
       "date": "2026-04-28",
       "nav": 1.1023
+    },
+    {
+      "date": "2026-04-29",
+      "nav": 1.1146
+    },
+    {
+      "date": "2026-04-30",
+      "nav": 1.1343
     }
   ],
   "holdings": [
-    {
-      "code": "601607",
-      "name": "上海医药",
-      "shares": 7500,
-      "cost_price": 17.31,
-      "current_price": 16.93,
-      "market_value": 126975.0,
-      "pnl_pct": -2.2,
-      "weight": 14.2
-    },
     {
       "code": "600809",
       "name": "山西汾酒",
       "shares": 200,
       "cost_price": 141.7,
-      "current_price": 138.72,
-      "market_value": 27744.0,
-      "pnl_pct": -2.1,
-      "weight": 3.1
+      "current_price": 143.35,
+      "market_value": 28670.0,
+      "pnl_pct": 1.16,
+      "weight": 3.2
     },
     {
       "code": "688169",
       "name": "石头科技",
       "shares": 3200,
       "cost_price": 115.95,
-      "current_price": 117.17,
-      "market_value": 374944.0,
-      "pnl_pct": 1.06,
-      "weight": 40.7
+      "current_price": 115.8,
+      "market_value": 370560.0,
+      "pnl_pct": -0.13,
+      "weight": 41.3
     },
     {
       "code": "603369",
       "name": "今世缘",
       "shares": 14000,
       "cost_price": 26.75,
-      "current_price": 25.96,
-      "market_value": 363440.0,
-      "pnl_pct": -2.95,
-      "weight": 41.1
+      "current_price": 27.44,
+      "market_value": 384160.0,
+      "pnl_pct": 2.58,
+      "weight": 41.7
     },
     {
       "code": "300015",
       "name": "爱尔眼科",
       "shares": 700,
       "cost_price": 10.91,
-      "current_price": 11.08,
-      "market_value": 7756.0,
-      "pnl_pct": 1.56,
-      "weight": 0.8
+      "current_price": 10.78,
+      "market_value": 7546.0,
+      "pnl_pct": -1.19,
+      "weight": 0.9
+    },
+    {
+      "code": "300896",
+      "name": "爱美客",
+      "shares": 1000,
+      "cost_price": 116.66,
+      "current_price": 115.05,
+      "market_value": 115050.0,
+      "pnl_pct": -1.38,
+      "weight": 13.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-04-29 11:20",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 1000,
+      "price": 116.66,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-04-29 11:20",
+      "code": "601607",
+      "name": "上海医药",
+      "action": "sell",
+      "shares": 7500,
+      "price": 16.96,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-04-29 11:15",
       "code": "300015",
@@ -448,24 +474,6 @@
       "action": "buy",
       "shares": 100,
       "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:45",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:40",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.16,
       "reason": "add_score1_sig78"
     }
   ]
