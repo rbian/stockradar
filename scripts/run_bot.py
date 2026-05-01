@@ -1028,7 +1028,7 @@ def main():
                                     rebalance_actions.append(f"🟢 加仓[{tier}] {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig} 加¥{add_amount/10000:.0f}万)")
                                     # 记录今天已加仓
                                     _today_added.add(code)
-                                    _daily_adds[today_add_key] = list(_today_added)
+                                    _daily_adds[today] = list(_today_added)
                                     _add_log_file.parent.mkdir(exist_ok=True)
                                     _add_log_file.write_text(_json_add.dumps(_daily_adds))
                                     break  # 每轮最多加仓1只
