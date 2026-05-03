@@ -565,3 +565,20 @@
 
 ### GitHub学到的新思路
 - **Factor-Research项目** (ML-powered stock prediction): 因子IC衰退检测思路 — 不等连续60天低IC才暂停，而是检测IC趋势性下降提前降权
+
+## 2026-05-04 改进记录 (周一)
+
+### 代码审查发现
+- 🟡 github_scanner import错误: run_bot.py调用scan_github但模块中函数名为run_full_scan → 已修复
+- 🟡 hypothesis_gen.py ConstantInputWarning: spearmanr遇到常量输入时报警告 → 已添加std==0前置检查
+- 🟢 调仓买入无相关性过滤: 可能买入与现有持仓高度正相关的股票 → 已添加>0.7过滤
+
+### 今日改进 (3项)
+1. **fix**: github_scanner import名修正 (run_full_scan) + 返回值日志修复
+2. **fix**: hypothesis_gen常量输入guard，消除ConstantInputWarning
+3. **feat**: 调仓买入相关性过滤（阈值0.7），提升持仓分散化效果
+
+### GitHub学习
+- 多个量化项目(FinRL, risk-parity等)强调portfolio diversification
+- 核心思路：买入前检查与现有持仓的收益相关性，避免同质化
+- 已实现在调仓候选选择循环中
