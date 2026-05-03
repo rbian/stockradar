@@ -546,10 +546,11 @@ class HypothesisGenerator:
             if len(common2) < 30:
                 return None
 
-            corr, _ = stats.spearmanr(
-                aligned_f.reindex(common2).values,
-                aligned_r.reindex(common2).values,
-            )
+            f_vals = aligned_f.reindex(common2).values
+            r_vals = aligned_r.reindex(common2).values
+            if np.std(f_vals) == 0 or np.std(r_vals) == 0:
+                return None
+            corr, _ = stats.spearmanr(f_vals, r_vals)
             return corr if not np.isnan(corr) else None
 
         except Exception as e:

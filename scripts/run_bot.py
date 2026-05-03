@@ -1202,9 +1202,9 @@ def main():
         async def github_scan():
             logger.info("GitHub项目扫描...")
             try:
-                from src.evolution.github_scanner import scan_github
+                from src.evolution.github_scanner import run_full_scan as scan_github
                 results = scan_github()
-                logger.info(f"GitHub扫描: {len(results)}个项目")
+                summary = results['summary']; logger.info(f'GitHub扫描完成: {summary}')
             except Exception as e:
                 logger.warning(f"GitHub扫描失败: {e}")
         scheduler.add_job(github_scan, "cron", day_of_week="sat", hour=14, minute=0,
