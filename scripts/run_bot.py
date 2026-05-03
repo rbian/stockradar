@@ -1103,6 +1103,13 @@ def main():
                     ma5 = close.rolling(5).mean().iloc[-1]
                     if ma5 < ma20:
                         continue  # 下降趋势
+                    # 相关性过滤: 避免买入与剩余持仓高度正相关的股票
+                    remaining_held = [c for c in held if c != sell_candidate]
+                    if remaining_held:
+                        _corr_val = _calc_avg_correlation(code, remaining_held, dq_full)
+                        if _corr_val > 0.7:
+                            logger.info(f"调仓跳过{code}: 与持仓相关性{_corr_val:.2f}过高")
+                            continue
                     buy_candidate = code
                     buy_reason = f"评分{scores.loc[code, 'score_total']:.1f} 信号{sig}"
                     break
