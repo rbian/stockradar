@@ -2,7 +2,7 @@
   {
     "name": "买入一般",
     "first_seen": "2026-04-20",
-    "last_seen": "2026-04-28",
+    "last_seen": "2026-04-29",
     "count": 10,
     "avg_cost": 1.9,
     "examples": [
@@ -32,7 +32,7 @@
   {
     "name": "买入失误",
     "first_seen": "2026-04-20",
-    "last_seen": "2026-04-28",
+    "last_seen": "2026-04-29",
     "count": 5,
     "avg_cost": 4.4,
     "examples": [
@@ -62,7 +62,7 @@
   {
     "name": "过早止损",
     "first_seen": "2026-04-20",
-    "last_seen": "2026-04-28",
+    "last_seen": "2026-04-29",
     "count": 2,
     "avg_cost": 920.0,
     "examples": [
@@ -86,7 +86,7 @@
   {
     "name": "卖飞",
     "first_seen": "2026-04-20",
-    "last_seen": "2026-04-28",
+    "last_seen": "2026-04-29",
     "count": 1,
     "avg_cost": 1644.0,
     "examples": [

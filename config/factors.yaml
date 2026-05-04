@@ -182,6 +182,14 @@ categories:
         - 20
         params:
           period: 20
+      price_acceleration:
+        direction: higher_better
+        clip:
+        - -5
+        - 5
+        params:
+          fast: 5
+          slow: 20
   capital_flow:
     weight: 0.2
     factors:

@@ -679,6 +679,17 @@ def main():
                     except Exception:
                         pass  # 板块数据不可用时跳过此条件
 
+                    # 条件8: 价格加速度过滤 — 动量严重减速的跳过（趋势可能反转）
+                    try:
+                        from src.factors.technical import calc_price_acceleration
+                        accel = calc_price_acceleration(stock_data)
+                        if accel is not None and not accel.empty and not pd.isna(accel.iloc[-1]):
+                            if accel.iloc[-1] < -2:  # 日均动量减速超2bps
+                                filter_stats["vol"] += 1  # reuse vol counter
+                                continue
+                    except Exception:
+                        pass
+
                     factor_score = scores.loc[code, 'score_total'] if code in scores.index else 0
                     candidates.append({
                         'code': code,
@@ -695,7 +706,7 @@ def main():
                 candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
                 # 持仓已满时，允许加仓1-2只已有持仓
                 if full_holdings:
-                    max_buy = min(2, 3) if market_regime != "bearish" else 1
+                    max_buy = 2 if market_regime != "bearish" else 1
                 else:
                     max_buy = min(5 - len(held), 3) if market_regime != "bearish" else 1
 

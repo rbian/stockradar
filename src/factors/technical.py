@@ -690,4 +690,45 @@ def calc_sector_relative_momentum(daily_df: pd.DataFrame, period: int = 20) -> p
     )
     # Keep only valid (non-NaN) values
     return result
-    return result
+
+
+def calc_price_acceleration(daily_df: pd.DataFrame, fast: int = 5, slow: int = 20) -> pd.Series:
+    """价格加速度因子 (Price Acceleration)
+
+    衡量价格变化率的变化率（二阶导数），捕捉动量加速/减速：
+    - 正值 = 动量在加速（趋势强化中）
+    - 负值 = 动量在减速（趋势可能反转）
+    - 零附近 = 动量稳定
+
+    灵感来源: Qlib框架中的动量加速度概念，以及物理学中的加速度模型。
+    在Qbot项目中，类似的二阶动量因子被用于捕捉趋势中后期。
+
+    计算: (fast_period_return/fast_period) - (slow_period_return/slow_period)
+    归一化为日均收益率的差值。
+
+    Args:
+        daily_df: 日线行情DataFrame
+        fast: 短期天数(默认5)
+        slow: 长期天数(默认20)
+
+    Returns:
+        Series, index=code, value=价格加速度(%)
+    """
+    def accel(group):
+        if len(group) < slow + 1:
+            return np.nan
+        group = group.sort_values("date")
+        close = group["close"]
+
+        # 短期日均收益率
+        fast_return = close.iloc[-1] / close.iloc[-fast] - 1
+        fast_daily = fast_return / fast
+
+        # 长期日均收益率
+        slow_return = close.iloc[-1] / close.iloc[-slow] - 1
+        slow_daily = slow_return / slow
+
+        # 加速度 = 短期日均 - 长期日均 (百分点)
+        return (fast_daily - slow_daily) * 100
+
+    return daily_df.groupby("code").apply(accel)

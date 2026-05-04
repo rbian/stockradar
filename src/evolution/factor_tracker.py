@@ -36,7 +36,7 @@ class FactorStatus:
     consecutive_low_ic_days: int  # 连续IC<0.01天数
     consecutive_recovery_days: int  # 连续IC>0.02天数（恢复用）
     ic_decay_pct: float = 0.0  # IC衰退百分比: (ic_10d - ic_30d) / |ic_30d|，负值=衰退
-    is_suspended: bool
+    is_suspended: bool = False
     weight_history: list = field(default_factory=list)
     ic_history: list = field(default_factory=list)
 
