@@ -582,3 +582,36 @@
 - 多个量化项目(FinRL, risk-parity等)强调portfolio diversification
 - 核心思路：买入前检查与现有持仓的收益相关性，避免同质化
 - 已实现在调仓候选选择循环中
+
+## 2026-05-05 (周二) 选股+因子日 — 代码审查+改进
+
+### 代码审查发现
+- 🔴 `calc_sector_relative_momentum` 有重复 `return result`（第693行死代码）→ 已修复
+- 🟡 `min(2, 3)` 恒等于2（run_bot.py line 579）→ 已修复为 `max_buy = 2`
+- 🟡 `run_bot.py` 超过20个 `except Exception: pass` 静默吞错误 → 待后续优化
+- 🟡 `_smart_rebalance` 每次创建新 `FactorEngine()` → 待缓存优化
+- 🟢 `_auto_buy` 板块动量过滤每天重复计算全市场 → 可预计算缓存
+
+### 改进1: 价格加速度因子 (price_acceleration)
+- **灵感来源**: Qlib/Qbot的二阶动量概念，物理学加速度模型
+- **计算**: 短期日均收益率 - 长期日均收益率，捕捉动量加速/减速
+- **clip**: [-5, 5] bps，方向 higher_better
+- **买入过滤**: 加速度<-2时跳过（趋势反转预警）
+
+### 改进2: 修复 calc_sector_relative_momentum 重复 return
+- 第693行 `return result` 重复 → 删除死代码
+
+### 改进3: 死代码清理
+- `min(2, 3)` → `2`
+- 清理备份文件 (run_bot.py.backup, reporter.py.backup2, ai_decision_dashboard.py)
+
+### GitHub学到的新思路
+- **Qlib RD-Agent**: 微软的自动因子挖掘+模型优化agent，多agent协作框架值得借鉴
+- **Qbot**: 因子IC动量（IC of IC）概念 — 不仅跟踪因子IC，还要跟踪IC的变化趋势，IC持续下降的因子应该降权
+- **价格加速度**: 二阶导数在量化中的应用比一阶动量更有预测力
+
+### Phase 4 待推进
+- [ ] Optuna结果自动应用到实盘
+- [ ] 复盘发现→自动调参闭环
+- [ ] 策略A/B测试框架
+- [ ] IC of IC（因子IC趋势追踪）
