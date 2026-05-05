@@ -553,7 +553,8 @@ def main():
                 try:
                     rt_codes = list(tracker.holdings.keys())
                     rt_data = fetch_realtime_quotes(rt_codes)
-                except Exception:
+                except Exception as _e:
+                    logger.debug(f'实时行情fallback: {_e}')
                     rt_data = dq_full
                 def _auto_buy_price(code):
                     row = rt_data[rt_data['code'] == code] if 'code' in rt_data.columns else None
@@ -587,7 +588,8 @@ def main():
                 # 获取大盘趋势（DualMomentum判断）
                 try:
                     market_regime, regime_conf = orch.context.get_market_regime()
-                except Exception:
+                except Exception as _e:
+                    logger.debug(f'市场状态fallback: {_e}')
                     market_regime = "neutral"  # 默认中性
 
                 # Step 2: 多条件过滤候选股
@@ -754,7 +756,8 @@ def main():
                 buy_codes = [c['code'] for c in buy_list]
                 try:
                     buy_dq = fetch_realtime_quotes(buy_codes)
-                except Exception:
+                except Exception as _e:
+                    logger.debug(f'买入行情fallback: {_e}')
                     buy_dq = dq
 
                 per_stock = tracker.cash / len(buy_list)
@@ -779,6 +782,26 @@ def main():
                                 continue
                         except Exception:
                             pass  # If devil's advocate fails, don't block trade
+                        # Portfolio Heat check: 买入前检查组合热度
+                        try:
+                            from src.risk_management.portfolio_heat import PortfolioHeat
+                            _ph = PortfolioHeat()
+                            _stop_map = {}
+                            for _c, _h in tracker.holdings.items():
+                                _sp = _h.get('stop_price', 0)
+                                if _sp > 0:
+                                    _stop_map[_c] = _sp
+                            _cur_prices = {c: _auto_buy_price(c) for c in list(tracker.holdings.keys()) + [code]}
+                            _cur_prices = {k: v for k, v in _cur_prices.items() if v}
+                            _allowed, _reason = _ph.check_buy_allowed(
+                                code, shares, price, 0,  # stop_price unknown here
+                                tracker.holdings, _cur_prices, _stop_map, total_assets
+                            )
+                            if not _allowed:
+                                logger.info(f"Portfolio Heat拒绝买入{code}: {_reason}")
+                                continue
+                        except Exception:
+                            pass  # Heat check failure should not block trade
                         tracker._buy(code, shares, price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'auto_buy')
                         bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
 
@@ -839,7 +862,8 @@ def main():
                 rt_codes = list(held)
                 try:
                     rt_dq = fetch_realtime_quotes(rt_codes)
-                except Exception:
+                except Exception as _e:
+                    logger.debug(f'预警行情fallback: {_e}')
                     rt_dq = dq
 
                 def _get_rt_price(code):

@@ -12,6 +12,7 @@ Features:
 - Graceful degradation on API failures
 """
 
+import json
 import os
 import time
 from datetime import datetime, timedelta
@@ -50,13 +51,35 @@ def _retry_api_call(fn, *args, **kwargs):
                 logger.warning(f"Tushare API failed after {MAX_RETRIES} attempts: {e}")
                 if '没有接口' in str(e) or '权限' in str(e):
                     _DENIED_APIS.add(fn_name)
-                    logger.info(f"已缓存无权限接口: {fn_name}")
+                    _save_denied_apis(_DENIED_APIS)
+                    logger.info(f"已缓存无权限接口(持久化): {fn_name}")
                     return None
                 raise
 
 
-# API权限黑名单: 已知无权限的接口跳过重试
-_DENIED_APIS = set()
+_DENIED_CACHE_FILE = Path(__file__).parent.parent.parent / "data" / "cache" / "tushare_denied_apis.json"
+
+
+def _load_denied_apis():
+    denied = set()
+    if _DENIED_CACHE_FILE.exists():
+        try:
+            denied = set(json.loads(_DENIED_CACHE_FILE.read_text()))
+        except Exception:
+            pass
+    return denied
+
+
+def _save_denied_apis(denied_set):
+    try:
+        _DENIED_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        _DENIED_CACHE_FILE.write_text(json.dumps(sorted(denied_set)))
+    except Exception:
+        pass
+
+
+# API权限黑名单: 持久化到文件，重启不丢失
+_DENIED_APIS = _load_denied_apis()
 
 # ── Tushare pro API ──
 
