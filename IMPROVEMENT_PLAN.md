@@ -615,3 +615,43 @@
 - [ ] 复盘发现→自动调参闭环
 - [ ] 策略A/B测试框架
 - [ ] IC of IC（因子IC趋势追踪）
+
+## 2026-05-06 (周三) 风控+仓位日 — 改进记录
+
+### 代码审查发现
+- 🟡 `_DENIED_APIS`未持久化 → 每次重启bot重复重试无权限API(浪费~10秒) → 已修复
+- 🟡 12个裸`except Exception:`静默吞错误 → 关键4个已添加debug日志
+- 🟢 QVeris失败是API层问题，代码处理已OK
+- 🟢 Bot运行稳定，无新ERROR
+
+### 改进1: Tushare API权限黑名单持久化
+- **问题**: `_DENIED_APIS`是内存set，bot重启后丢失，每次重新重试3次`top_list`(~10秒)
+- **实现**: `_DENIED_APIS`持久化到`data/cache/tushare_denied_apis.json`，启动时自动加载
+- **效果**: 重启后立即跳过已知无权限接口
+
+### 改进2: Portfolio Heat组合热度监控 (GitHub学习)
+- **来源**: Van Tharp《Trade Your Way to Financial Freedom》+ 多个量化项目风险预算概念
+- **思路**: 组合总风险敞口 = Σ(持仓风险暴露) / 总资产
+- **实现**: `src/risk_management/portfolio_heat.py`
+  - 总热度>20%: 拒绝新买入
+  - 个股热度>8%: 拒绝该股买入
+  - 集成到`_auto_buy`流程
+- **效果**: 防止在已有大量风险敞口时继续加仓
+
+### 改进3: 关键裸except日志化
+- 4个关键fallback路径添加debug级别日志:
+  - 实时行情获取fallback
+  - 市场状态(regime)获取fallback
+  - 买入行情获取fallback
+  - 预警行情获取fallback
+- **效果**: 便于诊断问题，不再完全静默
+
+### GitHub学到的新思路
+- **QuantaAlpha**: 轨迹级自进化(trajectory-level evolution) — 不仅仅进化单个因子，而是进化整个研究轨迹。可借鉴到hypothesis_gen
+- **Van Tharp风险预算**: 每笔交易的风险应占组合总资产的1-2%，不是简单按金额等分
+
+### Phase 4 待推进
+- [ ] Optuna结果自动应用到实盘
+- [ ] 策略A/B测试框架
+- [ ] 表达式因子自动发现 (框架就绪，待运行)
+- [ ] IC of IC（因子IC趋势追踪）
