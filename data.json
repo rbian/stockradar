@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9205,
-    "total_return": -7.95,
-    "max_drawdown": -9.1,
+    "nav": 0.9185,
+    "total_return": -8.15,
+    "max_drawdown": -9.29,
     "holdings_count": 5,
-    "total_trades": 73,
+    "total_trades": 75,
     "initial_capital": 1000000,
-    "current_value": 926779.0,
-    "cash": 6846.0
+    "current_value": 928389.0,
+    "cash": 17456.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9205,
-      "market_value": 913614.0,
+      "nav": 0.9185,
+      "market_value": 901027.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.3
+      "weight": 41.8
     },
     {
       "code": "300015",
@@ -188,7 +188,7 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.3
+      "weight": 40.8
     },
     {
       "code": "301269",
@@ -201,17 +201,35 @@
       "weight": 4.1
     },
     {
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "shares": 600,
-      "cost_price": 171.66,
-      "current_price": 168.4,
-      "market_value": 101040.0,
-      "pnl_pct": -1.9,
-      "weight": 11.4
+      "code": "300896",
+      "name": "爱美客",
+      "shares": 800,
+      "cost_price": 115.68,
+      "current_price": 115.05,
+      "market_value": 92040.0,
+      "pnl_pct": -0.54,
+      "weight": 10.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:05",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 800,
+      "price": 115.68,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:05",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "sell",
+      "shares": 600,
+      "price": 172.25,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-06 10:00",
       "code": "301269",
@@ -462,24 +480,6 @@
       "action": "sell",
       "shares": 100,
       "price": 139.31,
-      "reason": "signal_weak_35"
-    },
-    {
-      "date": "2026-04-10 09:40",
-      "code": "600809",
-      "name": "山西汾酒",
-      "action": "sell",
-      "shares": 100,
-      "price": 139.08,
-      "reason": "signal_weak_35"
-    },
-    {
-      "date": "2026-04-10 09:35",
-      "code": "600809",
-      "name": "山西汾酒",
-      "action": "sell",
-      "shares": 200,
-      "price": 139.5,
       "reason": "signal_weak_35"
     }
   ]
