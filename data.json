@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9162,
-    "total_return": -8.38,
-    "max_drawdown": -9.52,
+    "nav": 0.914,
+    "total_return": -8.6,
+    "max_drawdown": -9.74,
     "holdings_count": 5,
-    "total_trades": 87,
+    "total_trades": 88,
     "initial_capital": 1000000,
-    "current_value": 926863.0,
-    "cash": 14917.0
+    "current_value": 926596.0,
+    "cash": 5768.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9162,
-      "market_value": 901329.0,
+      "nav": 0.914,
+      "market_value": 908240.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.7
+      "weight": 41.3
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.7
+      "weight": 40.3
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 800,
-      "cost_price": 92.11,
+      "shares": 900,
+      "cost_price": 92.03,
       "current_price": 88.82,
-      "market_value": 71056.0,
-      "pnl_pct": -3.57,
-      "weight": 8.2
+      "market_value": 79938.0,
+      "pnl_pct": -3.49,
+      "weight": 9.1
     },
     {
       "code": "300896",
@@ -208,10 +208,19 @@
       "current_price": 115.05,
       "market_value": 57525.0,
       "pnl_pct": -0.72,
-      "weight": 6.5
+      "weight": 6.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:50",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.4,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 10:45",
       "code": "300896",
@@ -472,15 +481,6 @@
       "shares": 900,
       "price": 115.97,
       "reason": "auto_buy"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "601127",
-      "name": "赛力斯",
-      "action": "sell",
-      "shares": 1100,
-      "price": 90.28,
-      "reason": "reduce_to_5"
     }
   ]
 }
