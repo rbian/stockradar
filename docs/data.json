@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9176,
-    "total_return": -8.24,
-    "max_drawdown": -9.38,
+    "nav": 0.9166,
+    "total_return": -8.34,
+    "max_drawdown": -9.48,
     "holdings_count": 5,
-    "total_trades": 68,
+    "total_trades": 70,
     "initial_capital": 1000000,
-    "current_value": 930411.0,
-    "cash": 3326.0
+    "current_value": 929050.0,
+    "cash": 3989.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9176,
-      "market_value": 914314.0,
+      "nav": 0.9166,
+      "market_value": 912572.0,
       "holdings_count": 5
     }
   ],
@@ -161,16 +161,6 @@
   ],
   "holdings": [
     {
-      "code": "600809",
-      "name": "山西汾酒",
-      "shares": 200,
-      "cost_price": 141.7,
-      "current_price": 143.35,
-      "market_value": 28670.0,
-      "pnl_pct": 1.16,
-      "weight": 3.1
-    },
-    {
       "code": "603369",
       "name": "今世缘",
       "shares": 14000,
@@ -209,9 +199,37 @@
       "market_value": 372255.0,
       "pnl_pct": 1.93,
       "weight": 40.1
+    },
+    {
+      "code": "301269",
+      "name": "华大九天",
+      "shares": 300,
+      "cost_price": 92.11,
+      "current_price": 88.82,
+      "market_value": 26646.0,
+      "pnl_pct": -3.57,
+      "weight": 3.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 09:50",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 300,
+      "price": 92.11,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 09:50",
+      "code": "600809",
+      "name": "山西汾酒",
+      "action": "sell",
+      "shares": 200,
+      "price": 141.76,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-06 09:45",
       "code": "603195",
@@ -462,24 +480,6 @@
       "action": "buy",
       "shares": 100,
       "price": 17.13,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:15",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.14,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:10",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
       "reason": "add_score1_sig78"
     }
   ]
