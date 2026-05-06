@@ -227,8 +227,8 @@ class FactorTracker:
                     }
             else:
                 # 因子衰退检测: 最近10天IC vs 30天IC趋势
-                recent_10 = status.ic_history[-10:] if len(status.ic_history) >= 10 else status.ic_history
-                recent_30 = status.ic_history[-30:] if len(status.ic_history) >= 10 else status.ic_history
+                recent_10 = [h["ic"] for h in status.ic_history[-10:]] if len(status.ic_history) >= 10 else [h["ic"] for h in status.ic_history]
+                recent_30 = [h["ic"] for h in status.ic_history[-30:]] if len(status.ic_history) >= 10 else [h["ic"] for h in status.ic_history]
                 ic_10d = np.mean(recent_10) if recent_10 else 0
                 ic_30d = np.mean(recent_30) if recent_30 else 0
                 if abs(ic_30d) > 0.005:
