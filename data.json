@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9158,
-    "total_return": -8.42,
-    "max_drawdown": -9.56,
+    "nav": 0.9173,
+    "total_return": -8.27,
+    "max_drawdown": -9.41,
     "holdings_count": 5,
-    "total_trades": 95,
+    "total_trades": 96,
     "initial_capital": 1000000,
-    "current_value": 925722.0,
-    "cash": 19857.0
+    "current_value": 925407.0,
+    "cash": 10660.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9158,
-      "market_value": 895914.0,
+      "nav": 0.9173,
+      "market_value": 906648.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.9
+      "weight": 41.5
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.9
+      "weight": 40.5
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 1000,
-      "cost_price": 91.96,
+      "shares": 1100,
+      "cost_price": 91.95,
       "current_price": 88.82,
-      "market_value": 88820.0,
-      "pnl_pct": -3.41,
-      "weight": 10.3
+      "market_value": 97702.0,
+      "pnl_pct": -3.4,
+      "weight": 11.2
     },
     {
       "code": "300760",
@@ -208,10 +208,19 @@
       "current_price": 168.4,
       "market_value": 33680.0,
       "pnl_pct": -2.2,
-      "weight": 3.9
+      "weight": 3.8
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 11:15",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.88,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 11:10",
       "code": "300760",
@@ -472,15 +481,6 @@
       "shares": 3200,
       "price": 115.21,
       "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 09:40",
-      "code": "300015",
-      "name": "爱尔眼科",
-      "action": "buy",
-      "shares": 900,
-      "price": 10.66,
-      "reason": "add_score1_sig65"
     }
   ]
 }
