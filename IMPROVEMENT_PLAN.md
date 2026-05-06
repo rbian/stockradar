@@ -655,3 +655,31 @@
 - [ ] 策略A/B测试框架
 - [ ] 表达式因子自动发现 (框架就绪，待运行)
 - [ ] IC of IC（因子IC趋势追踪）
+
+## 2026-05-07 改进记录 (周四: 数据+基建日)
+
+### 代码审查发现
+🔴 **严重Bug — IC追踪每日失败**
+- `factor_tracker.py` 第231-232行: `np.mean()` 接收的是 `{"date": ..., "ic": float}` dict对象列表
+- 导致每天15:27的IC追踪job失败，因子权重无法根据IC自动调整
+- **修复**: 提取 `h["ic"]` 值后再计算均值
+
+🟡 **QVeris NoneType崩溃**
+- `qveris_adapter.py` _parse_table: 当API返回 `result=null` 时，`data.get("result", {})` 返回 `None`
+- **修复**: 添加 `or {}` fallback
+
+### 改进项
+1. ✅ **fix**: factor_tracker IC tracking crash (dict+dict TypeError)
+2. ✅ **fix**: qveris _parse_table NoneType crash
+3. ✅ **feat**: 新增 candlestick_score 因子 — 检测8种K线形态
+   - 灵感来源: myhhub/stock (GitHub ⭐1k+)
+   - 看涨: 锤头线、早晨之星、看涨吞没、大阳线(+量能确认)
+   - 看跌: 上吊线、黄昏之星、看跌吞没、大阴线
+
+### GitHub学习
+- **myhhub/stock**: 61种K线形态识别 + 筹码分布(CYQ)
+- 已采用: K线形态评分因子
+- 待考虑: 筹码分布(需分钟级数据，暂不适合)
+
+### Phase 4 更新
+- [x] 因子IC追踪修复 — 从4月14日JSON修复到5月7日dict+dict修复，IC追踪现在真正工作
