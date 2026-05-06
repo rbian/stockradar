@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9167,
-    "total_return": -8.33,
-    "max_drawdown": -9.47,
+    "nav": 0.9155,
+    "total_return": -8.45,
+    "max_drawdown": -9.59,
     "holdings_count": 5,
-    "total_trades": 79,
+    "total_trades": 81,
     "initial_capital": 1000000,
-    "current_value": 926426.0,
-    "cash": 5569.0
+    "current_value": 927678.0,
+    "cash": 10486.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9167,
-      "market_value": 911101.0,
+      "nav": 0.9155,
+      "market_value": 905030.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.2
+      "weight": 41.5
     },
     {
       "code": "300015",
@@ -188,7 +188,7 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.2
+      "weight": 40.4
     },
     {
       "code": "301269",
@@ -201,17 +201,35 @@
       "weight": 6.1
     },
     {
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "shares": 500,
-      "cost_price": 172.38,
-      "current_price": 168.4,
-      "market_value": 84200.0,
-      "pnl_pct": -2.31,
-      "weight": 9.5
+      "code": "300896",
+      "name": "爱美客",
+      "shares": 700,
+      "cost_price": 115.9,
+      "current_price": 115.05,
+      "market_value": 80535.0,
+      "pnl_pct": -0.73,
+      "weight": 9.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:25",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 700,
+      "price": 115.9,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:25",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "sell",
+      "shares": 500,
+      "price": 172.43,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-06 10:20",
       "code": "301269",
@@ -462,24 +480,6 @@
       "action": "sell",
       "shares": 200,
       "price": 40.99,
-      "reason": "signal_weak_48"
-    },
-    {
-      "date": "2026-04-16 09:50",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "sell",
-      "shares": 200,
-      "price": 41.0,
-      "reason": "signal_weak_48"
-    },
-    {
-      "date": "2026-04-16 09:45",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "sell",
-      "shares": 300,
-      "price": 41.09,
       "reason": "signal_weak_48"
     }
   ]
