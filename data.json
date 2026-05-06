@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9147,
-    "total_return": -8.53,
-    "max_drawdown": -9.67,
+    "nav": 0.9162,
+    "total_return": -8.38,
+    "max_drawdown": -9.52,
     "holdings_count": 5,
-    "total_trades": 84,
+    "total_trades": 85,
     "initial_capital": 1000000,
-    "current_value": 926236.0,
-    "cash": 13337.0
+    "current_value": 925929.0,
+    "cash": 4148.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9147,
-      "market_value": 901383.0,
+      "nav": 0.9162,
+      "market_value": 912006.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.6
+      "weight": 41.2
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.6
+      "weight": 40.2
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 700,
-      "cost_price": 92.15,
+      "shares": 800,
+      "cost_price": 92.11,
       "current_price": 88.82,
-      "market_value": 62174.0,
-      "pnl_pct": -3.61,
-      "weight": 7.2
+      "market_value": 71056.0,
+      "pnl_pct": -3.57,
+      "weight": 8.1
     },
     {
       "code": "300760",
@@ -208,10 +208,19 @@
       "current_price": 168.4,
       "market_value": 67360.0,
       "pnl_pct": -2.3,
-      "weight": 7.7
+      "weight": 7.6
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:40",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.8,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 10:35",
       "code": "300760",
@@ -471,15 +480,6 @@
       "action": "buy",
       "shares": 9900,
       "price": 26.75,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-04-24 14:10",
-      "code": "688169",
-      "name": "石头科技",
-      "action": "buy",
-      "shares": 2300,
-      "price": 115.89,
       "reason": "auto_buy"
     }
   ]
