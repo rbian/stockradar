@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9175,
-    "total_return": -8.25,
-    "max_drawdown": -9.39,
+    "nav": 0.9205,
+    "total_return": -7.95,
+    "max_drawdown": -9.1,
     "holdings_count": 5,
-    "total_trades": 72,
+    "total_trades": 73,
     "initial_capital": 1000000,
-    "current_value": 927146.0,
-    "cash": 16095.0
+    "current_value": 926779.0,
+    "cash": 6846.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9175,
-      "market_value": 901364.0,
+      "nav": 0.9205,
+      "market_value": 913614.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.7
+      "weight": 41.3
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.7
+      "weight": 40.3
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 300,
-      "cost_price": 92.11,
+      "shares": 400,
+      "cost_price": 92.18,
       "current_price": 88.82,
-      "market_value": 26646.0,
-      "pnl_pct": -3.57,
-      "weight": 3.1
+      "market_value": 35528.0,
+      "pnl_pct": -3.65,
+      "weight": 4.1
     },
     {
       "code": "300760",
@@ -208,10 +208,19 @@
       "current_price": 168.4,
       "market_value": 101040.0,
       "pnl_pct": -1.9,
-      "weight": 11.5
+      "weight": 11.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:00",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 92.39,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 09:55",
       "code": "300760",
@@ -472,15 +481,6 @@
       "shares": 200,
       "price": 139.5,
       "reason": "signal_weak_35"
-    },
-    {
-      "date": "2026-04-09 11:30",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
     }
   ]
 }
