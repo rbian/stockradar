@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.914,
-    "total_return": -8.6,
-    "max_drawdown": -9.74,
+    "nav": 0.9135,
+    "total_return": -8.65,
+    "max_drawdown": -9.79,
     "holdings_count": 5,
-    "total_trades": 88,
+    "total_trades": 90,
     "initial_capital": 1000000,
-    "current_value": 926596.0,
-    "cash": 5768.0
+    "current_value": 925794.0,
+    "cash": 11971.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.914,
-      "market_value": 908240.0,
+      "nav": 0.9135,
+      "market_value": 901487.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.3
+      "weight": 41.6
     },
     {
       "code": "300015",
@@ -188,7 +188,7 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.3
+      "weight": 40.5
     },
     {
       "code": "301269",
@@ -198,20 +198,38 @@
       "current_price": 88.82,
       "market_value": 79938.0,
       "pnl_pct": -3.49,
-      "weight": 9.1
+      "weight": 9.2
     },
     {
-      "code": "300896",
-      "name": "爱美客",
-      "shares": 500,
-      "cost_price": 115.88,
-      "current_price": 115.05,
-      "market_value": 57525.0,
-      "pnl_pct": -0.72,
-      "weight": 6.4
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "shares": 300,
+      "cost_price": 171.76,
+      "current_price": 168.4,
+      "market_value": 50520.0,
+      "pnl_pct": -1.96,
+      "weight": 5.7
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:55",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "buy",
+      "shares": 300,
+      "price": 171.76,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:55",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "sell",
+      "shares": 500,
+      "price": 115.68,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-06 10:50",
       "code": "301269",
@@ -463,24 +481,6 @@
       "shares": 200,
       "price": 38.93,
       "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "603369",
-      "name": "今世缘",
-      "action": "buy",
-      "shares": 4100,
-      "price": 26.72,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "688169",
-      "name": "石头科技",
-      "action": "buy",
-      "shares": 900,
-      "price": 115.97,
-      "reason": "auto_buy"
     }
   ]
 }
