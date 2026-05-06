@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9182,
-    "total_return": -8.18,
-    "max_drawdown": -9.32,
+    "nav": 0.9167,
+    "total_return": -8.33,
+    "max_drawdown": -9.47,
     "holdings_count": 5,
-    "total_trades": 78,
+    "total_trades": 79,
     "initial_capital": 1000000,
-    "current_value": 926820.0,
-    "cash": 14845.0
+    "current_value": 926426.0,
+    "cash": 5569.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9182,
-      "market_value": 903343.0,
+      "nav": 0.9167,
+      "market_value": 911101.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.7
+      "weight": 41.2
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.6
+      "weight": 40.2
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 500,
-      "cost_price": 92.07,
+      "shares": 600,
+      "cost_price": 92.17,
       "current_price": 88.82,
-      "market_value": 44410.0,
-      "pnl_pct": -3.53,
-      "weight": 5.1
+      "market_value": 53292.0,
+      "pnl_pct": -3.63,
+      "weight": 6.1
     },
     {
       "code": "300760",
@@ -208,10 +208,19 @@
       "current_price": 168.4,
       "market_value": 84200.0,
       "pnl_pct": -2.31,
-      "weight": 9.6
+      "weight": 9.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:20",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 92.67,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 10:15",
       "code": "300760",
@@ -471,15 +480,6 @@
       "action": "sell",
       "shares": 300,
       "price": 41.09,
-      "reason": "signal_weak_48"
-    },
-    {
-      "date": "2026-04-16 09:40",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "sell",
-      "shares": 500,
-      "price": 41.21,
       "reason": "signal_weak_48"
     }
   ]
