@@ -39,6 +39,7 @@ class FactorEngine:
             calc_peg, calc_operating_leverage, calc_inventory_turnover, calc_accrual_ratio,
         )
         from src.factors.technical import (
+        calc_candlestick_score,
             calc_atr, calc_volume_trend,
             calc_price_vs_ma, calc_ma_slope, calc_momentum,
             calc_volatility, calc_max_drawdown,
@@ -96,6 +97,7 @@ class FactorEngine:
             "ichimoku_signal": lambda d: calc_ichimoku_signal(d.get("daily_quote", pd.DataFrame())),
             "sector_relative_momentum": lambda d: calc_sector_relative_momentum(d.get("daily_quote", pd.DataFrame())),
             "price_acceleration": lambda d: calc_price_acceleration(d.get("daily_quote", pd.DataFrame())),
+            "candlestick_score": lambda d: calc_candlestick_score(d.get("daily_quote", pd.DataFrame())),
             # Capital flow (5) — 接收 daily_quote + northbound
             "northbound_net_5d": lambda d: calc_northbound_net(d.get("daily_quote", pd.DataFrame()), d.get("northbound", pd.DataFrame())),
             "northbound_consecutive_days": lambda d: calc_northbound_consecutive(d.get("northbound", pd.DataFrame())),

@@ -732,3 +732,108 @@ def calc_price_acceleration(daily_df: pd.DataFrame, fast: int = 5, slow: int = 2
         return (fast_daily - slow_daily) * 100
 
     return daily_df.groupby("code").apply(accel)
+
+
+def calc_candlestick_score(daily_df: pd.DataFrame) -> pd.Series:
+    """K线形态评分 — 识别关键看涨/看跌形态
+
+    基于myhhub/stock思路，检测最关键的形态：
+    看涨: 锤头线、早晨之星、吞没看涨、大阳线
+    看跌: 上吊线、黄昏之星、吞没看跌、大阴线
+
+    Returns: pd.Series indexed by code, range [-1, 1]
+    """
+    if daily_df is None or daily_df.empty or len(daily_df) < 5:
+        return pd.Series(dtype=float)
+
+    results = []
+    for code, grp in daily_df.groupby("code"):
+        grp = grp.sort_values("date").tail(10)
+        if len(grp) < 3:
+            results.append((code, 0.0))
+            continue
+
+        score = 0.0
+        try:
+            o = grp["open"].values
+            h = grp["high"].values
+            l = grp["low"].values
+            c = grp["close"].values
+            v = grp["volume"].values if "volume" in grp.columns else None
+            body = c - o
+            upper_shadow = h - np.maximum(o, c)
+            lower_shadow = np.minimum(o, c) - l
+            body_size = np.abs(body)
+            full_range = h - l
+
+            # Latest candle (index -1)
+            i = -1
+            # Guard against zero range
+            if full_range[i] == 0:
+                results.append((code, 0.0))
+                continue
+
+            # 1. 锤头线 (Hammer): small upper shadow, long lower shadow, small body at top
+            if (lower_shadow[i] > body_size[i] * 2 and
+                upper_shadow[i] < body_size[i] * 0.5 and
+                body[i] > 0 and  # bullish candle
+                full_range[i] > 0):
+                score += 0.3
+
+            # 2. 早晨之星 (Morning Star): big bearish → small body → big bullish
+            if len(grp) >= 3:
+                i0, i1, i2 = -3, -2, -1
+                if (body[i0] < -full_range[i0] * 0.3 and  # big bearish
+                    abs(body[i1]) < full_range[i1] * 0.3 and  # small body (doji-like)
+                    body[i2] > full_range[i2] * 0.3 and  # big bullish
+                    c[i2] > (o[i0] + c[i0]) / 2):  # closes above midpoint of first candle
+                    score += 0.4
+
+            # 3. 看涨吞没 (Bullish Engulfing): bearish candle followed by bigger bullish
+            if len(grp) >= 2:
+                if (body[-2] < 0 and  # prev bearish
+                    body[-1] > 0 and  # curr bullish
+                    c[-1] > o[-2] and  # curr close above prev open
+                    o[-1] < c[-2]):   # curr open below prev close
+                    score += 0.35
+
+            # 4. 大阳线 (Big Bullish): body > 5% of close, bullish
+            if body[i] > 0 and c[i] > 0 and body_size[i] / c[i] > 0.05:
+                score += 0.2
+                # With volume confirmation
+                if v is not None and len(v) >= 2 and v[-2] > 0:
+                    if v[-1] > v[-2] * 1.5:  # 1.5x volume
+                        score += 0.15
+
+            # 5. 上吊线 (Hanging Man): same as hammer but at top of uptrend → bearish
+            if (lower_shadow[i] > body_size[i] * 2 and
+                upper_shadow[i] < body_size[i] * 0.5 and
+                body[i] < 0):  # bearish candle
+                score -= 0.3
+
+            # 6. 黄昏之星 (Evening Star): big bullish → small body → big bearish
+            if len(grp) >= 3:
+                i0, i1, i2 = -3, -2, -1
+                if (body[i0] > full_range[i0] * 0.3 and
+                    abs(body[i1]) < full_range[i1] * 0.3 and
+                    body[i2] < -full_range[i2] * 0.3 and
+                    c[i2] < (o[i0] + c[i0]) / 2):
+                    score -= 0.4
+
+            # 7. 看跌吞没 (Bearish Engulfing)
+            if len(grp) >= 2:
+                if (body[-2] > 0 and
+                    body[-1] < 0 and
+                    c[-1] < o[-2] and
+                    o[-1] > c[-2]):
+                    score -= 0.35
+
+            # 8. 大阴线 (Big Bearish)
+            if body[i] < 0 and c[i] > 0 and body_size[i] / c[i] > 0.05:
+                score -= 0.2
+        except (IndexError, ZeroDivisionError):
+            score = 0.0
+
+        results.append((code, max(-1.0, min(1.0, score))))
+
+    return pd.Series(dict(results), dtype=float)

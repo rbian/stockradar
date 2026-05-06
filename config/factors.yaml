@@ -190,6 +190,12 @@ categories:
         params:
           fast: 5
           slow: 20
+      candlestick_score:
+        direction: higher_better
+        clip:
+        - -1
+        - 1
+        params: {}
   capital_flow:
     weight: 0.2
     factors:
