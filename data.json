@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9178,
-    "total_return": -8.22,
-    "max_drawdown": -9.36,
+    "nav": 0.9179,
+    "total_return": -8.21,
+    "max_drawdown": -9.35,
     "holdings_count": 5,
-    "total_trades": 100,
+    "total_trades": 102,
     "initial_capital": 1000000,
-    "current_value": 925381.0,
-    "cash": 3540.0
+    "current_value": 925100.0,
+    "cash": 9429.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9178,
-      "market_value": 914284.0,
+      "nav": 0.9179,
+      "market_value": 908491.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.2
+      "weight": 41.5
     },
     {
       "code": "300015",
@@ -188,7 +188,7 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.2
+      "weight": 40.4
     },
     {
       "code": "301269",
@@ -198,20 +198,38 @@
       "current_price": 88.82,
       "market_value": 115466.0,
       "pnl_pct": -3.38,
-      "weight": 13.1
+      "weight": 13.2
     },
     {
-      "code": "300896",
-      "name": "爱美客",
-      "shares": 200,
-      "cost_price": 115.73,
-      "current_price": 115.05,
-      "market_value": 23010.0,
-      "pnl_pct": -0.59,
-      "weight": 2.5
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "shares": 100,
+      "cost_price": 172.64,
+      "current_price": 168.4,
+      "market_value": 16840.0,
+      "pnl_pct": -2.46,
+      "weight": 1.9
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 13:00",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "buy",
+      "shares": 100,
+      "price": 172.64,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 13:00",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "sell",
+      "shares": 200,
+      "price": 115.97,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-06 11:30",
       "code": "301269",
@@ -463,24 +481,6 @@
       "shares": 100,
       "price": 92.39,
       "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 09:55",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "buy",
-      "shares": 600,
-      "price": 171.66,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 09:55",
-      "code": "300896",
-      "name": "爱美客",
-      "action": "sell",
-      "shares": 1000,
-      "price": 115.32,
-      "reason": "smart_rebalance"
     }
   ]
 }
