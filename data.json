@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9147,
-    "total_return": -8.53,
-    "max_drawdown": -9.67,
+    "nav": 0.9143,
+    "total_return": -8.57,
+    "max_drawdown": -9.71,
     "holdings_count": 5,
-    "total_trades": 104,
+    "total_trades": 105,
     "initial_capital": 1000000,
-    "current_value": 925436.0,
-    "cash": 15100.0
+    "current_value": 925152.0,
+    "cash": 5934.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9147,
-      "market_value": 899586.0,
+      "nav": 0.9143,
+      "market_value": 908411.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.7
+      "weight": 41.3
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.7
+      "weight": 40.3
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 1300,
-      "cost_price": 91.93,
+      "shares": 1400,
+      "cost_price": 91.9,
       "current_price": 88.82,
-      "market_value": 115466.0,
-      "pnl_pct": -3.38,
-      "weight": 13.3
+      "market_value": 124348.0,
+      "pnl_pct": -3.35,
+      "weight": 14.2
     },
     {
       "code": "300896",
@@ -212,6 +212,15 @@
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 13:10",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.56,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 13:05",
       "code": "300896",
@@ -472,15 +481,6 @@
       "shares": 100,
       "price": 91.61,
       "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 10:05",
-      "code": "300896",
-      "name": "爱美客",
-      "action": "buy",
-      "shares": 800,
-      "price": 115.68,
-      "reason": "smart_rebalance"
     }
   ]
 }
