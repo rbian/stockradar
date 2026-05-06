@@ -6,10 +6,10 @@
     "total_return": -8.38,
     "max_drawdown": -9.52,
     "holdings_count": 5,
-    "total_trades": 85,
+    "total_trades": 87,
     "initial_capital": 1000000,
-    "current_value": 925929.0,
-    "cash": 4148.0
+    "current_value": 926863.0,
+    "cash": 14917.0
   },
   "nav_history": [
     {
@@ -69,7 +69,7 @@
     {
       "date": "2026-05-06",
       "nav": 0.9162,
-      "market_value": 912006.0,
+      "market_value": 901329.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.2
+      "weight": 41.7
     },
     {
       "code": "300015",
@@ -188,7 +188,7 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.2
+      "weight": 40.7
     },
     {
       "code": "301269",
@@ -198,20 +198,38 @@
       "current_price": 88.82,
       "market_value": 71056.0,
       "pnl_pct": -3.57,
-      "weight": 8.1
+      "weight": 8.2
     },
     {
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "shares": 400,
-      "cost_price": 172.37,
-      "current_price": 168.4,
-      "market_value": 67360.0,
-      "pnl_pct": -2.3,
-      "weight": 7.6
+      "code": "300896",
+      "name": "爱美客",
+      "shares": 500,
+      "cost_price": 115.88,
+      "current_price": 115.05,
+      "market_value": 57525.0,
+      "pnl_pct": -0.72,
+      "weight": 6.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 10:45",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 500,
+      "price": 115.88,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:45",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "sell",
+      "shares": 400,
+      "price": 172.09,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-06 10:40",
       "code": "301269",
@@ -463,24 +481,6 @@
       "shares": 1100,
       "price": 90.28,
       "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "sell",
-      "shares": 4200,
-      "price": 29.28,
-      "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-24 14:10",
-      "code": "603369",
-      "name": "今世缘",
-      "action": "buy",
-      "shares": 9900,
-      "price": 26.75,
-      "reason": "auto_buy"
     }
   ]
 }
