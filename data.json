@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9374,
-    "total_return": -6.26,
-    "max_drawdown": -7.43,
+    "nav": 0.9159,
+    "total_return": -8.41,
+    "max_drawdown": -9.55,
     "holdings_count": 5,
-    "total_trades": 64,
+    "total_trades": 65,
     "initial_capital": 1000000,
-    "current_value": 925808.0,
-    "cash": 19822.0
+    "current_value": 925879.0,
+    "cash": 10191.0
   },
   "nav_history": [
     {
@@ -64,6 +64,12 @@
       "date": "2026-04-29",
       "nav": 0.9374,
       "market_value": 917606.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-05-06",
+      "nav": 0.9159,
+      "market_value": 905718.0,
       "holdings_count": 5
     }
   ],
@@ -162,7 +168,7 @@
       "current_price": 143.35,
       "market_value": 28670.0,
       "pnl_pct": 1.16,
-      "weight": 3.2
+      "weight": 3.1
     },
     {
       "code": "688169",
@@ -172,7 +178,7 @@
       "current_price": 115.8,
       "market_value": 370560.0,
       "pnl_pct": -0.13,
-      "weight": 41.3
+      "weight": 40.9
     },
     {
       "code": "603369",
@@ -182,17 +188,17 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.7
+      "weight": 41.3
     },
     {
       "code": "300015",
       "name": "爱尔眼科",
-      "shares": 700,
-      "cost_price": 10.91,
+      "shares": 1600,
+      "cost_price": 10.79,
       "current_price": 10.78,
-      "market_value": 7546.0,
-      "pnl_pct": -1.19,
-      "weight": 0.9
+      "market_value": 17248.0,
+      "pnl_pct": -0.09,
+      "weight": 1.9
     },
     {
       "code": "300896",
@@ -202,10 +208,19 @@
       "current_price": 115.05,
       "market_value": 115050.0,
       "pnl_pct": -1.38,
-      "weight": 13.0
+      "weight": 12.9
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 09:35",
+      "code": "300015",
+      "name": "爱尔眼科",
+      "action": "buy",
+      "shares": 900,
+      "price": 10.69,
+      "reason": "add_score1_sig65"
+    },
     {
       "date": "2026-04-29 11:20",
       "code": "300896",
@@ -465,15 +480,6 @@
       "action": "buy",
       "shares": 100,
       "price": 17.16,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:50",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
       "reason": "add_score1_sig78"
     }
   ]
