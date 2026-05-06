@@ -2,14 +2,14 @@
   "updated": "2026-04-30",
   "stats": {
     "latest_date": "2026-04-30",
-    "nav": 0.9177,
-    "total_return": -8.23,
-    "max_drawdown": -9.37,
+    "nav": 0.9178,
+    "total_return": -8.22,
+    "max_drawdown": -9.36,
     "holdings_count": 5,
-    "total_trades": 99,
+    "total_trades": 100,
     "initial_capital": 1000000,
-    "current_value": 925689.0,
-    "cash": 12730.0
+    "current_value": 925381.0,
+    "cash": 3540.0
   },
   "nav_history": [
     {
@@ -68,8 +68,8 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 0.9177,
-      "market_value": 904940.0,
+      "nav": 0.9178,
+      "market_value": 914284.0,
       "holdings_count": 5
     }
   ],
@@ -168,7 +168,7 @@
       "current_price": 27.44,
       "market_value": 384160.0,
       "pnl_pct": 2.58,
-      "weight": 41.6
+      "weight": 41.2
     },
     {
       "code": "300015",
@@ -188,17 +188,17 @@
       "current_price": 44.85,
       "market_value": 372255.0,
       "pnl_pct": 1.93,
-      "weight": 40.6
+      "weight": 40.2
     },
     {
       "code": "301269",
       "name": "华大九天",
-      "shares": 1200,
-      "cost_price": 91.94,
+      "shares": 1300,
+      "cost_price": 91.93,
       "current_price": 88.82,
-      "market_value": 106584.0,
-      "pnl_pct": -3.39,
-      "weight": 12.3
+      "market_value": 115466.0,
+      "pnl_pct": -3.38,
+      "weight": 13.1
     },
     {
       "code": "300896",
@@ -208,10 +208,19 @@
       "current_price": 115.05,
       "market_value": 23010.0,
       "pnl_pct": -0.59,
-      "weight": 2.6
+      "weight": 2.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-06 11:30",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.81,
+      "reason": "add_score1_sig83"
+    },
     {
       "date": "2026-05-06 11:25",
       "code": "300896",
@@ -471,15 +480,6 @@
       "action": "sell",
       "shares": 1000,
       "price": 115.32,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 09:50",
-      "code": "301269",
-      "name": "华大九天",
-      "action": "buy",
-      "shares": 300,
-      "price": 92.11,
       "reason": "smart_rebalance"
     }
   ]
