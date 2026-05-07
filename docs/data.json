@@ -1,14 +1,14 @@
 {
-  "updated": "2026-05-06",
+  "updated": "2026-05-07",
   "stats": {
-    "latest_date": "2026-05-06",
+    "latest_date": "2026-05-07",
     "nav": 0.9243,
     "total_return": -7.57,
     "max_drawdown": -8.72,
     "holdings_count": 5,
     "total_trades": 107,
     "initial_capital": 1000000,
-    "current_value": 917568.0,
+    "current_value": 929028.0,
     "cash": 6334.0
   },
   "nav_history": [
@@ -167,6 +167,10 @@
     {
       "date": "2026-05-06",
       "nav": 1.16
+    },
+    {
+      "date": "2026-05-07",
+      "nav": 1.1727
     }
   ],
   "holdings": [
@@ -175,9 +179,9 @@
       "name": "今世缘",
       "shares": 14000,
       "cost_price": 26.75,
-      "current_price": 27.57,
-      "market_value": 385980.0,
-      "pnl_pct": 3.07,
+      "current_price": 27.55,
+      "market_value": 385700.0,
+      "pnl_pct": 2.99,
       "weight": 41.3
     },
     {
@@ -185,9 +189,9 @@
       "name": "公牛集团",
       "shares": 8300,
       "cost_price": 44.0,
-      "current_price": 43.51,
-      "market_value": 361133.0,
-      "pnl_pct": -1.11,
+      "current_price": 44.52,
+      "market_value": 369516.0,
+      "pnl_pct": 1.18,
       "weight": 40.3
     },
     {
@@ -195,9 +199,9 @@
       "name": "华大九天",
       "shares": 1400,
       "cost_price": 91.9,
-      "current_price": 90.22,
-      "market_value": 126308.0,
-      "pnl_pct": -1.83,
+      "current_price": 92.53,
+      "market_value": 129542.0,
+      "pnl_pct": 0.69,
       "weight": 14.2
     },
     {
@@ -205,9 +209,9 @@
       "name": "爱美客",
       "shares": 100,
       "cost_price": 115.7,
-      "current_price": 115.73,
-      "market_value": 11573.0,
-      "pnl_pct": 0.03,
+      "current_price": 116.96,
+      "market_value": 11696.0,
+      "pnl_pct": 1.09,
       "weight": 1.3
     },
     {
