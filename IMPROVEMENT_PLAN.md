@@ -683,3 +683,15 @@
 
 ### Phase 4 更新
 - [x] 因子IC追踪修复 — 从4月14日JSON修复到5月7日dict+dict修复，IC追踪现在真正工作
+
+### 2026-05-08 (周五) 策略迭代+周报日
+1. ✅ **修复 ichimoku tenkan_val 除零** — line 622 divide by zero，tenkan_val=0时未保护
+2. ✅ **修复 QVeris _parse_table 防御性检查** — result非dict时返回空DataFrame
+3. ✅ **新增回撤持续时间因子 (underwater_duration)** — 灵感来源：机构"Recovery Time"指标，衡量股价持续低于高点的比例+回撤幅度加权。uptrend→0, downtrend→-0.7
+- commit: 576cadf
+- GitHub学到: Riskfolio-Lib (⭐4138) — 组合优化库，支持CVaR/层次风险平价。未来可参考其风险平价实现改进仓位分配
+
+#### 代码审查发现
+- 🟡 technical.py:622 divide by zero → 已修复
+- 🟡 qveris_adapter.py NoneType crash → 已加防御
+- 🟢 alert_check每5分钟fetch_realtime_quotes → 可考虑分钟级缓存，但非紧急
