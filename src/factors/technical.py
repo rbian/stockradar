@@ -612,7 +612,7 @@ def calc_ichimoku_signal(daily_df: pd.DataFrame, tenkan: int = 9, kijun: int = 2
         kijun_val = (recent_k["high"].max() + recent_k["low"].min()) / 2
 
         close_val = close.iloc[-1]
-        if kijun_val == 0:
+        if kijun_val == 0 or tenkan_val == 0:
             return np.nan
 
         # 信号1: 转换线 vs 基准线 (金叉/死叉方向)
@@ -837,3 +837,41 @@ def calc_candlestick_score(daily_df: pd.DataFrame) -> pd.Series:
         results.append((code, max(-1.0, min(1.0, score))))
 
     return pd.Series(dict(results), dtype=float)
+
+
+def calc_underwater_duration(daily_df: pd.DataFrame, lookback: int = 60) -> pd.Series:
+    """回撤持续时间因子 (Underwater Duration)
+
+    衡量股价持续低于近期高点的天数比例。
+    值越高说明股票长期处于回撤状态，恢复概率降低。
+    机构风险管理常用指标——"时间就是成本"。
+
+    计算方法:
+      1. 在lookback窗口内找到最高价
+      2. 统计收盘价低于最高价的比例 (underwater_ratio)
+      3. 结合最大回撤幅度加权: score = underwater_ratio * (1 + abs(max_dd)/0.3)
+      4. 归一化到 [-1, 1]，越高表示回撤持续越久(负面信号)
+
+    灵感来源: 机构组合管理中的"Recovery Time"指标，长期水下股票倾向继续弱势。
+    """
+    def underwater(group):
+        if len(group) < 10:
+            return np.nan
+        recent = group.tail(lookback)
+        if len(recent) < 10:
+            return np.nan
+        closes = recent["close"].values
+        high_water = np.maximum.accumulate(closes)
+        # 水下比例
+        underwater_days = np.sum(closes < high_water)
+        underwater_ratio = underwater_days / len(closes)
+        # 最大回撤
+        drawdowns = (closes - high_water) / np.where(high_water > 0, high_water, 1)
+        max_dd = abs(drawdowns.min()) if len(drawdowns) > 0 else 0
+        # 加权: 水下比例 + 回撤幅度加成
+        score = underwater_ratio * (1 + min(max_dd / 0.3, 2.0))
+        # 取负号: 高水下 = 负分 (弱势)
+        return -min(score / 2.0, 1.0)
+
+    result = daily_df.groupby("code").apply(underwater)
+    return result

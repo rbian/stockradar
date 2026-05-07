@@ -56,6 +56,8 @@ def _execute(tool_id: str, query: str, timeout: int = 30) -> dict:
 def _parse_table(data: dict) -> pd.DataFrame:
     """从QVeris返回的markdown table解析DataFrame"""
     result = data.get("result") or {}
+    if not isinstance(result, dict):
+        return pd.DataFrame()
     results = result.get("data", {}).get("results", [])
     if not results:
         return pd.DataFrame()
