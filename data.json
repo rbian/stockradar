@@ -1,15 +1,15 @@
 {
-  "updated": "2026-04-30",
+  "updated": "2026-05-06",
   "stats": {
-    "latest_date": "2026-04-30",
-    "nav": 0.9374,
-    "total_return": -6.26,
-    "max_drawdown": -7.43,
+    "latest_date": "2026-05-06",
+    "nav": 0.9243,
+    "total_return": -7.57,
+    "max_drawdown": -8.72,
     "holdings_count": 5,
-    "total_trades": 64,
+    "total_trades": 107,
     "initial_capital": 1000000,
-    "current_value": 925808.0,
-    "cash": 19822.0
+    "current_value": 917568.0,
+    "cash": 6334.0
   },
   "nav_history": [
     {
@@ -64,6 +64,18 @@
       "date": "2026-04-29",
       "nav": 0.9374,
       "market_value": 917606.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-05-06",
+      "nav": 0.9143,
+      "market_value": 908411.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-05-07",
+      "nav": 0.9243,
+      "market_value": 917971.0,
       "holdings_count": 5
     }
   ],
@@ -151,330 +163,334 @@
     {
       "date": "2026-04-30",
       "nav": 1.1343
+    },
+    {
+      "date": "2026-05-06",
+      "nav": 1.16
     }
   ],
   "holdings": [
-    {
-      "code": "600809",
-      "name": "山西汾酒",
-      "shares": 200,
-      "cost_price": 141.7,
-      "current_price": 143.35,
-      "market_value": 28670.0,
-      "pnl_pct": 1.16,
-      "weight": 3.2
-    },
-    {
-      "code": "688169",
-      "name": "石头科技",
-      "shares": 3200,
-      "cost_price": 115.95,
-      "current_price": 115.8,
-      "market_value": 370560.0,
-      "pnl_pct": -0.13,
-      "weight": 41.3
-    },
     {
       "code": "603369",
       "name": "今世缘",
       "shares": 14000,
       "cost_price": 26.75,
-      "current_price": 27.44,
-      "market_value": 384160.0,
-      "pnl_pct": 2.58,
-      "weight": 41.7
+      "current_price": 27.57,
+      "market_value": 385980.0,
+      "pnl_pct": 3.07,
+      "weight": 41.3
     },
     {
-      "code": "300015",
-      "name": "爱尔眼科",
-      "shares": 700,
-      "cost_price": 10.91,
-      "current_price": 10.78,
-      "market_value": 7546.0,
-      "pnl_pct": -1.19,
-      "weight": 0.9
+      "code": "603195",
+      "name": "公牛集团",
+      "shares": 8300,
+      "cost_price": 44.0,
+      "current_price": 43.51,
+      "market_value": 361133.0,
+      "pnl_pct": -1.11,
+      "weight": 40.3
+    },
+    {
+      "code": "301269",
+      "name": "华大九天",
+      "shares": 1400,
+      "cost_price": 91.9,
+      "current_price": 90.22,
+      "market_value": 126308.0,
+      "pnl_pct": -1.83,
+      "weight": 14.2
     },
     {
       "code": "300896",
       "name": "爱美客",
-      "shares": 1000,
-      "cost_price": 116.66,
-      "current_price": 115.05,
-      "market_value": 115050.0,
-      "pnl_pct": -1.38,
-      "weight": 13.0
+      "shares": 100,
+      "cost_price": 115.7,
+      "current_price": 115.73,
+      "market_value": 11573.0,
+      "pnl_pct": 0.03,
+      "weight": 1.3
+    },
+    {
+      "code": "600048",
+      "name": "保利发展",
+      "shares": 4100,
+      "cost_price": 6.42,
+      "current_price": 6.4,
+      "market_value": 26240.0,
+      "pnl_pct": -0.31,
+      "weight": 2.9
     }
   ],
   "trades": [
     {
-      "date": "2026-04-29 11:20",
+      "date": "2026-05-07 09:35",
+      "code": "600048",
+      "name": "保利发展",
+      "action": "buy",
+      "shares": 4100,
+      "price": 6.42,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-07 09:35",
+      "code": "300015",
+      "name": "爱尔眼科",
+      "action": "sell",
+      "shares": 2500,
+      "price": 10.71,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 13:10",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.56,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 13:05",
       "code": "300896",
       "name": "爱美客",
       "action": "buy",
-      "shares": 1000,
-      "price": 116.66,
+      "shares": 100,
+      "price": 115.7,
       "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-29 11:20",
-      "code": "601607",
-      "name": "上海医药",
+      "date": "2026-05-06 13:05",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "sell",
-      "shares": 7500,
-      "price": 16.96,
+      "shares": 100,
+      "price": 172.69,
       "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-29 11:15",
-      "code": "300015",
-      "name": "爱尔眼科",
+      "date": "2026-05-06 13:00",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "buy",
-      "shares": 700,
-      "price": 10.91,
+      "shares": 100,
+      "price": 172.64,
       "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-29 11:15",
-      "code": "603288",
-      "name": "海天味业",
+      "date": "2026-05-06 13:00",
+      "code": "300896",
+      "name": "爱美客",
       "action": "sell",
       "shares": 200,
-      "price": 38.93,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "603369",
-      "name": "今世缘",
-      "action": "buy",
-      "shares": 4100,
-      "price": 26.72,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "688169",
-      "name": "石头科技",
-      "action": "buy",
-      "shares": 900,
       "price": 115.97,
-      "reason": "auto_buy"
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-24 14:15",
-      "code": "601127",
-      "name": "赛力斯",
-      "action": "sell",
-      "shares": 1100,
-      "price": 90.28,
-      "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-24 14:15",
-      "code": "300759",
-      "name": "康龙化成",
-      "action": "sell",
-      "shares": 4200,
-      "price": 29.28,
-      "reason": "reduce_to_5"
-    },
-    {
-      "date": "2026-04-24 14:10",
-      "code": "603369",
-      "name": "今世缘",
+      "date": "2026-05-06 11:30",
+      "code": "301269",
+      "name": "华大九天",
       "action": "buy",
-      "shares": 9900,
-      "price": 26.75,
-      "reason": "auto_buy"
+      "shares": 100,
+      "price": 91.81,
+      "reason": "add_score1_sig83"
     },
     {
-      "date": "2026-04-24 14:10",
-      "code": "688169",
-      "name": "石头科技",
+      "date": "2026-05-06 11:25",
+      "code": "300896",
+      "name": "爱美客",
       "action": "buy",
-      "shares": 2300,
-      "price": 115.89,
-      "reason": "auto_buy"
+      "shares": 200,
+      "price": 115.73,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-16 10:05",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "sell",
-      "shares": 100,
-      "price": 40.98,
-      "reason": "signal_weak_48"
-    },
-    {
-      "date": "2026-04-16 10:00",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "sell",
-      "shares": 100,
-      "price": 40.96,
-      "reason": "signal_weak_48"
-    },
-    {
-      "date": "2026-04-16 09:55",
-      "code": "603288",
-      "name": "海天味业",
+      "date": "2026-05-06 11:25",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "sell",
       "shares": 200,
-      "price": 40.99,
-      "reason": "signal_weak_48"
+      "price": 172.31,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-16 09:50",
-      "code": "603288",
-      "name": "海天味业",
-      "action": "sell",
+      "date": "2026-05-06 11:20",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.79,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 11:15",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.88,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 11:10",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "buy",
       "shares": 200,
-      "price": 41.0,
-      "reason": "signal_weak_48"
+      "price": 172.19,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-16 09:45",
-      "code": "603288",
-      "name": "海天味业",
+      "date": "2026-05-06 11:10",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "sell",
+      "shares": 400,
+      "price": 115.77,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 11:05",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 400,
+      "price": 115.64,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 11:05",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "sell",
       "shares": 300,
-      "price": 41.09,
-      "reason": "signal_weak_48"
+      "price": 171.98,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-16 09:40",
-      "code": "603288",
-      "name": "海天味业",
+      "date": "2026-05-06 11:00",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.34,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 10:55",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "buy",
+      "shares": 300,
+      "price": 171.76,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:55",
+      "code": "300896",
+      "name": "爱美客",
       "action": "sell",
       "shares": 500,
-      "price": 41.21,
-      "reason": "signal_weak_48"
+      "price": 115.68,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-16 09:35",
-      "code": "603288",
-      "name": "海天味业",
+      "date": "2026-05-06 10:50",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.4,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 10:45",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 500,
+      "price": 115.88,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:45",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "sell",
-      "shares": 800,
-      "price": 41.23,
-      "reason": "signal_weak_48"
+      "shares": 400,
+      "price": 172.09,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-10 09:50",
-      "code": "600809",
-      "name": "山西汾酒",
+      "date": "2026-05-06 10:40",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 91.8,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 10:35",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "buy",
+      "shares": 400,
+      "price": 172.37,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:35",
+      "code": "300896",
+      "name": "爱美客",
       "action": "sell",
-      "shares": 100,
-      "price": 139.41,
-      "reason": "signal_weak_35"
+      "shares": 700,
+      "price": 115.94,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-10 09:45",
-      "code": "600809",
-      "name": "山西汾酒",
+      "date": "2026-05-06 10:30",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "buy",
+      "shares": 100,
+      "price": 92.0,
+      "reason": "add_score1_sig83"
+    },
+    {
+      "date": "2026-05-06 10:25",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "buy",
+      "shares": 700,
+      "price": 115.9,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-06 10:25",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "sell",
-      "shares": 100,
-      "price": 139.31,
-      "reason": "signal_weak_35"
+      "shares": 500,
+      "price": 172.43,
+      "reason": "smart_rebalance"
     },
     {
-      "date": "2026-04-10 09:40",
-      "code": "600809",
-      "name": "山西汾酒",
-      "action": "sell",
-      "shares": 100,
-      "price": 139.08,
-      "reason": "signal_weak_35"
-    },
-    {
-      "date": "2026-04-10 09:35",
-      "code": "600809",
-      "name": "山西汾酒",
-      "action": "sell",
-      "shares": 200,
-      "price": 139.5,
-      "reason": "signal_weak_35"
-    },
-    {
-      "date": "2026-04-09 11:30",
-      "code": "601607",
-      "name": "上海医药",
+      "date": "2026-05-06 10:20",
+      "code": "301269",
+      "name": "华大九天",
       "action": "buy",
       "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
+      "price": 92.67,
+      "reason": "add_score1_sig83"
     },
     {
-      "date": "2026-04-09 11:25",
-      "code": "601607",
-      "name": "上海医药",
+      "date": "2026-05-06 10:15",
+      "code": "300760",
+      "name": "迈瑞医疗",
       "action": "buy",
-      "shares": 100,
-      "price": 17.14,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:20",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.13,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:15",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.14,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:10",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:05",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 11:00",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:55",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.16,
-      "reason": "add_score1_sig78"
-    },
-    {
-      "date": "2026-04-09 10:50",
-      "code": "601607",
-      "name": "上海医药",
-      "action": "buy",
-      "shares": 100,
-      "price": 17.15,
-      "reason": "add_score1_sig78"
+      "shares": 500,
+      "price": 172.38,
+      "reason": "smart_rebalance"
     }
   ]
 }
