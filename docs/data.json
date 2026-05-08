@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9287,
-    "total_return": -7.13,
-    "max_drawdown": -8.29,
+    "nav": 0.9275,
+    "total_return": -7.25,
+    "max_drawdown": -8.4,
     "holdings_count": 5,
-    "total_trades": 136,
+    "total_trades": 138,
     "initial_capital": 1000000,
-    "current_value": 924258.0,
-    "cash": 2471.0
+    "current_value": 922977.0,
+    "cash": 2046.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9287,
-      "market_value": 926263.0,
+      "nav": 0.9275,
+      "market_value": 925485.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "000002",
-      "name": "万科A",
-      "shares": 98200,
-      "cost_price": 3.99,
-      "current_price": 3.98,
-      "market_value": 390836.0,
-      "pnl_pct": -0.25,
+      "code": "601006",
+      "name": "大秦铁路",
+      "shares": 74000,
+      "cost_price": 5.29,
+      "current_price": 5.27,
+      "market_value": 389980.0,
+      "pnl_pct": -0.38,
       "weight": 42.6
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 10:50",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "buy",
+      "shares": 74000,
+      "price": 5.29,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 10:50",
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "shares": 98200,
+      "price": 3.99,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 10:45",
       "code": "000002",
@@ -482,24 +500,6 @@
       "action": "buy",
       "shares": 700,
       "price": 172.5,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 09:35",
-      "code": "301269",
-      "name": "华大九天",
-      "action": "sell",
-      "shares": 1400,
-      "price": 91.82,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-07 09:35",
-      "code": "600048",
-      "name": "保利发展",
-      "action": "buy",
-      "shares": 4100,
-      "price": 6.42,
       "reason": "smart_rebalance"
     }
   ]
