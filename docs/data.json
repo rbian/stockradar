@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9243,
-    "total_return": -7.57,
-    "max_drawdown": -8.72,
+    "nav": 0.9317,
+    "total_return": -6.83,
+    "max_drawdown": -7.99,
     "holdings_count": 5,
-    "total_trades": 107,
+    "total_trades": 109,
     "initial_capital": 1000000,
-    "current_value": 929028.0,
-    "cash": 6334.0
+    "current_value": 926385.0,
+    "cash": 13883.0
   },
   "nav_history": [
     {
@@ -76,6 +76,12 @@
       "date": "2026-05-07",
       "nav": 0.9243,
       "market_value": 917971.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-05-08",
+      "nav": 0.9317,
+      "market_value": 917768.0,
       "holdings_count": 5
     }
   ],
@@ -182,7 +188,7 @@
       "current_price": 27.55,
       "market_value": 385700.0,
       "pnl_pct": 2.99,
-      "weight": 41.3
+      "weight": 41.7
     },
     {
       "code": "603195",
@@ -192,17 +198,7 @@
       "current_price": 44.52,
       "market_value": 369516.0,
       "pnl_pct": 1.18,
-      "weight": 40.3
-    },
-    {
-      "code": "301269",
-      "name": "华大九天",
-      "shares": 1400,
-      "cost_price": 91.9,
-      "current_price": 92.53,
-      "market_value": 129542.0,
-      "pnl_pct": 0.69,
-      "weight": 14.2
+      "weight": 40.7
     },
     {
       "code": "300896",
@@ -223,9 +219,37 @@
       "market_value": 26240.0,
       "pnl_pct": -0.31,
       "weight": 2.9
+    },
+    {
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "shares": 700,
+      "cost_price": 172.5,
+      "current_price": 170.5,
+      "market_value": 119350.0,
+      "pnl_pct": -1.16,
+      "weight": 13.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 09:35",
+      "code": "300760",
+      "name": "迈瑞医疗",
+      "action": "buy",
+      "shares": 700,
+      "price": 172.5,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 09:35",
+      "code": "301269",
+      "name": "华大九天",
+      "action": "sell",
+      "shares": 1400,
+      "price": 91.82,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-07 09:35",
       "code": "600048",
@@ -476,24 +500,6 @@
       "action": "sell",
       "shares": 500,
       "price": 172.43,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:20",
-      "code": "301269",
-      "name": "华大九天",
-      "action": "buy",
-      "shares": 100,
-      "price": 92.67,
-      "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 10:15",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "buy",
-      "shares": 500,
-      "price": 172.38,
       "reason": "smart_rebalance"
     }
   ]
