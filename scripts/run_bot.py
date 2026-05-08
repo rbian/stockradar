@@ -514,7 +514,7 @@ def main():
                         total_assets_now = cash_now + held_value
                         pos_pct = held_value / total_assets_now if total_assets_now > 0 else 0
                         # 仓位<80%且有现金>5万时，尝试主动买入（新建仓或加仓已有持仓）
-                        if cash_now >= 50000 and pos_pct < 0.80:
+                        if cash_now >= 50000:
                             logger.info(f'主动建仓检查: 仓位{pos_pct*100:.0f}% 现金¥{cash_now:.0f} 持仓{len(holdings_now)}只 → 触发买入')
                             await _auto_buy(dq)
                         else:
@@ -608,8 +608,8 @@ def main():
                     if _auto_buy_price(c)
                 )
                 position_pct = (total_assets - tracker.cash) / total_assets if total_assets > 0 else 0
-                if position_pct >= 0.90:
-                    logger.info(f"仓位已达{position_pct*100:.1f}%，保留现金，跳过买入")
+                if tracker.cash < 10000:
+                    logger.info(f"现金仅¥{tracker.cash:.0f}，保留缓冲，跳过买入")
                     return
 
                 # Step 1: 因子评分排名
@@ -1242,17 +1242,13 @@ def main():
                 sell_pnl = (sell_price - h['cost_price']) * h['shares']
                 tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
-                # 买入（用卖出资金）+ 仓位检查
+                # 买入（用卖出资金）+ 保留最低现金缓冲
                 sell_amount = h['shares'] * sell_price
-                # 检查买入后仓位是否超过90%
-                total_assets_now = tracker.cash + sell_amount + sum(
-                    hh['shares'] * _get_rt_price(c) for c, hh in tracker.holdings.items() 
-                    if c != sell_candidate and _get_rt_price(c)
-                )
-                if total_assets_now > 0 and buy_price > 0:
-                    max_buy_amount = total_assets_now * 0.90 - (total_assets_now - sell_amount)
-                    if max_buy_amount < sell_amount:
-                        sell_amount = max(max_buy_amount, 0)
+                # 买入后现金不低于¥5000（手续费+应急缓冲）
+                min_cash_buffer = 5000
+                available = tracker.cash + sell_amount - min_cash_buffer
+                if available < sell_amount:
+                    sell_amount = max(available, 0)
                 buy_shares = int(sell_amount / buy_price / 100) * 100
                 if buy_shares < 100:
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
