@@ -1,14 +1,14 @@
 {
-  "updated": "2026-05-07",
+  "updated": "2026-05-08",
   "stats": {
-    "latest_date": "2026-05-07",
+    "latest_date": "2026-05-08",
     "nav": 0.9012,
     "total_return": -9.88,
     "max_drawdown": -11.0,
     "holdings_count": 5,
     "total_trades": 204,
     "initial_capital": 1000000,
-    "current_value": 896823.0,
+    "current_value": 901231.0,
     "cash": 110.0
   },
   "nav_history": [
@@ -177,6 +177,10 @@
     {
       "date": "2026-05-07",
       "nav": 1.1727
+    },
+    {
+      "date": "2026-05-08",
+      "nav": 1.1242
     }
   ],
   "holdings": [
@@ -185,9 +189,9 @@
       "name": "公牛集团",
       "shares": 8300,
       "cost_price": 44.0,
-      "current_price": 44.52,
-      "market_value": 369516.0,
-      "pnl_pct": 1.18,
+      "current_price": 44.8,
+      "market_value": 371840.0,
+      "pnl_pct": 1.82,
       "weight": 40.8
     },
     {
@@ -195,9 +199,9 @@
       "name": "保利发展",
       "shares": 5600,
       "cost_price": 6.43,
-      "current_price": 6.4,
-      "market_value": 35840.0,
-      "pnl_pct": -0.47,
+      "current_price": 6.43,
+      "market_value": 36008.0,
+      "pnl_pct": 0.0,
       "weight": 4.0
     },
     {
@@ -205,9 +209,9 @@
       "name": "迈瑞医疗",
       "shares": 700,
       "cost_price": 172.5,
-      "current_price": 170.5,
-      "market_value": 119350.0,
-      "pnl_pct": -1.16,
+      "current_price": 170.61,
+      "market_value": 119427.0,
+      "pnl_pct": -1.1,
       "weight": 13.5
     },
     {
@@ -215,9 +219,9 @@
       "name": "青岛啤酒",
       "shares": 100,
       "cost_price": 62.43,
-      "current_price": 62.45,
-      "market_value": 6245.0,
-      "pnl_pct": 0.03,
+      "current_price": 62.46,
+      "market_value": 6246.0,
+      "pnl_pct": 0.05,
       "weight": 0.7
     },
     {
@@ -225,9 +229,9 @@
       "name": "万科A",
       "shares": 91900,
       "cost_price": 4.0,
-      "current_price": 3.98,
-      "market_value": 365762.0,
-      "pnl_pct": -0.5,
+      "current_price": 4.0,
+      "market_value": 367600.0,
+      "pnl_pct": 0.0,
       "weight": 41.0
     }
   ],
