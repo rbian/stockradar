@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9147,
-    "total_return": -8.53,
-    "max_drawdown": -9.67,
+    "nav": 0.9148,
+    "total_return": -8.52,
+    "max_drawdown": -9.66,
     "holdings_count": 5,
-    "total_trades": 170,
+    "total_trades": 172,
     "initial_capital": 1000000,
-    "current_value": 907795.0,
-    "cash": 39.0
+    "current_value": 910371.0,
+    "cash": 126.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9147,
-      "market_value": 914645.0,
+      "nav": 0.9148,
+      "market_value": 914684.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "601006",
-      "name": "大秦铁路",
-      "shares": 71500,
-      "cost_price": 5.33,
-      "current_price": 5.27,
-      "market_value": 376805.0,
-      "pnl_pct": -1.13,
+      "code": "000002",
+      "name": "万科A",
+      "shares": 95300,
+      "cost_price": 3.99,
+      "current_price": 3.98,
+      "market_value": 379294.0,
+      "pnl_pct": -0.25,
       "weight": 41.9
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 13:40",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 95300,
+      "price": 3.99,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 13:40",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "sell",
+      "shares": 71500,
+      "price": 5.33,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 13:35",
       "code": "601006",
@@ -482,24 +500,6 @@
       "action": "sell",
       "shares": 73600,
       "price": 5.29,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 11:00",
-      "code": "601006",
-      "name": "大秦铁路",
-      "action": "buy",
-      "shares": 73600,
-      "price": 5.29,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 11:00",
-      "code": "000002",
-      "name": "万科A",
-      "action": "sell",
-      "shares": 97900,
-      "price": 3.98,
       "reason": "smart_rebalance"
     }
   ]
