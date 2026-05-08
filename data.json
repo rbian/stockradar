@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9327,
-    "total_return": -6.73,
-    "max_drawdown": -7.89,
+    "nav": 0.9315,
+    "total_return": -6.85,
+    "max_drawdown": -8.01,
     "holdings_count": 5,
-    "total_trades": 124,
+    "total_trades": 126,
     "initial_capital": 1000000,
-    "current_value": 926758.0,
-    "cash": 5767.0
+    "current_value": 925718.0,
+    "cash": 5314.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9327,
-      "market_value": 926916.0,
+      "nav": 0.9315,
+      "market_value": 926160.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "000002",
-      "name": "万科A",
-      "shares": 98000,
-      "cost_price": 4.0,
-      "current_price": 3.98,
-      "market_value": 390040.0,
-      "pnl_pct": -0.5,
+      "code": "601006",
+      "name": "大秦铁路",
+      "shares": 73900,
+      "cost_price": 5.3,
+      "current_price": 5.27,
+      "market_value": 389453.0,
+      "pnl_pct": -0.57,
       "weight": 42.6
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 10:20",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "buy",
+      "shares": 73900,
+      "price": 5.3,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 10:20",
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "shares": 98000,
+      "price": 4.0,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 10:15",
       "code": "000002",
@@ -483,24 +501,6 @@
       "shares": 100,
       "price": 91.79,
       "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 11:15",
-      "code": "301269",
-      "name": "华大九天",
-      "action": "buy",
-      "shares": 100,
-      "price": 91.88,
-      "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 11:10",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "buy",
-      "shares": 200,
-      "price": 172.19,
-      "reason": "smart_rebalance"
     }
   ]
 }
