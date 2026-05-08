@@ -387,14 +387,28 @@ def main():
         }
 
         def _save_nav(tracker, dq):
-            """保存nav状态并更新nav_history"""
+            """保存nav状态并更新nav_history — 使用实时行情计算市值"""
             try:
                 from datetime import date as _date
                 prices = {}
+                # 优先用实时行情计算持仓市值
+                held_codes = list(tracker.holdings.keys())
+                if held_codes:
+                    try:
+                        from src.data.sina_adapter import fetch_realtime_quotes
+                        rt = fetch_realtime_quotes(held_codes)
+                        if rt is not None and 'code' in rt.columns and len(rt) > 0:
+                            for _, row in rt.iterrows():
+                                prices[str(row['code'])] = float(row['close'])
+                    except Exception:
+                        pass  # fallback to dq
+                # 实时行情没拿到的，用dq缓存补
                 if dq is not None and 'code' in dq.columns:
-                    latest_d = dq['date'].max()
-                    today_dq = dq[dq['date'] == latest_d]
-                    prices = dict(zip(today_dq['code'].astype(str), today_dq['close']))
+                    for code in held_codes:
+                        if code not in prices:
+                            rows = dq[dq['code'] == code]
+                            if len(rows) > 0:
+                                prices[code] = float(rows.iloc[-1]['close'])
                 tracker.update_nav(_date.today().isoformat(), prices)
                 nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
                 import json as _json2
@@ -410,9 +424,35 @@ def main():
                 return False
             return date.today().weekday() < 5  # Mon-Fri
 
+        def _incr_trade_count():
+            """Increment global daily trade count"""
+            try:
+                _f = PROJECT_ROOT / 'data' / 'daily_trade_count.json'
+                _t = datetime.now().strftime('%Y-%m-%d')
+                try:
+                    _d = json.loads(_f.read_text()) if _f.exists() else {}
+                except Exception:
+                    _d = {}
+                _d[_t] = _d.get(_t, 0) + 1
+                _f.write_text(json.dumps(_d))
+            except Exception:
+                pass
+
         async def alert_check():
             if not _is_trading_day():
                 return
+            # === 全局每日交易次数限制 ===
+            _global_trade_file = PROJECT_ROOT / 'data' / 'daily_trade_count.json'
+            _gt_today = datetime.now().strftime('%Y-%m-%d')
+            try:
+                _gt_data = json.loads(_global_trade_file.read_text()) if _global_trade_file.exists() else {}
+            except Exception:
+                _gt_data = {}
+            _gt_count = _gt_data.get(_gt_today, 0)
+            if _gt_count >= 5:
+                logger.info(f'今日已执行{_gt_count}笔交易，全局上限5笔，跳过')
+                return
+
             try:
                 import json, pandas as pd
                 from src.simulator.alert_system import check_alerts, format_alerts
@@ -518,6 +558,7 @@ def main():
 
                 if sold:
                     _save_nav(tracker, dq)
+                    _incr_trade_count()
                     msg = f"🔴 **自动卖出执行**\n" + "\n".join(f"  • {s}" for s in sold)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -807,6 +848,7 @@ def main():
 
                 if bought:
                     _save_nav(tracker, dq)
+                    _incr_trade_count()
                     msg = f"🟢 **自动买入** (5重过滤)\n可用¥{tracker.cash:,.0f}\n" + "\n".join(f"  • {s}" for s in bought)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -960,6 +1002,7 @@ def main():
                         sold.append(f"{_sn(code)} {h['shares']}股@¥{price:.2f} ({reason})")
                     if sold:
                         _save_nav(tracker, dq)
+                        _incr_trade_count()
                         msg = f"📉 **一次性减仓** ({len(tracker.holdings)+len(sold)}→{len(tracker.holdings)})\n" + "\n".join(f"  • {s}" for s in sold)
                         for uid in ALLOWED_USERS:
                             await app.bot.send_message(chat_id=uid, text=msg)
@@ -1084,6 +1127,7 @@ def main():
 
                 if rebalance_actions:
                     _save_nav(tracker, dq)
+                    _incr_trade_count()
                     msg = "📊 **仓位调整**\n" + "\n".join(f"  • {a}" for a in rebalance_actions)
                     for uid in ALLOWED_USERS:
                         await app.bot.send_message(chat_id=uid, text=msg)
@@ -1198,13 +1242,21 @@ def main():
                 sell_pnl = (sell_price - h['cost_price']) * h['shares']
                 tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
-                # 买入（用卖出资金）
+                # 买入（用卖出资金）+ 仓位检查
                 sell_amount = h['shares'] * sell_price
+                # 检查买入后仓位是否超过90%
+                total_assets_now = tracker.cash + sell_amount + sum(
+                    hh['shares'] * _get_rt_price(c) for c, hh in tracker.holdings.items() 
+                    if c != sell_candidate and _get_rt_price(c)
+                )
+                if total_assets_now > 0 and buy_price > 0:
+                    max_buy_amount = total_assets_now * 0.90 - (total_assets_now - sell_amount)
+                    if max_buy_amount < sell_amount:
+                        sell_amount = max(max_buy_amount, 0)
                 buy_shares = int(sell_amount / buy_price / 100) * 100
                 if buy_shares < 100:
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
-                    # 钱不够买100股，回滚
-                    tracker._buy(sell_candidate, h['shares'], h['cost_price'], datetime.now().strftime('%Y-%m-%d %H:%M'), 'rollback')
+                    # 钱不够买100股，保留现金不回滚（避免乒乓）
                     return
                 tracker._buy(buy_candidate, buy_shares, buy_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
@@ -1217,6 +1269,7 @@ def main():
                 _swap_log[_today_date] = {'sells': list(_today_sells), 'buys': list(_today_buys), 'count': _swap_count + 1}
                 _daily_swap_file.parent.mkdir(exist_ok=True)
                 _daily_swap_file.write_text(json.dumps(_swap_log))
+                _incr_trade_count()
 
                 # 推送通知
                 msg = (
