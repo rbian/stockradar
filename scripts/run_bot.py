@@ -825,8 +825,22 @@ def main():
             2. 持仓股技术信号<35 → 减仓
             3. 非持仓股评分进入前10% + 技术面确认 → 买入
             4. 每次最多调换1只，避免频繁交易
+            5. 每只股票每天最多买卖各1次（防乒乓交易）
             """
             try:
+                # === 每日交易次数限制（防乒乓） ===
+                from pathlib import Path as _P_daily
+                _daily_swap_file = PROJECT_ROOT / 'data' / 'daily_swaps.json'
+                _today_date = datetime.now().strftime('%Y-%m-%d')
+                try:
+                    _swap_log = json.loads(_daily_swap_file.read_text()) if _daily_swap_file.exists() else {}
+                except Exception:
+                    _swap_log = {}
+                # 只保留今天记录
+                _swap_log = {k: v for k, v in _swap_log.items() if k == _today_date}
+                _today_sells = set(_swap_log.get(_today_date, {}).get('sells', []))
+                _today_buys = set(_swap_log.get(_today_date, {}).get('buys', []))
+                _swap_count = _swap_log.get(_today_date, {}).get('count', 0)
                 from datetime import date as _date
                 today = _date.today().isoformat()
                 from src.simulator.nav_tracker import NAVTracker
@@ -1153,6 +1167,17 @@ def main():
                     logger.info(f"调仓: 卖出候选={sell_candidate}({sell_reason}) 但无更好买入标的")
                     return  # 没有更好的标的
 
+                # === 每日调仓次数限制 ===
+                if _swap_count >= 2:
+                    logger.info(f'今日已调仓{_swap_count}次，跳过')
+                    return
+                if sell_candidate in _today_sells:
+                    logger.info(f'今日已卖出过{sell_candidate}，跳过')
+                    return
+                if buy_candidate in _today_buys:
+                    logger.info(f'今日已买入过{buy_candidate}，跳过')
+                    return
+
                 # === 执行调仓: 卖1只 + 买1只 ===
                 sell_price = _get_rt_price(sell_candidate)
                 # 买入候选可能不在持仓中，需要单独获取价格
@@ -1185,6 +1210,13 @@ def main():
 
                 # 保存
                 _save_nav(tracker, dq)
+
+                # 记录每日交易（防乒乓）
+                _today_sells.add(sell_candidate)
+                _today_buys.add(buy_candidate)
+                _swap_log[_today_date] = {'sells': list(_today_sells), 'buys': list(_today_buys), 'count': _swap_count + 1}
+                _daily_swap_file.parent.mkdir(exist_ok=True)
+                _daily_swap_file.write_text(json.dumps(_swap_log))
 
                 # 推送通知
                 msg = (
