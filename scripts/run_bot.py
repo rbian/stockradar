@@ -880,9 +880,7 @@ def main():
                     _swap_log = {}
                 # 只保留今天记录
                 _swap_log = {k: v for k, v in _swap_log.items() if k == _today_date}
-                _today_sells = set(_swap_log.get(_today_date, {}).get('sells', []))
-                _today_buys = set(_swap_log.get(_today_date, {}).get('buys', []))
-                _swap_count = _swap_log.get(_today_date, {}).get('count', 0)
+                _today_swap_pairs = _swap_log.get(_today_date, {}).get('pairs', [])
                 from datetime import date as _date
                 today = _date.today().isoformat()
                 from src.simulator.nav_tracker import NAVTracker
@@ -1211,15 +1209,16 @@ def main():
                     logger.info(f"调仓: 卖出候选={sell_candidate}({sell_reason}) 但无更好买入标的")
                     return  # 没有更好的标的
 
-                # === 每日调仓次数限制 ===
-                if _swap_count >= 2:
-                    logger.info(f'今日已调仓{_swap_count}次，跳过')
+                # === 防乒乓：同一对股票不重复调仓 ===
+                # 今天卖A买B后，不能再卖B买A（但卖C买D可以）
+                swap_pair = f"{sell_candidate}>{buy_candidate}"
+                reverse_pair = f"{buy_candidate}>{sell_candidate}"
+                _today_swap_pairs = _swap_log.get(_today_date, {}).get('pairs', [])
+                if reverse_pair in _today_swap_pairs:
+                    logger.info(f'乒乓防护: 今日已调仓{reverse_pair}，跳过反向操作')
                     return
-                if sell_candidate in _today_sells:
-                    logger.info(f'今日已卖出过{sell_candidate}，跳过')
-                    return
-                if buy_candidate in _today_buys:
-                    logger.info(f'今日已买入过{buy_candidate}，跳过')
+                if swap_pair in _today_swap_pairs:
+                    logger.info(f'今日已调仓{swap_pair}，跳过重复操作')
                     return
 
                 # === 执行调仓: 卖1只 + 买1只 ===
@@ -1260,9 +1259,9 @@ def main():
                 _save_nav(tracker, dq)
 
                 # 记录每日交易（防乒乓）
-                _today_sells.add(sell_candidate)
-                _today_buys.add(buy_candidate)
-                _swap_log[_today_date] = {'sells': list(_today_sells), 'buys': list(_today_buys), 'count': _swap_count + 1}
+                _today_swap_pairs = _swap_log.get(_today_date, {}).get('pairs', [])
+                _today_swap_pairs.append(swap_pair)
+                _swap_log[_today_date] = {'pairs': _today_swap_pairs}
                 _daily_swap_file.parent.mkdir(exist_ok=True)
                 _daily_swap_file.write_text(json.dumps(_swap_log))
                 _incr_trade_count()
