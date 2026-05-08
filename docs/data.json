@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9022,
-    "total_return": -9.78,
-    "max_drawdown": -10.9,
+    "nav": 0.9012,
+    "total_return": -9.88,
+    "max_drawdown": -11.0,
     "holdings_count": 5,
-    "total_trades": 202,
+    "total_trades": 204,
     "initial_capital": 1000000,
-    "current_value": 895936.0,
-    "cash": 301.0
+    "current_value": 896823.0,
+    "cash": 110.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9022,
-      "market_value": 901875.0,
+      "nav": 0.9012,
+      "market_value": 901129.0,
       "holdings_count": 5
     }
   ],
@@ -188,7 +188,7 @@
       "current_price": 44.52,
       "market_value": 369516.0,
       "pnl_pct": 1.18,
-      "weight": 40.7
+      "weight": 40.8
     },
     {
       "code": "600048",
@@ -221,18 +221,36 @@
       "weight": 0.7
     },
     {
-      "code": "601006",
-      "name": "大秦铁路",
-      "shares": 69200,
-      "cost_price": 5.33,
-      "current_price": 5.27,
-      "market_value": 364684.0,
-      "pnl_pct": -1.13,
-      "weight": 41.1
+      "code": "000002",
+      "name": "万科A",
+      "shares": 91900,
+      "cost_price": 4.0,
+      "current_price": 3.98,
+      "market_value": 365762.0,
+      "pnl_pct": -0.5,
+      "weight": 41.0
     }
   ],
   "trades": [
     {
+      "date": "2026-05-08 15:00",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 91900,
+      "price": 4.0,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 15:00",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "sell",
+      "shares": 69200,
+      "price": 5.32,
+      "reason": "smart_rebalance"
+    },
+    {
       "date": "2026-05-08 14:55",
       "code": "601006",
       "name": "大秦铁路",
@@ -482,24 +500,6 @@
       "action": "sell",
       "shares": 71400,
       "price": 5.33,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 13:45",
-      "code": "601006",
-      "name": "大秦铁路",
-      "action": "buy",
-      "shares": 71400,
-      "price": 5.33,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 13:45",
-      "code": "000002",
-      "name": "万科A",
-      "action": "sell",
-      "shares": 95300,
-      "price": 4.0,
       "reason": "smart_rebalance"
     }
   ]
