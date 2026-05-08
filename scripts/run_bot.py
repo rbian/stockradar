@@ -449,9 +449,11 @@ def main():
             except Exception:
                 _gt_data = {}
             _gt_count = _gt_data.get(_gt_today, 0)
-            if _gt_count >= 5:
-                logger.info(f'今日已执行{_gt_count}笔交易，全局上限5笔，跳过')
+            if _gt_count >= 10:
+                logger.warning(f'⚠️ 今日已执行{_gt_count}笔交易，可能异常，跳过')
                 return
+            if _gt_count >= 5:
+                logger.warning(f'⚠️ 今日已执行{_gt_count}笔交易，超过5笔请关注')
 
             try:
                 import json, pandas as pd
