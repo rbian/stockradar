@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9063,
-    "total_return": -9.37,
-    "max_drawdown": -10.5,
+    "nav": 0.9053,
+    "total_return": -9.47,
+    "max_drawdown": -10.6,
     "holdings_count": 5,
-    "total_trades": 188,
+    "total_trades": 190,
     "initial_capital": 1000000,
-    "current_value": 902956.0,
-    "cash": 273.0
+    "current_value": 898037.0,
+    "cash": 294.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9063,
-      "market_value": 906028.0,
+      "nav": 0.9053,
+      "market_value": 904969.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "000002",
-      "name": "万科A",
-      "shares": 93400,
-      "cost_price": 3.98,
-      "current_price": 3.98,
-      "market_value": 371732.0,
-      "pnl_pct": 0.0,
+      "code": "601006",
+      "name": "大秦铁路",
+      "shares": 69600,
+      "cost_price": 5.33,
+      "current_price": 5.27,
+      "market_value": 366792.0,
+      "pnl_pct": -1.13,
       "weight": 41.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 14:25",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "buy",
+      "shares": 69600,
+      "price": 5.33,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 14:25",
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "shares": 93400,
+      "price": 3.98,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 14:20",
       "code": "000002",
@@ -482,24 +500,6 @@
       "action": "sell",
       "shares": 96900,
       "price": 3.96,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 13:10",
-      "code": "000002",
-      "name": "万科A",
-      "action": "buy",
-      "shares": 96900,
-      "price": 3.97,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 13:10",
-      "code": "601006",
-      "name": "大秦铁路",
-      "action": "sell",
-      "shares": 72500,
-      "price": 5.32,
       "reason": "smart_rebalance"
     }
   ]
