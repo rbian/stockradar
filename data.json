@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9345,
-    "total_return": -6.55,
-    "max_drawdown": -7.71,
+    "nav": 0.9333,
+    "total_return": -6.67,
+    "max_drawdown": -7.83,
     "holdings_count": 5,
-    "total_trades": 114,
+    "total_trades": 116,
     "initial_capital": 1000000,
-    "current_value": 928230.0,
-    "cash": 8880.0
+    "current_value": 925279.0,
+    "cash": 8268.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9345,
-      "market_value": 925626.0,
+      "nav": 0.9333,
+      "market_value": 924992.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "601006",
-      "name": "大秦铁路",
-      "shares": 73700,
-      "cost_price": 5.28,
-      "current_price": 5.27,
-      "market_value": 388399.0,
-      "pnl_pct": -0.19,
+      "code": "000002",
+      "name": "万科A",
+      "shares": 97000,
+      "cost_price": 4.01,
+      "current_price": 3.98,
+      "market_value": 386060.0,
+      "pnl_pct": -0.75,
       "weight": 42.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 09:55",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 97000,
+      "price": 4.01,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 09:55",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "sell",
+      "shares": 73700,
+      "price": 5.28,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 09:50",
       "code": "601006",
@@ -483,24 +501,6 @@
       "shares": 500,
       "price": 115.88,
       "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:45",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "sell",
-      "shares": 400,
-      "price": 172.09,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:40",
-      "code": "301269",
-      "name": "华大九天",
-      "action": "buy",
-      "shares": 100,
-      "price": 91.8,
-      "reason": "add_score1_sig83"
     }
   ]
 }
