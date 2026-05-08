@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9317,
-    "total_return": -6.83,
-    "max_drawdown": -7.99,
+    "nav": 0.9321,
+    "total_return": -6.79,
+    "max_drawdown": -7.95,
     "holdings_count": 5,
-    "total_trades": 109,
+    "total_trades": 110,
     "initial_capital": 1000000,
-    "current_value": 926385.0,
-    "cash": 13883.0
+    "current_value": 926285.0,
+    "cash": 4183.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9317,
-      "market_value": 917768.0,
+      "nav": 0.9321,
+      "market_value": 927946.0,
       "holdings_count": 5
     }
   ],
@@ -188,7 +188,7 @@
       "current_price": 27.55,
       "market_value": 385700.0,
       "pnl_pct": 2.99,
-      "weight": 41.7
+      "weight": 41.2
     },
     {
       "code": "603195",
@@ -198,7 +198,7 @@
       "current_price": 44.52,
       "market_value": 369516.0,
       "pnl_pct": 1.18,
-      "weight": 40.7
+      "weight": 40.2
     },
     {
       "code": "300896",
@@ -213,12 +213,12 @@
     {
       "code": "600048",
       "name": "保利发展",
-      "shares": 4100,
-      "cost_price": 6.42,
+      "shares": 5600,
+      "cost_price": 6.43,
       "current_price": 6.4,
-      "market_value": 26240.0,
-      "pnl_pct": -0.31,
-      "weight": 2.9
+      "market_value": 35840.0,
+      "pnl_pct": -0.47,
+      "weight": 4.0
     },
     {
       "code": "300760",
@@ -228,10 +228,19 @@
       "current_price": 170.5,
       "market_value": 119350.0,
       "pnl_pct": -1.16,
-      "weight": 13.4
+      "weight": 13.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 09:40",
+      "code": "600048",
+      "name": "保利发展",
+      "action": "buy",
+      "shares": 1500,
+      "price": 6.46,
+      "reason": "add_score1_sig71"
+    },
     {
       "date": "2026-05-08 09:35",
       "code": "300760",
@@ -491,15 +500,6 @@
       "action": "buy",
       "shares": 700,
       "price": 115.9,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:25",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "sell",
-      "shares": 500,
-      "price": 172.43,
       "reason": "smart_rebalance"
     }
   ]
