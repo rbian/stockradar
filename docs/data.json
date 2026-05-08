@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9243,
-    "total_return": -7.57,
-    "max_drawdown": -8.72,
+    "nav": 0.923,
+    "total_return": -7.7,
+    "max_drawdown": -8.85,
     "holdings_count": 5,
-    "total_trades": 142,
+    "total_trades": 144,
     "initial_capital": 1000000,
-    "current_value": 919705.0,
-    "cash": 882.0
+    "current_value": 920399.0,
+    "cash": 204.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9243,
-      "market_value": 923391.0,
+      "nav": 0.923,
+      "market_value": 922844.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "601006",
-      "name": "大秦铁路",
-      "shares": 73600,
-      "cost_price": 5.29,
-      "current_price": 5.27,
-      "market_value": 387872.0,
-      "pnl_pct": -0.38,
+      "code": "000002",
+      "name": "万科A",
+      "shares": 97800,
+      "cost_price": 3.98,
+      "current_price": 3.98,
+      "market_value": 389244.0,
+      "pnl_pct": 0.0,
       "weight": 42.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 11:05",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 97800,
+      "price": 3.98,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 11:05",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "sell",
+      "shares": 73600,
+      "price": 5.29,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 11:00",
       "code": "601006",
@@ -482,24 +500,6 @@
       "action": "sell",
       "shares": 73700,
       "price": 5.28,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 09:50",
-      "code": "601006",
-      "name": "大秦铁路",
-      "action": "buy",
-      "shares": 73700,
-      "price": 5.28,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 09:50",
-      "code": "603369",
-      "name": "今世缘",
-      "action": "sell",
-      "shares": 14000,
-      "price": 27.8,
       "reason": "smart_rebalance"
     }
   ]
