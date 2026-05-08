@@ -170,6 +170,9 @@ class NAVTracker:
         proceeds = shares * price * (1 - self.commission_rate)
         self.cash += proceeds
         h["shares"] -= shares
+        # 如果减到0股，清除持仓
+        if h["shares"] <= 0:
+            del self.holdings[code]
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
             "shares": shares, "price": price, "reason": reason,

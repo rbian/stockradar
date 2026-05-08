@@ -803,7 +803,6 @@ def main():
                     logger.debug(f'买入行情fallback: {_e}')
                     buy_dq = dq
 
-                per_stock = tracker.cash / len(buy_list)
                 bought = []
                 for c in buy_list:
                     code = c['code']
@@ -812,6 +811,9 @@ def main():
                         price = float(row.iloc[0]['close'])
                     else:
                         continue
+                    # 动态计算可买股数（用剩余现金）
+                    remaining_candidates = len(buy_list) - buy_list.index(c)
+                    per_stock = tracker.cash / max(remaining_candidates, 1)
                     shares = int(per_stock / price / 100) * 100
                     if shares >= 100:
                         # Devil's advocate check
@@ -998,6 +1000,10 @@ def main():
                         if not price:
                             continue
                         h = tracker.holdings[code]
+                        # T+1: 当天买入的不能卖
+                        if h.get('buy_date', '') == today:
+                            logger.info(f'减仓跳过{code}: 今天买入T+1限制')
+                            continue
                         tracker._sell(code, price, now_str, 'reduce_to_5')
                         sold.append(f"{_sn(code)} {h['shares']}股@¥{price:.2f} ({reason})")
                     if sold:
@@ -1165,6 +1171,11 @@ def main():
                     
                     # 强制换仓条件: 场外标的评分比持仓最差的高15%以上
                     if best_outside and worst_held_score > 0:
+                        # T+1: 强制换仓也不能卖今天买入的
+                        worst_h = tracker.holdings.get(worst_held_code, {})
+                        if worst_h.get('buy_date', '') == today:
+                            logger.info(f'强制换仓跳过{worst_held_code}: 今天买入T+1限制')
+                            return
                         score_improvement = (best_outside[1] - worst_held_score) / worst_held_score
                         if score_improvement >= 0.15:
                             sell_list = [(worst_held_code, f"评分{worst_held_score:.1f}(排名{worst_held_rank}) 远低于场外{best_outside[1]:.1f}")]
