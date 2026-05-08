@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9337,
-    "total_return": -6.63,
-    "max_drawdown": -7.79,
+    "nav": 0.9324,
+    "total_return": -6.76,
+    "max_drawdown": -7.92,
     "holdings_count": 5,
-    "total_trades": 118,
+    "total_trades": 120,
     "initial_capital": 1000000,
-    "current_value": 926905.0,
-    "cash": 7555.0
+    "current_value": 926383.0,
+    "cash": 6984.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9337,
-      "market_value": 926154.0,
+      "nav": 0.9324,
+      "market_value": 925430.0,
       "holdings_count": 5
     }
   ],
@@ -208,7 +208,7 @@
       "current_price": 170.5,
       "market_value": 119350.0,
       "pnl_pct": -1.16,
-      "weight": 13.2
+      "weight": 13.1
     },
     {
       "code": "600600",
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "601006",
-      "name": "大秦铁路",
-      "shares": 73700,
-      "cost_price": 5.29,
-      "current_price": 5.27,
-      "market_value": 388399.0,
-      "pnl_pct": -0.38,
+      "code": "000002",
+      "name": "万科A",
+      "shares": 97600,
+      "cost_price": 4.0,
+      "current_price": 3.98,
+      "market_value": 388448.0,
+      "pnl_pct": -0.5,
       "weight": 42.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 10:05",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 97600,
+      "price": 4.0,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 10:05",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "sell",
+      "shares": 73700,
+      "price": 5.3,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 10:00",
       "code": "601006",
@@ -483,24 +501,6 @@
       "shares": 100,
       "price": 91.34,
       "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 10:55",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "buy",
-      "shares": 300,
-      "price": 171.76,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:55",
-      "code": "300896",
-      "name": "爱美客",
-      "action": "sell",
-      "shares": 500,
-      "price": 115.68,
-      "reason": "smart_rebalance"
     }
   ]
 }
