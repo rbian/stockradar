@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9275,
-    "total_return": -7.25,
-    "max_drawdown": -8.4,
+    "nav": 0.9258,
+    "total_return": -7.42,
+    "max_drawdown": -8.57,
     "holdings_count": 5,
-    "total_trades": 138,
+    "total_trades": 140,
     "initial_capital": 1000000,
-    "current_value": 922977.0,
-    "cash": 2046.0
+    "current_value": 921956.0,
+    "cash": 1363.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9275,
-      "market_value": 925485.0,
+      "nav": 0.9258,
+      "market_value": 924395.0,
       "holdings_count": 5
     }
   ],
@@ -221,17 +221,35 @@
       "weight": 0.7
     },
     {
-      "code": "601006",
-      "name": "大秦铁路",
-      "shares": 74000,
-      "cost_price": 5.29,
-      "current_price": 5.27,
-      "market_value": 389980.0,
-      "pnl_pct": -0.38,
-      "weight": 42.6
+      "code": "000002",
+      "name": "万科A",
+      "shares": 97900,
+      "cost_price": 3.99,
+      "current_price": 3.98,
+      "market_value": 389642.0,
+      "pnl_pct": -0.25,
+      "weight": 42.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 10:55",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 97900,
+      "price": 3.99,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 10:55",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "sell",
+      "shares": 74000,
+      "price": 5.28,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 10:50",
       "code": "601006",
@@ -482,24 +500,6 @@
       "action": "sell",
       "shares": 100,
       "price": 116.72,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-08 09:40",
-      "code": "600048",
-      "name": "保利发展",
-      "action": "buy",
-      "shares": 1500,
-      "price": 6.46,
-      "reason": "add_score1_sig71"
-    },
-    {
-      "date": "2026-05-08 09:35",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "buy",
-      "shares": 700,
-      "price": 172.5,
       "reason": "smart_rebalance"
     }
   ]
