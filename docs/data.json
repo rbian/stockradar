@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9321,
-    "total_return": -6.79,
-    "max_drawdown": -7.95,
+    "nav": 0.9336,
+    "total_return": -6.64,
+    "max_drawdown": -7.8,
     "holdings_count": 5,
-    "total_trades": 110,
+    "total_trades": 112,
     "initial_capital": 1000000,
-    "current_value": 926285.0,
-    "cash": 4183.0
+    "current_value": 926245.0,
+    "cash": 9594.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9321,
-      "market_value": 927946.0,
+      "nav": 0.9336,
+      "market_value": 924010.0,
       "holdings_count": 5
     }
   ],
@@ -188,7 +188,7 @@
       "current_price": 27.55,
       "market_value": 385700.0,
       "pnl_pct": 2.99,
-      "weight": 41.2
+      "weight": 41.5
     },
     {
       "code": "603195",
@@ -198,17 +198,7 @@
       "current_price": 44.52,
       "market_value": 369516.0,
       "pnl_pct": 1.18,
-      "weight": 40.2
-    },
-    {
-      "code": "300896",
-      "name": "爱美客",
-      "shares": 100,
-      "cost_price": 115.7,
-      "current_price": 116.96,
-      "market_value": 11696.0,
-      "pnl_pct": 1.09,
-      "weight": 1.3
+      "weight": 40.5
     },
     {
       "code": "600048",
@@ -228,10 +218,38 @@
       "current_price": 170.5,
       "market_value": 119350.0,
       "pnl_pct": -1.16,
-      "weight": 13.3
+      "weight": 13.4
+    },
+    {
+      "code": "600600",
+      "name": "青岛啤酒",
+      "shares": 100,
+      "cost_price": 62.43,
+      "current_price": 62.45,
+      "market_value": 6245.0,
+      "pnl_pct": 0.03,
+      "weight": 0.7
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 09:45",
+      "code": "600600",
+      "name": "青岛啤酒",
+      "action": "buy",
+      "shares": 100,
+      "price": 62.43,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 09:45",
+      "code": "300896",
+      "name": "爱美客",
+      "action": "sell",
+      "shares": 100,
+      "price": 116.72,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 09:40",
       "code": "600048",
@@ -482,24 +500,6 @@
       "action": "sell",
       "shares": 700,
       "price": 115.94,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:30",
-      "code": "301269",
-      "name": "华大九天",
-      "action": "buy",
-      "shares": 100,
-      "price": 92.0,
-      "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 10:25",
-      "code": "300896",
-      "name": "爱美客",
-      "action": "buy",
-      "shares": 700,
-      "price": 115.9,
       "reason": "smart_rebalance"
     }
   ]
