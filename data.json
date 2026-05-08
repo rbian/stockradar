@@ -2,14 +2,14 @@
   "updated": "2026-05-07",
   "stats": {
     "latest_date": "2026-05-07",
-    "nav": 0.9336,
-    "total_return": -6.64,
-    "max_drawdown": -7.8,
+    "nav": 0.9345,
+    "total_return": -6.55,
+    "max_drawdown": -7.71,
     "holdings_count": 5,
-    "total_trades": 112,
+    "total_trades": 114,
     "initial_capital": 1000000,
-    "current_value": 926245.0,
-    "cash": 9594.0
+    "current_value": 928230.0,
+    "cash": 8880.0
   },
   "nav_history": [
     {
@@ -80,8 +80,8 @@
     },
     {
       "date": "2026-05-08",
-      "nav": 0.9336,
-      "market_value": 924010.0,
+      "nav": 0.9345,
+      "market_value": 925626.0,
       "holdings_count": 5
     }
   ],
@@ -181,16 +181,6 @@
   ],
   "holdings": [
     {
-      "code": "603369",
-      "name": "今世缘",
-      "shares": 14000,
-      "cost_price": 26.75,
-      "current_price": 27.55,
-      "market_value": 385700.0,
-      "pnl_pct": 2.99,
-      "weight": 41.5
-    },
-    {
       "code": "603195",
       "name": "公牛集团",
       "shares": 8300,
@@ -198,7 +188,7 @@
       "current_price": 44.52,
       "market_value": 369516.0,
       "pnl_pct": 1.18,
-      "weight": 40.5
+      "weight": 39.8
     },
     {
       "code": "600048",
@@ -208,7 +198,7 @@
       "current_price": 6.4,
       "market_value": 35840.0,
       "pnl_pct": -0.47,
-      "weight": 4.0
+      "weight": 3.9
     },
     {
       "code": "300760",
@@ -218,7 +208,7 @@
       "current_price": 170.5,
       "market_value": 119350.0,
       "pnl_pct": -1.16,
-      "weight": 13.4
+      "weight": 13.2
     },
     {
       "code": "600600",
@@ -229,9 +219,37 @@
       "market_value": 6245.0,
       "pnl_pct": 0.03,
       "weight": 0.7
+    },
+    {
+      "code": "601006",
+      "name": "大秦铁路",
+      "shares": 73700,
+      "cost_price": 5.28,
+      "current_price": 5.27,
+      "market_value": 388399.0,
+      "pnl_pct": -0.19,
+      "weight": 42.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-08 09:50",
+      "code": "601006",
+      "name": "大秦铁路",
+      "action": "buy",
+      "shares": 73700,
+      "price": 5.28,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-08 09:50",
+      "code": "603369",
+      "name": "今世缘",
+      "action": "sell",
+      "shares": 14000,
+      "price": 27.8,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-08 09:45",
       "code": "600600",
@@ -483,24 +501,6 @@
       "shares": 100,
       "price": 91.8,
       "reason": "add_score1_sig83"
-    },
-    {
-      "date": "2026-05-06 10:35",
-      "code": "300760",
-      "name": "迈瑞医疗",
-      "action": "buy",
-      "shares": 400,
-      "price": 172.37,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-06 10:35",
-      "code": "300896",
-      "name": "爱美客",
-      "action": "sell",
-      "shares": 700,
-      "price": 115.94,
-      "reason": "smart_rebalance"
     }
   ]
 }
