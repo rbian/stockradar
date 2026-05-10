@@ -46,6 +46,7 @@ class FactorEngine:
             calc_rsi, calc_macd_signal, calc_bollinger_width,
             calc_volume_price_divergence, calc_turnover_rate_change, calc_amplitude,
             calc_mean_reversion_score, calc_williams_r, calc_ichimoku_signal,
+    calc_sharpe_momentum,
             calc_sector_relative_momentum,
             calc_price_acceleration,
             calc_underwater_duration,
@@ -100,6 +101,7 @@ class FactorEngine:
             "price_acceleration": lambda d: calc_price_acceleration(d.get("daily_quote", pd.DataFrame())),
             "underwater_duration": lambda d: calc_underwater_duration(d.get("daily_quote", pd.DataFrame())),
             "candlestick_score": lambda d: calc_candlestick_score(d.get("daily_quote", pd.DataFrame())),
+            "sharpe_momentum": lambda d: calc_sharpe_momentum(d.get("daily_quote", pd.DataFrame()), 20),
             # Capital flow (5) — 接收 daily_quote + northbound
             "northbound_net_5d": lambda d: calc_northbound_net(d.get("daily_quote", pd.DataFrame()), d.get("northbound", pd.DataFrame())),
             "northbound_consecutive_days": lambda d: calc_northbound_consecutive(d.get("northbound", pd.DataFrame())),

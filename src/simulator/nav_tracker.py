@@ -118,7 +118,7 @@ class NAVTracker:
             old = self.holdings[code]
             total_shares = old["shares"] + shares
             avg_cost = (old["shares"] * old["cost_price"] + cost) / total_shares
-            self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": str(date)[:10]}
+            self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": old.get("buy_date", str(date)[:10])}
         else:
             self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10]}
 

@@ -875,3 +875,30 @@ def calc_underwater_duration(daily_df: pd.DataFrame, lookback: int = 60) -> pd.S
 
     result = daily_df.groupby("code").apply(underwater)
     return result
+
+
+def calc_sharpe_momentum(daily_df: pd.DataFrame, lookback: int = 20) -> pd.Series:
+    """夏普动量因子 — 风险调整后的动量（GitHub学习: risk-adjusted momentum）
+
+    思路来源: 量化研究显示，高Sharpe动量的股票比纯动量因子更稳定
+    计算: (收益率均值 / 收益率标准差) × sqrt(252) — 年化Sharpe
+    优势: 自动惩罚高波动股，奖励稳定上涨股
+    """
+    def sharpe(group):
+        if len(group) < lookback:
+            return np.nan
+        group = group.sort_values("date")
+        recent = group.tail(lookback)
+        returns = recent["close"].pct_change().dropna()
+        if len(returns) < 10:
+            return np.nan
+        mean_ret = returns.mean()
+        std_ret = returns.std()
+        if std_ret == 0 or np.isnan(std_ret):
+            return 0.0
+        sharpe_ratio = (mean_ret / std_ret) * np.sqrt(252)
+        # Clip to [-3, 3] range
+        return np.clip(sharpe_ratio, -3, 3)
+
+    result = daily_df.groupby("code").apply(sharpe)
+    return result

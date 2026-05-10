@@ -914,7 +914,7 @@ def main():
                 held = set(tracker.holdings.keys())
                 total_stocks = len(scores)
                 threshold_rank = int(total_stocks * 0.3)  # 前30%
-                top_rank = int(total_stocks * 0.1)  # 前10%
+                top_rank = int(total_stocks * 0.05)  # 前5% (收窄买入池，减少买入失误)
 
                 # 获取实时价格
                 rt_codes = list(held)
@@ -1192,15 +1192,27 @@ def main():
                 buy_candidate = None
                 buy_reason = ""
 
+                # 🛡️ 防止买入今天已卖出的股票（防乒乓）
+                _today_sold_codes = set()
+                for pair_str in _today_swap_pairs:
+                    sold_code = pair_str.split('>')[0]
+                    _today_sold_codes.add(sold_code)
+                # 也从减仓操作中收集
+                for code in [s[0] for s in sell_list]:
+                    _today_sold_codes.add(code)
+
                 for code in scores.index[:top_rank]:
                     if code in held:
+                        continue
+                    if code in _today_sold_codes:
+                        logger.info(f'乒乓防护: 跳过今日已卖出{code}')
                         continue
                     stock_data = dq_full[dq_full['code'] == code].tail(60)
                     if len(stock_data) < 30:
                         continue
                     tech = score_stock(stock_data)
                     sig = tech.get('signal_score', 0)
-                    if sig < 50:
+                    if sig < 60:
                         continue
                     close = stock_data['close']
                     ma20 = close.rolling(20).mean().iloc[-1]

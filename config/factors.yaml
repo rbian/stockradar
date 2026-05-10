@@ -1,275 +1,281 @@
 categories:
-  fundamental:
-    weight: 0.35
-    factors:
-      roe:
-        direction: higher_better
-        clip:
-        - 0
-        - 40
-      pe_percentile:
-        direction: lower_better
-        clip:
-        - 0
-        - 100
-        params:
-          lookback_days: 1095
-      revenue_yoy:
-        direction: higher_better
-        clip:
-        - -50
-        - 100
-      profit_yoy:
-        direction: higher_better
-        clip:
-        - -50
-        - 100
-      gross_margin:
-        direction: higher_better
-        clip:
-        - 0
-        - 80
-      ocf_ratio:
-        direction: higher_better
-        clip:
-        - -1
-        - 5
-      debt_ratio:
-        direction: lower_better
-        clip:
-        - 0
-        - 100
-        invert: true
-      goodwill_ratio:
-        direction: lower_better
-        clip:
-        - 0
-        - 50
-        invert: true
-      peg:
-        direction: higher_better
-        clip:
-        - -5
-        - 20
-      operating_leverage:
-        direction: higher_better
-        clip:
-        - -5
-        - 10
-      inventory_turnover:
-        direction: higher_better
-        clip:
-        - 0
-        - 50
-      accrual_ratio:
-        direction: lower_better
-        clip:
-        - -1
-        - 1
-        invert: true
-  technical:
-    weight: 0.2
-    factors:
-      price_vs_ma20:
-        direction: higher_better
-        clip:
-        - -20
-        - 20
-        params:
-          period: 20
-      price_vs_ma60:
-        direction: higher_better
-        clip:
-        - -30
-        - 30
-        params:
-          period: 60
-      ma20_slope:
-        direction: higher_better
-        clip:
-        - -5
-        - 5
-        params:
-          period: 20
-      momentum_20d:
-        direction: higher_better
-        clip:
-        - -30
-        - 30
-        params:
-          period: 20
-      volatility_20d:
-        direction: lower_better
-        clip:
-        - 0
-        - 50
-        invert: true
-        params:
-          period: 20
-      max_drawdown_60d:
-        direction: lower_better
-        clip:
-        - 0
-        - 50
-        invert: true
-        params:
-          period: 60
-      rsi:
-        direction: higher_better
-        clip:
-        - 20
-        - 80
-        params:
-          period: 14
-      macd_signal:
-        direction: higher_better
-        clip: null
-      bollinger_width:
-        direction: higher_better
-        clip:
-        - 2
-        - 30
-        params:
-          period: 20
-      volume_price_divergence:
-        direction: higher_better
-        clip:
-        - -1
-        - 1
-        params:
-          period: 20
-      turnover_rate_change:
-        direction: higher_better
-        clip:
-        - -1
-        - 3
-        params:
-          period: 5
-      amplitude:
-        direction: lower_better
-        clip:
-        - 0
-        - 10
-        invert: true
-        params:
-          period: 10
-      mean_reversion_score:
-        direction: higher_better
-        clip:
-        - -100
-        - 100
-        params:
-          fast: 5
-          slow: 20
-      williams_r:
-        direction: lower_better
-        clip:
-        - -100
-        - 0
-        invert: true
-      ichimoku_signal:
-        direction: higher_better
-        clip:
-        - -100
-        - 100
-        params:
-          tenkan: 9
-          kijun: 26
-      sector_relative_momentum:
-        direction: higher_better
-        clip:
-        - -20
-        - 20
-        params:
-          period: 20
-      price_acceleration:
-        direction: higher_better
-        clip:
-        - -5
-        - 5
-        params:
-          fast: 5
-          slow: 20
-      candlestick_score:
-        direction: higher_better
-        clip:
-        - -1
-        - 1
-        params: {}
   capital_flow:
-    weight: 0.2
     factors:
-      northbound_net_5d:
-        direction: higher_better
-        clip: null
-        params:
-          period: 5
-      northbound_consecutive_days:
-        direction: higher_better
-        clip:
-        - -10
-        - 10
       main_force_net_1d:
-        direction: higher_better
         clip: null
+        direction: higher_better
       main_force_net_5d:
-        direction: higher_better
         clip: null
+        direction: higher_better
         params:
           period: 5
       margin_balance_change:
-        direction: higher_better
         clip: null
-  llm:
-    weight: 0.1
+        direction: higher_better
+      northbound_consecutive_days:
+        clip:
+        - -10
+        - 10
+        direction: higher_better
+      northbound_net_5d:
+        clip: null
+        direction: higher_better
+        params:
+          period: 5
+    weight: 0.2
+  fundamental:
     factors:
-      earnings_sentiment:
-        direction: higher_better
+      accrual_ratio:
         clip:
         - -1
         - 1
-      news_sentiment_7d:
-        direction: higher_better
-        clip:
-        - -1
-        - 1
-        params:
-          lookback_days: 7
-      research_consensus:
-        direction: higher_better
-        clip:
-        - -1
-        - 1
-  market_sentiment:
-    weight: 0.15
-    factors:
-      turnover_anomaly:
-        direction: higher_better
-        clip:
-        - 0
-        - 5
-        params:
-          period: 20
-      limit_up_count:
-        direction: higher_better
-        clip:
-        - 0
-        - 5
-        params:
-          period: 20
-      high_low_position:
         direction: lower_better
+        invert: true
+      debt_ratio:
         clip:
         - 0
         - 100
+        direction: lower_better
+        invert: true
+      goodwill_ratio:
+        clip:
+        - 0
+        - 50
+        direction: lower_better
+        invert: true
+      gross_margin:
+        clip:
+        - 0
+        - 80
+        direction: higher_better
+      inventory_turnover:
+        clip:
+        - 0
+        - 50
+        direction: higher_better
+      ocf_ratio:
+        clip:
+        - -1
+        - 5
+        direction: higher_better
+      operating_leverage:
+        clip:
+        - -5
+        - 10
+        direction: higher_better
+      pe_percentile:
+        clip:
+        - 0
+        - 100
+        direction: lower_better
+        params:
+          lookback_days: 1095
+      peg:
+        clip:
+        - -5
+        - 20
+        direction: higher_better
+      profit_yoy:
+        clip:
+        - -50
+        - 100
+        direction: higher_better
+      revenue_yoy:
+        clip:
+        - -50
+        - 100
+        direction: higher_better
+      roe:
+        clip:
+        - 0
+        - 40
+        direction: higher_better
+    weight: 0.35
+  llm:
+    factors:
+      earnings_sentiment:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+      news_sentiment_7d:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+        params:
+          lookback_days: 7
+      research_consensus:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+    weight: 0.1
+  market_sentiment:
+    factors:
+      high_low_position:
+        clip:
+        - 0
+        - 100
+        direction: lower_better
         invert: true
         params:
           period: 60
-      volume_ratio:
-        direction: higher_better
+      limit_up_count:
         clip:
         - 0
         - 5
+        direction: higher_better
         params:
-          short_period: 5
+          period: 20
+      turnover_anomaly:
+        clip:
+        - 0
+        - 5
+        direction: higher_better
+        params:
+          period: 20
+      volume_ratio:
+        clip:
+        - 0
+        - 5
+        direction: higher_better
+        params:
           long_period: 20
+          short_period: 5
+    weight: 0.15
+  technical:
+    factors:
+      amplitude:
+        clip:
+        - 0
+        - 10
+        direction: lower_better
+        invert: true
+        params:
+          period: 10
+      bollinger_width:
+        clip:
+        - 2
+        - 30
+        direction: higher_better
+        params:
+          period: 20
+      candlestick_score:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+        params: {}
+      ichimoku_signal:
+        clip:
+        - -100
+        - 100
+        direction: higher_better
+        params:
+          kijun: 26
+          tenkan: 9
+      ma20_slope:
+        clip:
+        - -5
+        - 5
+        direction: higher_better
+        params:
+          period: 20
+      macd_signal:
+        clip: null
+        direction: higher_better
+      max_drawdown_60d:
+        clip:
+        - 0
+        - 50
+        direction: lower_better
+        invert: true
+        params:
+          period: 60
+      mean_reversion_score:
+        clip:
+        - -100
+        - 100
+        direction: higher_better
+        params:
+          fast: 5
+          slow: 20
+      momentum_20d:
+        clip:
+        - -30
+        - 30
+        direction: higher_better
+        params:
+          period: 20
+      price_acceleration:
+        clip:
+        - -5
+        - 5
+        direction: higher_better
+        params:
+          fast: 5
+          slow: 20
+      price_vs_ma20:
+        clip:
+        - -20
+        - 20
+        direction: higher_better
+        params:
+          period: 20
+      price_vs_ma60:
+        clip:
+        - -30
+        - 30
+        direction: higher_better
+        params:
+          period: 60
+      rsi:
+        clip:
+        - 20
+        - 80
+        direction: higher_better
+        params:
+          period: 14
+      sector_relative_momentum:
+        clip:
+        - -20
+        - 20
+        direction: higher_better
+        params:
+          period: 20
+      sharpe_momentum:
+        clip:
+        - -3
+        - 3
+        direction: higher_better
+        weight: 1.5
+      turnover_rate_change:
+        clip:
+        - -1
+        - 3
+        direction: higher_better
+        params:
+          period: 5
+      volatility_20d:
+        clip:
+        - 0
+        - 50
+        direction: lower_better
+        invert: true
+        params:
+          period: 20
+      volume_price_divergence:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+        params:
+          period: 20
+      williams_r:
+        clip:
+        - -100
+        - 0
+        direction: lower_better
+        invert: true
+    weight: 0.2
