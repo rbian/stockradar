@@ -76,9 +76,14 @@ class NAVTracker:
                 if pnl <= self.stop_loss:
                     self._sell(code, prices[code], date, f"止损({pnl:+.1f}%)")
 
-        # 卖出: 不在目标也不在缓冲区的
+        # 卖出: 不在目标也不在缓冲区的 (T+1检查)
+        today_str = str(date)[:10]
         for code in list(self.holdings.keys()):
             if code not in target_codes and code not in watchlist:
+                # T+1: 今天买入的不能卖出
+                h = self.holdings.get(code, {})
+                if h.get("buy_date") == today_str:
+                    continue
                 if code in prices and prices[code] > 0:
                     self._sell(code, prices[code], date, reason)
 
@@ -91,6 +96,10 @@ class NAVTracker:
                 sold = False
                 for code in list(self.holdings.keys()):
                     if code not in target_codes:
+                        # T+1: 今天买入的不能卖出
+                        bh = self.holdings.get(code, {})
+                        if bh.get("buy_date") == today_str:
+                            continue
                         if code in prices and prices[code] > 0:
                             self._sell(code, prices[code], date, "腾位")
                             sold = True
@@ -101,6 +110,13 @@ class NAVTracker:
             per_stock = self.cash / max(len(new_codes), 1)
             for code in new_codes:
                 if code in prices and prices[code] > 0:
+                    # 最低评分门槛: 排除评分过低的股票
+                    if code in scores.index:
+                        code_score = scores.loc[code, "score_total"]
+                        median_score = scores["score_total"].median()
+                        if code_score < median_score * 0.5:
+                            logger.info(f"跳过{code}: 评分{code_score:.2f}低于中位数的50%({median_score:.2f})")
+                            continue
                     shares = int(per_stock / prices[code] / 100) * 100
                     if shares >= 100:
                         self._buy(code, shares, prices[code], date, reason)
@@ -117,7 +133,7 @@ class NAVTracker:
         if code in self.holdings:
             old = self.holdings[code]
             total_shares = old["shares"] + shares
-            avg_cost = (old["shares"] * old["cost_price"] + cost) / total_shares
+            avg_cost = (old["shares"] * old["cost_price"] + shares * price) / total_shares
             self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": old.get("buy_date", str(date)[:10])}
         else:
             self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10]}
@@ -192,7 +208,7 @@ class NAVTracker:
         if cost > self.cash:
             return
         self.cash -= cost
-        # 加权平均成本
+        # 加权平均成本 (不含佣金，与_buy保持一致)
         total_shares = h["shares"] + shares
         h["cost_price"] = round((h["cost_price"] * h["shares"] + price * shares) / total_shares, 2)
         h["shares"] = total_shares

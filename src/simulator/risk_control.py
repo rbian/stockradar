@@ -41,13 +41,31 @@ def check_risk(holdings: dict, prices: dict, include_time_stop: bool = True,
         
         pnl_pct = (price / cost - 1)
         
-        # 止损线: -15%
+        # 止损线: -15% (需确认，防止过早止损)
         if pnl_pct <= -0.15:
-            alerts.append({
-                "code": code, "action": "sell", "ratio": 1.0,
-                "reason": f"止损 (亏损{pnl_pct*100:.1f}%)",
-                "urgency": "high",
-            })
+            try:
+                from src.risk_management.stop_loss_confirmation import StopLossConfirmation
+                slc = StopLossConfirmation()
+                result = slc.check(code, pnl_pct)
+                if result["execute"]:
+                    alerts.append({
+                        "code": code, "action": "sell", "ratio": 1.0,
+                        "reason": result["reason"],
+                        "urgency": "high",
+                    })
+                elif result["status"] == "pending":
+                    alerts.append({
+                        "code": code, "action": "watch",
+                        "reason": result["reason"] + " — 明日再触发则执行",
+                        "urgency": "medium",
+                    })
+            except Exception as e:
+                # 降级: 直接止损
+                alerts.append({
+                    "code": code, "action": "sell", "ratio": 1.0,
+                    "reason": f"止损 (亏损{pnl_pct*100:.1f}%)",
+                    "urgency": "high",
+                })
         # 减仓线: -8%
         elif pnl_pct <= -0.08:
             alerts.append({
