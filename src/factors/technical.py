@@ -902,3 +902,52 @@ def calc_sharpe_momentum(daily_df: pd.DataFrame, lookback: int = 20) -> pd.Serie
 
     result = daily_df.groupby("code").apply(sharpe)
     return result
+
+
+def calc_updown_volume_ratio(daily_df: pd.DataFrame, lookback: int = 20) -> pd.Series:
+    """上涨/下跌成交量比因子 (GitHub学习: Qlib Alpha158中的经典量价因子)
+
+    思路: 上涨日的成交量 vs 下跌日的成交量
+    - ratio > 1: 上涨时放量，买方力量强 (看涨)
+    - ratio < 1: 下跌时放量，卖方力量强 (看跌)
+    
+    灵感来源: Qlib (42k⭐ microsoft/qlib) Alpha158特征集中的量价不对称因子
+    研究表明: 量价不对称是A股市场有效的短期alpha因子
+    
+    计算: sum(volume * sign(return)) / sum(volume) for recent N days
+    归一化到[-1, 1]范围
+    """
+    import numpy as np
+    
+    def updown_ratio(group):
+        if len(group) < lookback:
+            return np.nan
+        group = group.sort_values("date")
+        recent = group.tail(lookback)
+        if len(recent) < 5:
+            return np.nan
+        
+        returns = recent["close"].pct_change()
+        volumes = recent["volume"]
+        
+        # Drop first NaN
+        valid = returns.notna() & volumes.notna() & (volumes > 0)
+        if valid.sum() < 5:
+            return np.nan
+        
+        returns = returns[valid]
+        volumes = volumes[valid]
+        
+        # Volume-weighted direction
+        signed_volume = (returns * volumes).sum()
+        total_volume = volumes.sum()
+        
+        if total_volume == 0:
+            return 0.0
+        
+        ratio = signed_volume / total_volume
+        # Normalize: this is already roughly [-1, 1]
+        return np.clip(ratio * 10, -1, 1)  # Scale up for better signal
+    
+    result = daily_df.groupby("code").apply(updown_ratio)
+    return result

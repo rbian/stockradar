@@ -250,6 +250,12 @@ categories:
         - 3
         direction: higher_better
         weight: 1.5
+      updown_volume_ratio:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+        weight: 1.2
       turnover_rate_change:
         clip:
         - -1
