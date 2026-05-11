@@ -94,6 +94,34 @@
 - [ ] 可转债/ETF轮动
 
 
+
+
+### 2026-05-12 (周二) 选股+因子日
+1. ✅ **止损确认机制** — -15%止损需2天确认，防止过早止损(立讯精密x2案例)，-20%极端保护立即执行
+   - 新文件: `src/risk_management/stop_loss_confirmation.py`
+   - 集成到 `src/simulator/risk_control.py`
+2. ✅ **T+1检查增强** — rebalance卖出路径(含腾位卖出)增加buy_date检查，防止当日买入当日卖出
+   - 修复: `src/simulator/nav_tracker.py` rebalance()
+3. ✅ **最低评分门槛** — 买入时跳过评分低于中位数50%的股票，减少"买入一般"错误(10次)
+4. ✅ **加权平均成本修复** — _buy中avg_cost计算不再混合含/不含佣金的成本
+5. ✅ **新增量价不对称因子** (updown_volume_ratio) — Qlib Alpha158灵感
+   - 上涨日成交量vs下跌日成交量的方向性
+   - weight: 1.2, clip: [-1, 1]
+   - GitHub来源: microsoft/qlib (42k⭐)
+- commit: ec8becb + 7874564
+
+#### 代码审查发现
+- 🟡 _add_position avg cost: 已修复(与_buy保持一致)
+- 🟡 rebalance T+1: 已修复(两个卖出路径都加了检查)
+- 🟢 因子引擎NaN/除零: 处理正确
+- 🟢 _partial_sell零股清理: 正确
+- 🟢 nav_state当前空仓(cash=1M)，待bot启动后建仓
+
+#### 复盘驱动改进
+- "买入一般" 10次 → 添加最低评分门槛(中位数50%)
+- "过早止损" 2次(¥920) → 添加2天止损确认机制
+- "卖飞" 1次(¥1644) → 已有移动止盈(trailing_take_profit.py)，继续观察
+
 ## 2026-04-14 (周二) 改进记录
 
 ### 改进1: ATR + Volume Trend 新因子
