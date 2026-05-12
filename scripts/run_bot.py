@@ -1264,13 +1264,12 @@ def main():
                 tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
                 # 买入（用卖出资金）+ 保留最低现金缓冲
-                sell_amount = h['shares'] * sell_price
+                # FIX: _sell已将卖出收入加到tracker.cash，不能重复加sell_amount
+                sell_amount = h['shares'] * sell_price  # 仅用于日志
                 # 买入后现金不低于¥5000（手续费+应急缓冲）
                 min_cash_buffer = 5000
-                available = tracker.cash + sell_amount - min_cash_buffer
-                if available < sell_amount:
-                    sell_amount = max(available, 0)
-                buy_shares = int(sell_amount / buy_price / 100) * 100
+                available = tracker.cash - min_cash_buffer  # cash已包含卖出收入
+                buy_shares = int(available / buy_price / 100) * 100
                 if buy_shares < 100:
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
                     # 钱不够买100股，保留现金不回滚（避免乒乓）
