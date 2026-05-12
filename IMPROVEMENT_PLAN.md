@@ -124,6 +124,15 @@
 
 ## 2026-04-14 (周二) 改进记录
 
+
+### 2026-05-13 (周三) 风控+仓位日
+1. ✅ **修复调仓买入金额重复计算** — _smart_rebalance中_sell已将卖出收入加到cash，但计算买入金额时又加了一次sell_amount，导致尝试买入超额。修复为直接用tracker.cash（已含卖出收入）
+2. ✅ **复盘驱动：收紧卖出阈值30%→25%** — 复盘发现"买入一般"10次（最多），调仓卖出阈值从前30%收紧到前25%，减少持仓质量下滑
+3. ✅ **止损确认机制集成** — StopLossConfirmation类已存在但_smart_rebalance直接硬编码止损-15%/-10%绕过了确认机制，导致过早止损（立讯精密x2案例）。现在在止损前先调用确认检查
+- commit: 2f66cc5, 59f9144, 2e9cd58
+- 🟡 IC追踪系统所有因子IC=0，需要排查（factor_tracker的_calc_factor_ic可能有key匹配问题）
+- 🟡 Phase 4: 复盘→自动调参闭环 仍需推进
+
 ### 改进1: ATR + Volume Trend 新因子
 - **GitHub学习**: 经典量化框架(Qlib/聚宽)中ATR是核心波动率因子，用于波动率调仓
 - **实现**: `calc_atr()` 和 `calc_volume_trend()` 添加到 technical.py
