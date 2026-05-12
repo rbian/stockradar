@@ -1066,7 +1066,17 @@ def main():
 
                     pnl_pct = (price - h['cost_price']) / h['cost_price']
 
-                    # 分批止损: -10%减半, -15%全清
+                    # 止损确认机制: 防止过早止损（复盘: 立讯精密x2，每次亏¥920）
+                    try:
+                        from src.risk_management.stop_loss_confirmation import StopLossConfirmation
+                        _slc = StopLossConfirmation()
+                        _sl_result = _slc.check(code, pnl_pct, today)
+                        if not _sl_result['execute']:
+                            if _sl_result['status'] in ('pending', 'waiting'):
+                                rebalance_actions.append(f"⏳ 止损待确认 {_sn(code)} ({_sl_result['reason']})")
+                            continue  # 不执行，等确认
+                    except Exception:
+                        pass  # 确认机制失败时fallback到直接止损
                     if pnl_pct <= -0.15:
                         tracker._sell(code, price, now_str, 'stop_loss_full')
                         rebalance_actions.append(f"🔴 全部止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
