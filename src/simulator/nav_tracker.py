@@ -174,6 +174,20 @@ class NAVTracker:
             log_trade(code, "sell", price, h["shares"], reason, pnl)
         except Exception:
             pass
+        # 记录到策略跟踪系统（闭环）
+        try:
+            from src.simulator.trade_tracker import record_trade
+            buy_date_str = str(h.get("buy_date", ""))[:10]
+            if buy_date_str:
+                from src.data.stock_names import stock_name as _sn
+                record_trade(
+                    code=code, name=_sn(code), action="sell",
+                    buy_price=cost_price, sell_price=price,
+                    shares=h["shares"], buy_date=buy_date_str,
+                    sell_date=str(date)[:10], reason=reason,
+                )
+        except Exception:
+            pass
         del self.holdings[code]
 
     def _partial_sell(self, code: str, shares: int, price: float, date, reason: str):

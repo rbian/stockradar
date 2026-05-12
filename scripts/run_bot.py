@@ -415,6 +415,13 @@ def main():
                 nav_file.write_text(_json2.dumps(tracker.to_dict(), ensure_ascii=False, indent=2))
             except Exception as e:
                 logger.error(f"save_nav失败: {e}")
+            # 更新每日统计
+            try:
+                from src.simulator.trade_tracker import update_daily_stats
+                update_daily_stats(nav_data={"nav": tracker.nav, "cash": tracker.cash, 
+                    "market_value": tracker.nav - tracker.cash}, holdings=tracker.holdings)
+            except Exception:
+                pass
 
         def _is_trading_day() -> bool:
             """判断今天是否为交易日"""
