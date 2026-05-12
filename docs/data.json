@@ -1,15 +1,15 @@
 {
-  "updated": "2026-05-11",
+  "updated": "2026-05-12",
   "stats": {
-    "latest_date": "2026-05-11",
-    "nav": 1.0,
-    "total_return": 0.0,
-    "max_drawdown": 0.0,
-    "holdings_count": 0,
-    "total_trades": 0,
+    "latest_date": "2026-05-12",
+    "nav": 0.999,
+    "total_return": -0.1,
+    "max_drawdown": -0.1,
+    "holdings_count": 3,
+    "total_trades": 3,
     "initial_capital": 1000000,
-    "current_value": 1000000.0,
-    "cash": 1000000.0
+    "current_value": 1006440.0,
+    "cash": 82.0
   },
   "nav_history": [
     {
@@ -17,6 +17,12 @@
       "nav": 1.0,
       "market_value": 0.0,
       "holdings_count": 0
+    },
+    {
+      "date": "2026-05-12",
+      "nav": 0.999,
+      "market_value": 998919.0,
+      "holdings_count": 3
     }
   ],
   "hs300_benchmark": [
@@ -27,8 +33,71 @@
     {
       "date": "2026-05-11",
       "nav": 1.0224
+    },
+    {
+      "date": "2026-05-12",
+      "nav": 1.0252
     }
   ],
-  "holdings": [],
-  "trades": []
+  "holdings": [
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "shares": 11900,
+      "cost_price": 27.97,
+      "current_price": 28.07,
+      "market_value": 334033.0,
+      "pnl_pct": 0.36,
+      "weight": 33.3
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "shares": 3700,
+      "cost_price": 88.52,
+      "current_price": 88.85,
+      "market_value": 328745.0,
+      "pnl_pct": 0.37,
+      "weight": 32.8
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "shares": 83800,
+      "cost_price": 4.04,
+      "current_price": 4.1,
+      "market_value": 343580.0,
+      "pnl_pct": 1.49,
+      "weight": 33.9
+    }
+  ],
+  "trades": [
+    {
+      "date": "2026-05-12 09:35",
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "shares": 83800,
+      "price": 4.04,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-05-12 09:35",
+      "code": "000661",
+      "name": "长春高新",
+      "action": "buy",
+      "shares": 3700,
+      "price": 88.52,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-05-12 09:35",
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "buy",
+      "shares": 11900,
+      "price": 27.97,
+      "reason": "auto_buy"
+    }
+  ]
 }
