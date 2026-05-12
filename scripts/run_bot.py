@@ -922,7 +922,7 @@ def main():
 
                 held = set(tracker.holdings.keys())
                 total_stocks = len(scores)
-                threshold_rank = int(total_stocks * 0.3)  # 前30%
+                threshold_rank = int(total_stocks * 0.25)  # 前25% (复盘: 买入一般10次→收紧)
                 top_rank = int(total_stocks * 0.1)  # 前10%
 
                 # 获取实时价格
