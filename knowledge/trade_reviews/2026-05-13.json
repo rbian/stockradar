@@ -1,0 +1,49 @@
+{
+  "date": "2026-05-13",
+  "total_reviews": 3,
+  "patterns": [],
+  "reviews": [
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 27.97,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.07
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 88.52,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.91
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 4.04,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.68
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    }
+  ]
+}

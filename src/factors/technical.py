@@ -951,3 +951,27 @@ def calc_updown_volume_ratio(daily_df: pd.DataFrame, lookback: int = 20) -> pd.S
     
     result = daily_df.groupby("code").apply(updown_ratio)
     return result
+
+
+def calc_vwap_deviation(daily_df: pd.DataFrame, period: int = 20) -> pd.Series:
+    """VWAP偏离度：当前价格相对N日成交量加权平均价的偏离
+    正值=价格在VWAP之上（强势），负值=在VWAP之下（弱势）
+    灵感来自机构交易中的VWAP基准，用于判断入场时机质量
+    """
+    import numpy as np
+
+    def vwap_dev(group):
+        if len(group) < period:
+            return np.nan
+        recent = group.tail(period)
+        vol = recent["volume"]
+        close = recent["close"]
+        if vol.sum() == 0:
+            return np.nan
+        vwap = (close * vol).sum() / vol.sum()
+        if vwap == 0:
+            return np.nan
+        return (close.iloc[-1] - vwap) / vwap * 100  # 百分比偏离
+
+    result = daily_df.groupby("code").apply(vwap_dev)
+    return result

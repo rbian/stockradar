@@ -244,6 +244,13 @@ categories:
         direction: higher_better
         params:
           period: 20
+      vwap_deviation:
+        clip:
+        - -10
+        - 10
+        direction: higher_better
+        params:
+          period: 20
       sharpe_momentum:
         clip:
         - -3

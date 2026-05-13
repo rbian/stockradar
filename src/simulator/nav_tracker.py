@@ -212,6 +212,18 @@ class NAVTracker:
             log_trade(code, "sell", price, shares, reason, pnl)
         except Exception:
             pass
+        # 记录减仓到策略跟踪（与_sell一致）
+        try:
+            from src.simulator.trade_tracker import record_trade
+            from src.data.stock_names import stock_name as _sn
+            record_trade(
+                code=code, name=_sn(code), action="partial_sell",
+                buy_price=cost_price, sell_price=price,
+                shares=shares, buy_date=str(h.get("buy_date", ""))[:10],
+                sell_date=str(date)[:10], reason=reason,
+            )
+        except Exception:
+            pass
 
     def _add_position(self, code: str, shares: int, price: float, date, reason: str):
         """加仓（已有持仓增持）"""

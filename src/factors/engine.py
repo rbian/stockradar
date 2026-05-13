@@ -51,6 +51,7 @@ class FactorEngine:
             calc_sector_relative_momentum,
             calc_price_acceleration,
             calc_underwater_duration,
+            calc_vwap_deviation,
         )
         from src.factors.capital_flow import (
             calc_northbound_net, calc_northbound_consecutive,
@@ -104,6 +105,7 @@ class FactorEngine:
             "candlestick_score": lambda d: calc_candlestick_score(d.get("daily_quote", pd.DataFrame())),
             "sharpe_momentum": lambda d: calc_sharpe_momentum(d.get("daily_quote", pd.DataFrame()), 20),
             "updown_volume_ratio": lambda d: calc_updown_volume_ratio(d.get("daily_quote", pd.DataFrame()), 20),
+            "vwap_deviation": lambda d: calc_vwap_deviation(d.get("daily_quote", pd.DataFrame()), 20),
             # Capital flow (5) — 接收 daily_quote + northbound
             "northbound_net_5d": lambda d: calc_northbound_net(d.get("daily_quote", pd.DataFrame()), d.get("northbound", pd.DataFrame())),
             "northbound_consecutive_days": lambda d: calc_northbound_consecutive(d.get("northbound", pd.DataFrame())),
@@ -168,6 +170,8 @@ class FactorEngine:
                         normalized = (raw_values - raw_values.mean()) / std
 
                     # 方向调整
+                    # 防止NaN传播：填充NaN为0（缺失数据的因子不计分）
+                    normalized = normalized.fillna(0)
                     invert = factor_config.get("invert", False)
                     if invert or factor_config.get("direction") == "lower_better":
                         normalized = -normalized
