@@ -856,6 +856,21 @@ def main():
                                 continue
                         except Exception:
                             pass  # Heat check failure should not block trade
+                        # Consecutive loss protection: 缩减仓位
+                        try:
+                            from src.risk_management.consecutive_loss import ConsecutiveLossProtection
+                            _clp = ConsecutiveLossProtection()
+                            _cl_result = _clp.check(tracker)
+                            if not _cl_result['allowed']:
+                                logger.info(f"连续亏损保护拒绝买入{code}: {_cl_result['reason']}")
+                                continue
+                            if _cl_result['position_scale'] < 1.0:
+                                shares = int(shares * _cl_result['position_scale'] / 100) * 100
+                                logger.info(f"连续亏损保护: {_cl_result['reason']}, 仓位缩减至{shares}股")
+                                if shares < 100:
+                                    continue
+                        except Exception:
+                            pass
                         tracker._buy(code, shares, price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'auto_buy')
                         bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
 
@@ -1101,6 +1116,10 @@ def main():
                                         tracker._partial_sell(code, third, price, now_str, f'signal_weak_{sig}')
                                         rebalance_actions.append(f"⚠️ 减仓1/3 {_sn(code)} {third}股@¥{price:.2f} (信号{sig})")
                                         _today_reduced.add(code)
+                                        # 持久化减仓记录，防止重启后重复减仓
+                                        _daily_actions[today_act_key] = {'reduce': list(_today_reduced), 'add': list(_today_added)}
+                                        _act_log_file.parent.mkdir(exist_ok=True)
+                                        _act_log_file.write_text(_json_act.dumps(_daily_actions))
 
                 if len(tracker.holdings) <= 5 and tracker.cash >= 10000:
                     for code in list(held):
@@ -1148,6 +1167,10 @@ def main():
                                     _daily_adds[today] = list(_today_added)
                                     _add_log_file.parent.mkdir(exist_ok=True)
                                     _add_log_file.write_text(_json_add.dumps(_daily_adds))
+                                    # 同步到daily_actions.json
+                                    _daily_actions[today_act_key] = {'reduce': list(_today_reduced), 'add': list(_today_added)}
+                                    _act_log_file.parent.mkdir(exist_ok=True)
+                                    _act_log_file.write_text(_json_act.dumps(_daily_actions))
                                     break  # 每轮最多加仓1只
 
                 if rebalance_actions:
@@ -1284,6 +1307,21 @@ def main():
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
                     # 钱不够买100股，保留现金不回滚（避免乒乓）
                     return
+                # Consecutive loss protection for rebalance buy
+                try:
+                    from src.risk_management.consecutive_loss import ConsecutiveLossProtection
+                    _clp = ConsecutiveLossProtection()
+                    _cl_result = _clp.check(tracker)
+                    if not _cl_result['allowed']:
+                        logger.info(f"调仓买入被连续亏损保护拒绝: {_cl_result['reason']}")
+                        return
+                    if _cl_result['position_scale'] < 1.0:
+                        buy_shares = int(buy_shares * _cl_result['position_scale'] / 100) * 100
+                        logger.info(f"调仓仓位缩减: {_cl_result['reason']}")
+                        if buy_shares < 100:
+                            return
+                except Exception:
+                    pass
                 tracker._buy(buy_candidate, buy_shares, buy_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
 
                 # 保存

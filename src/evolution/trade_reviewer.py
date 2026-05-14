@@ -129,7 +129,7 @@ def _review_single_trade(trade: dict, dq: pd.DataFrame, review_date) -> dict | N
 def _judge_sell(trade: dict, returns: dict) -> dict:
     """Judge if a sell was correct"""
     pnl = trade.get("pnl", 0)
-    r5d = returns.get("5d", 0)
+    r5d = returns.get("5d", None)
     r10d = returns.get("10d", 0)
     reason = trade.get("reason", "")
 
@@ -177,7 +177,7 @@ def _judge_sell(trade: dict, returns: dict) -> dict:
 
 def _judge_buy(trade: dict, returns: dict) -> dict:
     """Judge if a buy was correct"""
-    r5d = returns.get("5d", 0)
+    r5d = returns.get("5d", None)
     r10d = returns.get("10d", 0)
 
     if r5d is None:
