@@ -43,6 +43,26 @@
 | Optuna优化 | 09:00 | 周六 (50 trials) |
 | GitHub Pages | 15:30 | 工作日 |
 
+
+### 2026-05-15 改进记录
+
+**代码审查发现:**
+- 🔴 现金仅¥1248（远低于¥5000缓冲线），需关注仓位管理
+- 🟡 daily_actions.json从未写入，减仓/加仓保护不持久（已修复）
+- 🟡 trade reviewer 5日回报全显示0%误导分析（已修复）
+- 🟡 日志中Telegram网络连接错误频繁（transient，自动恢复）
+
+**改进实施 (3项):**
+1. ✅ daily_actions.json持久化 — 减仓/加仓保护现在跨重启有效
+2. ✅ trade reviewer null检查 — 数据不足时显示insufficient_data而非+0.0%
+3. ✅ ConsecutiveLossProtection — 连续3笔亏损缩减仓位50%，连续5笔暂停买入
+
+**GitHub学习:**
+- 浏览Qbot (17k⭐) 和 qlibAssistant — 确认多因子+ML方向一致，暂无新的直接可用的alpha信号
+- Qbot的事件驱动交易流程值得后续参考
+
+**数据状态:** 2/20笔已平仓，暂不调参数
+
 ## 进度追踪
 
 ### Phase 1: 稳定性 ✅
