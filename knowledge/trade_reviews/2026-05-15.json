@@ -1,0 +1,105 @@
+{
+  "date": "2026-05-15",
+  "total_reviews": 7,
+  "patterns": [],
+  "reviews": [
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 27.97,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.07
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 88.52,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.91
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 4.04,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.68
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "date": "2026-05-13",
+      "price": 4.05,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -3.01
+      },
+      "outcome": "neutral",
+      "analysis": "卖出后5日+0.0%"
+    },
+    {
+      "code": "603392",
+      "name": "万泰生物",
+      "action": "buy",
+      "date": "2026-05-13",
+      "price": 42.22,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -4.71
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    },
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "sell",
+      "date": "2026-05-14",
+      "price": 27.62,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.94
+      },
+      "outcome": "neutral",
+      "analysis": "卖出后5日+0.0%"
+    },
+    {
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "buy",
+      "date": "2026-05-14",
+      "price": 15.76,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.33
+      },
+      "outcome": "good",
+      "analysis": "买入后5日+0.0%，表现尚可"
+    }
+  ]
+}
