@@ -793,3 +793,37 @@
 - GitHub学到: VWAP是机构交易核心基准，个人投资者可用VWAP偏离度判断当前价格相对"公平价值"的位置
 - 代码审查发现: 无严重bug，QVeris API key过期导致日报行情获取失败（非关键）
 - 数据状态: 1/20笔已平仓，暂不调参数
+
+### 2026-05-18 (周一) 复盘+策略日
+1. ✅ **🔴 修复乒乓防护回归** — `_today_sold_codes`在V4.0重构(af9f550)中丢失，导致同日卖后买回无防护
+   - _smart_rebalance买入循环: 收集_today_swap_pairs和sell_list中的已卖出代码
+   - _auto_buy: 从daily_swaps.json读取今日已卖出代码，过滤候选
+   - 防止类似爱美客(300896)同日卖后买回的乒乓交易
+
+2. ✅ **🟡 修复QVeris NoneType崩溃** — `_parse_table(data)`的data参数可能为None
+   - 添加 `if not data or not isinstance(data, dict): return pd.DataFrame()`
+   - 消除每日15:30日报中 "QVeris失败: 'NoneType' object has no attribute 'get'" 警告
+
+3. ✅ **🟢 新增隔夜缺口因子 (overnight_gap)** — A股特有alpha信号
+   - 计算lookback日内的加权平均隔夜缺口(open vs prev close)
+   - 近期缺口权重更大，捕捉短期情绪方向
+   - GitHub学习: OpenAlpha(ziyouqitan) A股因子池确认缺口因子有效性
+
+#### 代码审查发现
+- 🔴 乒乓防护丢失(2026-05-11→V4.0丢失) — 已修复
+- 🟡 QVeris NoneType持续报错(05-13~05-16) — 已修复
+- 🟢 现金¥1248(0.1%)，满仓状态，3只持仓各占~33%
+- 🟢 nav_tracker _buy/_sell/_partial_sell逻辑审查正确
+- 🟢 T+1检查在所有卖出路径存在
+- 🟢 止损确认机制已集成
+
+#### 复盘驱动
+- 数据状态: 2/20笔已平仓，暂不调参数
+- 已平仓: 万科A +0.25%(1天), 同仁堂 -1.25%(2天)
+- 无新错误模式
+
+#### GitHub学习
+- **OpenAlpha** (ziyouqitan): A股开源因子池，VWAP-close偏差确认已有，新增隔夜缺口因子
+- **AlphaForge** (AAAI2025): 动态组合公式化alpha因子，值得后续研究
+
+- commit: 38126c0
