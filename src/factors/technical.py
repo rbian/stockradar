@@ -975,3 +975,34 @@ def calc_vwap_deviation(daily_df: pd.DataFrame, period: int = 20) -> pd.Series:
 
     result = daily_df.groupby("code").apply(vwap_dev)
     return result
+
+
+def calc_overnight_gap(daily_df: pd.DataFrame, lookback: int = 10) -> pd.Series:
+    """隔夜缺口因子：今日开盘价相对昨日收盘价的偏离
+    A股特有alpha信号：
+    - 正缺口（跳空高开）代表隔夜看多情绪，短期有延续性
+    - 负缺口（跳空低开）代表隔夜看空情绪
+    - 计算lookback日内的累计缺口收益，衡量近期缺口方向的一致性
+    灵感来源：A股散户主导，隔夜信息消化体现在开盘价中
+    """
+    import numpy as np
+
+    def gap_score(group):
+        if len(group) < lookback + 1:
+            return np.nan
+        recent = group.tail(lookback + 1)
+        opens = recent["open"].values
+        closes = recent["close"].values
+        # gap[i] = (open[i] - close[i-1]) / close[i-1]
+        gaps = []
+        for i in range(1, len(opens)):
+            if closes[i - 1] > 0:
+                gaps.append((opens[i] - closes[i - 1]) / closes[i - 1])
+        if not gaps:
+            return np.nan
+        # 加权平均：越近的缺口权重越大
+        weights = np.array(range(1, len(gaps) + 1), dtype=float)
+        weights = weights / weights.sum()
+        return float(np.average(gaps, weights=weights))
+
+    return daily_df.groupby("code").apply(gap_score)

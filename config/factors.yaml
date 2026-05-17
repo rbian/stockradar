@@ -208,6 +208,13 @@ categories:
         direction: higher_better
         params:
           period: 20
+      overnight_gap:
+        clip:
+        - -0.05
+        - 0.05
+        direction: higher_better
+        params:
+          lookback: 10
       price_acceleration:
         clip:
         - -5
@@ -244,25 +251,12 @@ categories:
         direction: higher_better
         params:
           period: 20
-      vwap_deviation:
-        clip:
-        - -10
-        - 10
-        direction: higher_better
-        params:
-          period: 20
       sharpe_momentum:
         clip:
         - -3
         - 3
         direction: higher_better
         weight: 1.5
-      updown_volume_ratio:
-        clip:
-        - -1
-        - 1
-        direction: higher_better
-        weight: 1.2
       turnover_rate_change:
         clip:
         - -1
@@ -270,6 +264,12 @@ categories:
         direction: higher_better
         params:
           period: 5
+      updown_volume_ratio:
+        clip:
+        - -1
+        - 1
+        direction: higher_better
+        weight: 1.2
       volatility_20d:
         clip:
         - 0
@@ -282,6 +282,13 @@ categories:
         clip:
         - -1
         - 1
+        direction: higher_better
+        params:
+          period: 20
+      vwap_deviation:
+        clip:
+        - -10
+        - 10
         direction: higher_better
         params:
           period: 20

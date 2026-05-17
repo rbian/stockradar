@@ -795,6 +795,19 @@ def main():
 
                 candidates.sort(key=lambda x: _sector_penalty(x['code'], x['factor_score'] * 0.6 + x['signal_score'] * 0.4), reverse=True)
 
+                # 🛡️ 防止买入今天已卖出的股票（防乒乓）
+                _today_sold_codes_auto = set()
+                try:
+                    _swap_f = PROJECT_ROOT / 'data' / 'daily_swaps.json'
+                    if _swap_f.exists():
+                        _sl = json.loads(_swap_f.read_text())
+                        _td = datetime.now().strftime('%Y-%m-%d')
+                        for _ps in _sl.get(_td, {}).get('pairs', []):
+                            _today_sold_codes_auto.add(_ps.split('>')[0])
+                except Exception:
+                    pass
+                candidates = [c for c in candidates if c['code'] not in _today_sold_codes_auto]
+
                 buy_list = candidates[:max_buy]
 
                 # 检查板块集中度
@@ -1231,11 +1244,22 @@ def main():
                 sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
                 sell_candidate, sell_reason = sell_list[0]
 
+                # 🛡️ 防止买入今天已卖出的股票（防乒乓）
+                _today_sold_codes = set()
+                for pair_str in _today_swap_pairs:
+                    sold_code = pair_str.split('>')[0]
+                    _today_sold_codes.add(sold_code)
+                for s_code, s_reason in sell_list:
+                    _today_sold_codes.add(s_code)
+
                 buy_candidate = None
                 buy_reason = ""
 
                 for code in scores.index[:top_rank]:
                     if code in held:
+                        continue
+                    if code in _today_sold_codes:
+                        logger.info(f'乒乓防护: 跳过今日已卖出{code}')
                         continue
                     stock_data = dq_full[dq_full['code'] == code].tail(60)
                     if len(stock_data) < 30:
