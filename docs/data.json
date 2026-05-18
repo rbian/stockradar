@@ -1,14 +1,14 @@
 {
-  "updated": "2026-05-15",
+  "updated": "2026-05-18",
   "stats": {
-    "latest_date": "2026-05-15",
+    "latest_date": "2026-05-18",
     "nav": 0.9819,
     "total_return": -1.81,
     "max_drawdown": -1.81,
     "holdings_count": 3,
     "total_trades": 7,
     "initial_capital": 1000000,
-    "current_value": 941915.0,
+    "current_value": 934142.0,
     "cash": 1248.0
   },
   "nav_history": [
@@ -61,6 +61,10 @@
     {
       "date": "2026-05-15",
       "nav": 1.0128
+    },
+    {
+      "date": "2026-05-18",
+      "nav": 1.0098
     }
   ],
   "holdings": [
@@ -69,9 +73,9 @@
       "name": "长春高新",
       "shares": 3700,
       "cost_price": 88.52,
-      "current_price": 84.15,
-      "market_value": 311355.0,
-      "pnl_pct": -4.94,
+      "current_price": 82.62,
+      "market_value": 305694.0,
+      "pnl_pct": -6.67,
       "weight": 33.0
     },
     {
@@ -79,9 +83,9 @@
       "name": "万泰生物",
       "shares": 8000,
       "cost_price": 42.22,
-      "current_price": 39.56,
-      "market_value": 316480.0,
-      "pnl_pct": -6.3,
+      "current_price": 39.92,
+      "market_value": 319360.0,
+      "pnl_pct": -5.45,
       "weight": 34.0
     },
     {
@@ -89,9 +93,9 @@
       "name": "智飞生物",
       "shares": 20800,
       "cost_price": 15.76,
-      "current_price": 15.04,
-      "market_value": 312832.0,
-      "pnl_pct": -4.57,
+      "current_price": 14.8,
+      "market_value": 307840.0,
+      "pnl_pct": -6.09,
       "weight": 33.0
     }
   ],
