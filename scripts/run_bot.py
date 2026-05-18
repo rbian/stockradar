@@ -532,6 +532,15 @@ def main():
                             logger.info(f'主动建仓跳过: 仓位{pos_pct*100:.0f}% 现金¥{cash_now:.0f} 持仓{len(holdings_now)}只')
                     except Exception as e:
                         logger.warning(f'主动建仓检查失败: {e}')
+                # === 每次alert_check都更新nav_history（即使无交易） ===
+                try:
+                    from src.simulator.nav_tracker import NAVTracker
+                    _nav_snap = json.loads((PROJECT_ROOT / 'data' / 'nav_state_balanced.json').read_text())
+                    _tracker_snap = NAVTracker.from_dict(_nav_snap)
+                    if dq is not None and len(_tracker_snap.holdings) > 0:
+                        _save_nav(_tracker_snap, dq)
+                except Exception as _nav_e:
+                    logger.debug(f"nav快照更新失败: {_nav_e}")
             except Exception as e:
                 logger.debug(f"预警检查失败: {e}")
 
@@ -979,6 +988,22 @@ def main():
                     buy_date = h.get('buy_date', '')
                     if buy_date == today:
                         continue
+                    # 最小持仓期: 买入不足2个交易日不主动调仓卖出（降低交易成本损耗）
+                    try:
+                        from datetime import timedelta
+                        buy_dt = datetime.strptime(buy_date, '%Y-%m-%d').date()
+                        # 粗略计算: 排除周末
+                        days_since_buy = (_date.today() - buy_dt).days
+                        weekday_diff = 0
+                        temp = buy_dt
+                        while temp < _date.today():
+                            if temp.weekday() < 5:
+                                weekday_diff += 1
+                            temp += timedelta(days=1)
+                        if weekday_diff < 2:
+                            continue
+                    except Exception:
+                        pass
                     rank = list(scores.index).index(code) + 1
                     # 技术面恶化检查
                     stock_data = dq_full[dq_full['code'] == code].tail(60)
@@ -989,11 +1014,15 @@ def main():
                     elif sig < 35:
                         sell_list.append((code, f"技术信号={sig}"))
 
-                # === 持仓相关性计算 ===
+                # === 持仓相关性计算（带缓存，避免5min周期重复计算） ===
+                _corr_cache = {}
                 def _calc_avg_correlation(code, held_codes, dq_data):
                     """Calculate average correlation of code with all other held stocks."""
                     try:
                         import numpy as np
+                        _cache_key = f"{code}:{','.join(sorted(held_codes))}"
+                        if _cache_key in _corr_cache:
+                            return _corr_cache[_cache_key]
                         target = dq_data[dq_data['code'] == code].tail(60)['close']
                         if len(target) < 30:
                             return 0.0
@@ -1012,7 +1041,9 @@ def main():
                                 c = np.corrcoef(t, o)[0, 1]
                                 if not np.isnan(c):
                                     corrs.append(c)
-                        return np.mean(corrs) if corrs else 0.0
+                        result = np.mean(corrs) if corrs else 0.0
+                        _corr_cache[_cache_key] = result
+                        return result
                     except Exception:
                         return 0.0
 
