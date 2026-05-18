@@ -65,6 +65,41 @@
 
 ## 进度追踪
 
+
+### 2026-05-19 (周二) 选股+因子日
+1. ✅ **🟡 修复nav_history长期stale** — alert_check每次执行都更新nav_history
+   - 之前: _save_nav只在有交易操作时调用，导致nav_history自05-14起4天未更新
+   - 修复: 在alert_check末尾（异常处理前）添加nav快照更新逻辑
+   - 效果: 每个交易日约48次nav记录（9:35-15:00每5min），净值曲线连续
+
+2. ✅ **🟢 相关性计算缓存** — _smart_rebalance内_corr_cache避免重复计算
+   - 每轮alert_check(5min)可能对同一组持仓多次计算相关性（卖出排序+换仓候选过滤）
+   - cache_key = code:sorted(held_codes)，持仓不变时O(1)命中
+   - 预期: 减少约60%的相关性计算（每轮从6次→2-3次）
+
+3. ✅ **🟢 最小持仓期2个交易日** — smart_rebalance卖出新增hold_days≥2检查
+   - 背景: 万科A 05-12买入→05-13被smart_rebalance卖出，1天持仓+0.25%扣佣金后收益极低
+   - 实现: 计算买入日到今天的交易日数(排除周末)，<2则跳过
+   - 注意: alert_check止损/止盈不受影响，仅约束smart_rebalance的评分驱动卖出
+   - GitHub学习: qlib_factor_platform的IC分层分析确认我们已有的因子评价体系方向正确
+
+#### 代码审查发现
+- 🟡 nav_history 4天stale（05-14→05-18），无交易导致无更新 — 已修复
+- 🟢 nav_state正常: 现金¥1248(0.12%)，3只持仓(长春高新/万泰生物/智飞生物)
+- 🟢 交易逻辑正确: T+1在所有卖出路径存在，止损确认机制正常，佣金每次扣取
+- 🟢 因子引擎NaN防护有效: fillna(0) + std==0检查
+
+#### 复盘驱动
+- 数据状态: 2/20笔已平仓，暂不调参数
+- 已平仓: 万科A +0.25%(1天, rebalance), 同仁堂 -1.25%(2天, rebalance)
+- 新增最小持仓期约束直接回应万科A案例
+
+#### GitHub学习
+- **qlib_factor_platform** (cn-vhql): QLib Web端因子研究平台，Alpha158/360因子库确认我们的技术因子覆盖面合理
+- 核心收获: IC分层分析是因子评价标准方法（我们已有FactorTracker IC追踪）
+
+- commit: e15b0e8
+
 ### Phase 1: 稳定性 ✅
 - [x] Bot崩溃自动重启
 - [x] pidfile锁机制
