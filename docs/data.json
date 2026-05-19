@@ -2,14 +2,14 @@
   "updated": "2026-05-18",
   "stats": {
     "latest_date": "2026-05-18",
-    "nav": 0.9819,
-    "total_return": -1.81,
-    "max_drawdown": -1.81,
+    "nav": 0.9399,
+    "total_return": -6.01,
+    "max_drawdown": -6.01,
     "holdings_count": 3,
-    "total_trades": 7,
+    "total_trades": 9,
     "initial_capital": 1000000,
-    "current_value": 934142.0,
-    "cash": 1248.0
+    "current_value": 936801.0,
+    "cash": 5120.0
   },
   "nav_history": [
     {
@@ -34,6 +34,12 @@
       "date": "2026-05-14",
       "nav": 0.9819,
       "market_value": 980626.0,
+      "holdings_count": 3
+    },
+    {
+      "date": "2026-05-19",
+      "nav": 0.9399,
+      "market_value": 934758.0,
       "holdings_count": 3
     }
   ],
@@ -76,7 +82,7 @@
       "current_price": 82.62,
       "market_value": 305694.0,
       "pnl_pct": -6.67,
-      "weight": 33.0
+      "weight": 33.7
     },
     {
       "code": "603392",
@@ -86,20 +92,38 @@
       "current_price": 39.92,
       "market_value": 319360.0,
       "pnl_pct": -5.45,
-      "weight": 34.0
+      "weight": 34.8
     },
     {
-      "code": "300122",
-      "name": "智飞生物",
-      "shares": 20800,
-      "cost_price": 15.76,
-      "current_price": 14.8,
-      "market_value": 307840.0,
-      "pnl_pct": -6.09,
-      "weight": 33.0
+      "code": "001391",
+      "name": "国货航",
+      "shares": 57100,
+      "cost_price": 5.36,
+      "current_price": 5.37,
+      "market_value": 306627.0,
+      "pnl_pct": 0.19,
+      "weight": 31.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-19 09:35",
+      "code": "001391",
+      "name": "国货航",
+      "action": "buy",
+      "shares": 57100,
+      "price": 5.36,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-19 09:35",
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "sell",
+      "shares": 20800,
+      "price": 14.93,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-14 09:35",
       "code": "300122",
