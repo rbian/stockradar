@@ -694,6 +694,10 @@ def main():
                     latest_price = close.iloc[-1]
                     if ma20 > 0 and (latest_price / ma20 - 1) > 0.05:
                         continue  # 偏离MA20超5%，追高风险
+                    # 条件3b: 股价低于MA20(下行趋势) → 不买入，复盘驱动改进
+                    # 5/12三只买入失误股均在MA20下方: 同仁堂-2.1%, 长春高新-1.8%, 万科-4.3%
+                    if ma20 > 0 and latest_price < ma20 * 0.98:
+                        continue  # 股价低于MA20超过2%，趋势向下
 
                     # 条件4: 成交量确认 (> 5日均量)
                     vol = stock_data.get('volume', pd.Series(dtype=float))
@@ -846,6 +850,22 @@ def main():
                     remaining_candidates = len(buy_list) - buy_list.index(c)
                     per_stock = tracker.cash / max(remaining_candidates, 1)
                     shares = int(per_stock / price / 100) * 100
+                    # 波动率调整仓位: 高波动股缩减仓位，降低"买入后大亏"风险
+                    # 复盘驱动: 5/12三只买入失误股(同仁堂-6.9%, 长春高新-6.2%, 万科-9.5%)均属高波动
+                    try:
+                        _vol_data = dq_full[dq_full['code'] == code].tail(20)
+                        if len(_vol_data) >= 10:
+                            _vol_ret = _vol_data['close'].pct_change().dropna()
+                            if len(_vol_ret) >= 5:
+                                _vol_std = _vol_ret.std()
+                                _ann_vol = _vol_std * (252 ** 0.5)
+                                _vol_scale = max(0.3, min(1.0, 1.0 - (_ann_vol - 0.3) * 2.5))
+                                if _vol_scale < 0.95:
+                                    _orig_shares = shares
+                                    shares = int(shares * _vol_scale / 100) * 100
+                                    logger.info(f"波动率调仓 {code}: vol={_ann_vol:.0%}, scale={_vol_scale:.2f}, shares={_orig_shares}->{shares}")
+                    except Exception:
+                        pass
                     if shares >= 100:
                         # Devil's advocate check
                         try:
@@ -1358,6 +1378,19 @@ def main():
                 min_cash_buffer = 5000
                 available = tracker.cash - min_cash_buffer  # cash已包含卖出收入
                 buy_shares = int(available / buy_price / 100) * 100
+                # 波动率调整: 调仓买入同样受波动率约束
+                try:
+                    _vol_data_rb = dq_full[dq_full['code'] == buy_candidate].tail(20)
+                    if len(_vol_data_rb) >= 10:
+                        _vol_ret_rb = _vol_data_rb['close'].pct_change().dropna()
+                        if len(_vol_ret_rb) >= 5:
+                            _ann_vol_rb = _vol_ret_rb.std() * (252 ** 0.5)
+                            _vol_scale_rb = max(0.3, min(1.0, 1.0 - (_ann_vol_rb - 0.3) * 2.5))
+                            if _vol_scale_rb < 0.95:
+                                buy_shares = int(buy_shares * _vol_scale_rb / 100) * 100
+                                logger.info(f"调仓波动率缩减 {buy_candidate}: vol={_ann_vol_rb:.0%}, scale={_vol_scale_rb:.2f}")
+                except Exception:
+                    pass
                 if buy_shares < 100:
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
                     # 钱不够买100股，保留现金不回滚（避免乒乓）
