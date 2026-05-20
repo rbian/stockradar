@@ -21,6 +21,7 @@ class NAVTracker:
         self.cash = initial_capital
         self.holdings = {}  # code -> {shares, cost_price}
         self.nav_history = []  # [{date, nav, cash, market_value, holdings_count}]
+        self.peak_nav = 1.0  # 历史最高NAV，用于回撤计算
         self.trade_log = []  # [{date, code, action, shares, price, reason}]
         self.rebalance_days = 10
         self.top_n = 10
@@ -261,6 +262,10 @@ class NAVTracker:
         total = self.cash + market_value
         nav = total / self.initial_capital
 
+        # 更新peak_nav
+        if nav > self.peak_nav:
+            self.peak_nav = nav
+
         self.nav_history.append({
             "date": date,
             "nav": nav,
@@ -308,6 +313,7 @@ class NAVTracker:
             "holdings": self.holdings,
             "nav_history": self.nav_history,
             "trade_log": self.trade_log,
+            "peak_nav": self.peak_nav,
         }
 
     @classmethod

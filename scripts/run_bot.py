@@ -445,6 +445,34 @@ def main():
             except Exception:
                 pass
 
+        def _check_portfolio_drawdown(tracker) -> bool:
+            """组合最大回撤熔断器: NAV从峰值回撤>8%时禁止新买入
+            
+            来源: 机构风控标准，8%回撤触发减仓/暂停是常见阈值。
+            使用持久化的peak_nav（nav_tracker.py），重启后仍有效。
+            数据: 3/20已平仓，暂不调整8%阈值。
+            """
+            try:
+                peak_nav = getattr(tracker, 'peak_nav', 0)
+                if peak_nav <= 0:
+                    # fallback: 从nav_history计算
+                    nav_history = getattr(tracker, 'nav_history', [])
+                    if nav_history and isinstance(nav_history, list):
+                        peak_nav = max((h.get('nav', 0) for h in nav_history if isinstance(h, dict)), default=0)
+                if peak_nav <= 0:
+                    return True
+                current_nav = tracker.get_nav()['nav'] if hasattr(tracker, 'get_nav') else 0
+                if current_nav <= 0:
+                    return True
+                drawdown = (current_nav - peak_nav) / peak_nav
+                if drawdown < -0.08:
+                    logger.info(f"⚠️ 组合回撤{drawdown:.1%}超8%阈值，暂停新买入 (peak={peak_nav:.4f}, now={current_nav:.4f})")
+                    return False
+                return True
+            except Exception:
+                return True  # 出错不限制
+
+
         async def alert_check():
             if not _is_trading_day():
                 return
@@ -630,6 +658,13 @@ def main():
                 position_pct = (total_assets - tracker.cash) / total_assets if total_assets > 0 else 0
                 if tracker.cash < 10000:
                     logger.info(f"现金仅¥{tracker.cash:.0f}，保留缓冲，跳过买入")
+                    return
+
+                # 组合回撤熔断器
+                if not _check_portfolio_drawdown(tracker):
+                    return
+                # 组合回撤熔断器
+                if not _check_portfolio_drawdown(tracker):
                     return
 
                 # Step 1: 因子评分排名
@@ -1279,9 +1314,25 @@ def main():
                     if best_outside and worst_held_score > 0:
                         # T+1: 强制换仓也不能卖今天买入的
                         worst_h = tracker.holdings.get(worst_held_code, {})
-                        if worst_h.get('buy_date', '') == today:
+                        worst_buy_date = worst_h.get('buy_date', '')
+                        if worst_buy_date == today:
                             logger.info(f'强制换仓跳过{worst_held_code}: 今天买入T+1限制')
                             return
+                        # 最小持仓期: 强制换仓也需持有≥2个交易日
+                        try:
+                            from datetime import timedelta as _td2
+                            _wbd = datetime.strptime(worst_buy_date, '%Y-%m-%d').date()
+                            _wdiff2 = 0
+                            _tmp2 = _wbd
+                            while _tmp2 < _date.today():
+                                if _tmp2.weekday() < 5:
+                                    _wdiff2 += 1
+                                _tmp2 += _td2(days=1)
+                            if _wdiff2 < 2:
+                                logger.info(f'强制换仓跳过{worst_held_code}: 持仓不足2个交易日({_wdiff2}天)')
+                                return
+                        except Exception:
+                            pass
                         score_improvement = (best_outside[1] - worst_held_score) / worst_held_score
                         if score_improvement >= 0.15:
                             sell_list = [(worst_held_code, f"评分{worst_held_score:.1f}(排名{worst_held_rank}) 远低于场外{best_outside[1]:.1f}")]
@@ -1394,6 +1445,10 @@ def main():
                 if buy_shares < 100:
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
                     # 钱不够买100股，保留现金不回滚（避免乒乓）
+                    return
+                # 组合回撤熔断器
+                if not _check_portfolio_drawdown(tracker):
+                    logger.info('调仓买入被回撤熔断器拦截')
                     return
                 # Consecutive loss protection for rebalance buy
                 try:
