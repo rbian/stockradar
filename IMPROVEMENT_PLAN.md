@@ -939,3 +939,25 @@
   - 未来可考虑阶梯式: 8%暂停新仓，12%减仓50%
 
 **数据状态:** 3/20笔已平仓，暂不调策略参数
+
+### 2026-05-22 (周五) 策略迭代+周报日
+1. ✅ **🔴 修复 _auto_buy 重复组合回撤熔断器调用** — line 664-668有两个相同的`_check_portfolio_drawdown`检查，删除重复的
+2. ✅ **🟡 修复 reporter QVeris NoneType** — fetch_index_quote_qv返回None时idx.get报错，添加isinstance守卫
+3. ✅ **🟡 修复 _auto_buy dq_full NameError** — 异常fallback引用未定义变量dq_full，改为空DataFrame
+4. ✅ **🟢 auto_buy新增相关性过滤** — 买入候选与现有持仓相关性>0.7时跳过，降低组合集中风险
+
+**代码审查发现:**
+- 🔴 重复drawdown检查（已修复）
+- 🟡 QVeris NoneType daily report WARNING（已修复）
+- 🟡 dq_full NameError fallback（已修复）
+- 🟢 _auto_buy缺少相关性过滤（已添加，与_smart_rebalance一致）
+- 无ERROR级别日志问题
+
+**复盘驱动:**
+- 买入失误模式3次（5/12三股），MA20过滤已在之前添加
+- 3笔已平仓(<20)，不调参数，只做bug修复
+
+**GitHub学习:**
+- 无新项目扫描（非周六cron）
+
+**数据状态:** 3/20笔已平仓，暂不调参数
