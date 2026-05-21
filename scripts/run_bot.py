@@ -644,7 +644,7 @@ def main():
                     rt_data = fetch_realtime_quotes(rt_codes)
                 except Exception as _e:
                     logger.debug(f'实时行情fallback: {_e}')
-                    rt_data = dq_full
+                    rt_data = pd.DataFrame()  # fallback: dq_full not yet defined
                 def _auto_buy_price(code):
                     row = rt_data[rt_data['code'] == code] if 'code' in rt_data.columns else None
                     if row is not None and len(row) > 0:
@@ -660,9 +660,6 @@ def main():
                     logger.info(f"现金仅¥{tracker.cash:.0f}，保留缓冲，跳过买入")
                     return
 
-                # 组合回撤熔断器
-                if not _check_portfolio_drawdown(tracker):
-                    return
                 # 组合回撤熔断器
                 if not _check_portfolio_drawdown(tracker):
                     return
@@ -842,6 +839,43 @@ def main():
                     return score
 
                 candidates.sort(key=lambda x: _sector_penalty(x['code'], x['factor_score'] * 0.6 + x['signal_score'] * 0.4), reverse=True)
+
+                # 🛡️ 相关性过滤: 跳过与现有持仓高度相关的候选（>0.7），降低组合风险
+                if held and dq_full is not None:
+                    _filtered = []
+                    for cand in candidates:
+                        if len(_filtered) >= max_buy:
+                            break
+                        code = cand['code']
+                        if code in held:
+                            _filtered.append(cand)
+                            continue
+                        try:
+                            import numpy as np
+                            target = dq_full[dq_full['code'] == code].tail(60)['close']
+                            if len(target) < 30:
+                                _filtered.append(cand)
+                                continue
+                            target_ret = target.pct_change().dropna().values
+                            high_corr = False
+                            for h_code in held:
+                                h_series = dq_full[dq_full['code'] == h_code].tail(60)['close']
+                                if len(h_series) < 30:
+                                    continue
+                                h_ret = h_series.pct_change().dropna().values
+                                min_len = min(len(target_ret), len(h_ret))
+                                t, o = target_ret[-min_len:], h_ret[-min_len:]
+                                if np.std(t) > 0 and np.std(o) > 0:
+                                    c_val = np.corrcoef(t, o)[0, 1]
+                                    if not np.isnan(c_val) and c_val > 0.7:
+                                        logger.info(f'auto_buy跳过{code}: 与持仓{h_code}相关性{c_val:.2f}')
+                                        high_corr = True
+                                        break
+                            if not high_corr:
+                                _filtered.append(cand)
+                        except Exception:
+                            _filtered.append(cand)
+                    candidates = _filtered
 
                 # 🛡️ 防止买入今天已卖出的股票（防乒乓）
                 _today_sold_codes_auto = set()

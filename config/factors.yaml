@@ -22,7 +22,7 @@ categories:
         direction: higher_better
         params:
           period: 5
-    weight: 0.2
+    weight: 0.1
   fundamental:
     factors:
       accrual_ratio:
@@ -64,6 +64,7 @@ categories:
         - 10
         direction: higher_better
       pe_percentile:
+        _suspended: true
         clip:
         - 0
         - 100
@@ -90,7 +91,7 @@ categories:
         - 0
         - 40
         direction: higher_better
-    weight: 0.35
+    weight: 0.15
   llm:
     factors:
       earnings_sentiment:
@@ -110,10 +111,11 @@ categories:
         - -1
         - 1
         direction: higher_better
-    weight: 0.1
+    weight: 0.0
   market_sentiment:
     factors:
       high_low_position:
+        _suspended: true
         clip:
         - 0
         - 100
@@ -122,6 +124,7 @@ categories:
         params:
           period: 60
       limit_up_count:
+        _suspended: true
         clip:
         - 0
         - 5
@@ -147,6 +150,7 @@ categories:
   technical:
     factors:
       amplitude:
+        _suspended: true
         clip:
         - 0
         - 10
@@ -271,6 +275,7 @@ categories:
         direction: higher_better
         weight: 1.2
       volatility_20d:
+        _suspended: true
         clip:
         - 0
         - 50
@@ -279,6 +284,7 @@ categories:
         params:
           period: 20
       volume_price_divergence:
+        _suspended: true
         clip:
         - -1
         - 1
@@ -293,9 +299,10 @@ categories:
         params:
           period: 20
       williams_r:
+        _suspended: true
         clip:
         - -100
         - 0
         direction: lower_better
         invert: true
-    weight: 0.2
+    weight: 0.6

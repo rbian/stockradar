@@ -61,6 +61,7 @@ class ReporterAgent(BaseAgent):
             try:
                 from src.data.qveris_adapter import fetch_index_quote_qv
                 idx = fetch_index_quote_qv("000300")
+                if not isinstance(idx, dict): idx = {}
                 if idx and idx.get("最新(点)", "") not in ("", "---"):
                     chg = idx.get("涨跌幅(%)", "0")
                     try:

@@ -1,4 +1,4 @@
-# A股智能盯盘Agent 全局配置
+# A股智能盯盘Agent 全局配置 (2026-05-20 重构版)
 
 # 数据源
 data:
@@ -30,13 +30,20 @@ portfolio:
   max_per_industry: 3
   max_turnover_monthly: 1.0
 
-# 风控参数
+# 风控参数 (2026-05-20 重构)
 risk:
-  stop_loss: -0.15
-  reduce_loss: -0.08
+  stop_loss: -0.12        # 从-0.15收紧
+  reduce_loss: -0.06      # 从-0.08收紧
   reduce_ratio: 0.5
   crisis_reduce_ratio: 0.7
   max_single_day_drop: -0.08
+
+# 策略级风控 (新增)
+strategy_level_risk:
+  enabled: true
+  max_nav_drawdown: -0.10  # 净值回撤>10%停止买入
+  min_capital_ratio: 0.85  # 本金回撤>15%停止买入
+  recovery_wait_days: 7    # 触发风控后等待7天再评估
 
 # 评分动量参数
 scoring:
@@ -105,3 +112,9 @@ logging:
   rotation: "100 MB"
   retention: "30 days"
   log_dir: "logs"
+
+# 2026-05-20 重构关键变更：
+# 1. 个股止损收紧（-15% → -12%）
+# 2. 减亏阈值收紧（-8% → -6%）
+# 3. 新增策略级风控（净值回撤>10%停止买入）
+# 4. 新增本金回撤风控（本金亏损>15%停止买入）
