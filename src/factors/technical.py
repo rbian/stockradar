@@ -1006,3 +1006,32 @@ def calc_overnight_gap(daily_df: pd.DataFrame, lookback: int = 10) -> pd.Series:
         return float(np.average(gaps, weights=weights))
 
     return daily_df.groupby("code").apply(gap_score)
+
+
+def calc_momentum_skip(daily_df: pd.DataFrame, medium_period: int = 60, short_period: int = 5) -> pd.Series:
+    """动量跳过因子 (Momentum Skip-Reversal)
+
+    灵感来源: FrancoRost1/factor-backtest-engine 的 12-1 momentum skip month
+    学术研究表明，短期动量（1-5天）存在反转效应，而中期动量（20-60天）有持续性。
+    本因子 = 中期动量 - 短期动量，捕捉"中期上涨但短期未过热"的股票。
+
+    正值 = 中期涨+短期调整 → 可能反弹
+    负值 = 中期跌+短期反弹 → 可能是死猫跳
+
+    Args:
+        daily_df: 日线行情DataFrame
+        medium_period: 中期回看天数 (默认60)
+        short_period: 短期回看天数 (默认5)
+
+    Returns:
+        Series, index=code, value=skip-momentum百分比
+    """
+    def mom_skip(group):
+        if len(group) < medium_period:
+            return np.nan
+        group = group.sort_values("date")
+        medium_mom = (group["close"].iloc[-1] / group["close"].iloc[-medium_period] - 1) * 100
+        short_mom = (group["close"].iloc[-1] / group["close"].iloc[-short_period] - 1) * 100
+        return medium_mom - short_mom
+
+    return daily_df.groupby("code").apply(mom_skip)

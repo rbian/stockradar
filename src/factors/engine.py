@@ -53,6 +53,7 @@ class FactorEngine:
             calc_underwater_duration,
             calc_vwap_deviation,
     calc_overnight_gap,
+    calc_momentum_skip,
         )
         from src.factors.capital_flow import (
             calc_northbound_net, calc_northbound_consecutive,
@@ -108,6 +109,7 @@ class FactorEngine:
             "updown_volume_ratio": lambda d: calc_updown_volume_ratio(d.get("daily_quote", pd.DataFrame()), 20),
             "overnight_gap": lambda d: calc_overnight_gap(d.get("daily_quote", pd.DataFrame())),
             "vwap_deviation": lambda d: calc_vwap_deviation(d.get("daily_quote", pd.DataFrame()), 20),
+            "momentum_skip": lambda d: calc_momentum_skip(d.get("daily_quote", pd.DataFrame()), 60, 5),
             # Capital flow (5) — 接收 daily_quote + northbound
             "northbound_net_5d": lambda d: calc_northbound_net(d.get("daily_quote", pd.DataFrame()), d.get("northbound", pd.DataFrame())),
             "northbound_consecutive_days": lambda d: calc_northbound_consecutive(d.get("northbound", pd.DataFrame())),

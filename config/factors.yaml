@@ -298,6 +298,15 @@ categories:
         direction: higher_better
         params:
           period: 20
+      momentum_skip:
+        clip:
+        - -30
+        - 30
+        direction: higher_better
+        params:
+          medium_period: 60
+          short_period: 5
+          period: 20
       williams_r:
         _suspended: true
         clip:
