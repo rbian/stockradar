@@ -28,6 +28,9 @@ class NAVTracker:
         self.commission_rate = 0.001
         self.stop_loss = -0.18
         self.max_swaps_per_week = 2
+        # 单日新建仓限制（防止2026-05-12式同日3只全亏）
+        self._daily_new_buys = {}  # {date_str: count}
+        self.max_new_buys_per_day = 2
 
     def get_nav(self) -> dict:
         """获取最新净值信息"""
@@ -122,7 +125,25 @@ class NAVTracker:
                     if shares >= 100:
                         self._buy(code, shares, prices[code], date, reason)
 
-    def _buy(self, code: str, shares: int, price: float, date, reason: str):
+    def _check_daily_buy_limit(self, code: str, date_str: str) -> bool:
+        """检查单日新建仓是否超限（已有持仓的加仓不受限）"""
+        if code in self.holdings:
+            return True  # 加仓不受限制
+        count = self._daily_new_buys.get(date_str, 0)
+        if count >= self.max_new_buys_per_day:
+            logger.info(f"单日新建仓限制: 今日已建{count}仓，跳过{code}")
+            return False
+        return True
+
+    def _record_daily_buy(self, code: str, date_str: str):
+        """记录今日新建仓"""
+        if code not in self.holdings:
+            return  # _buy failed
+        # 只有新建仓（不是加仓）才计数
+        self._daily_new_buys[date_str] = self._daily_new_buys.get(date_str, 0) + 1
+
+    def _buy(self, code: str, shares: int, price: float, date, reason: str,
+             factor_score: float = None, signal_score: float = None):
         cost = shares * price * (1 + self.commission_rate)
         if cost > self.cash:
             shares = int(self.cash / (price * (1 + self.commission_rate)) / 100) * 100
@@ -130,7 +151,13 @@ class NAVTracker:
         if shares < 100:
             return
 
+        # 单日新建仓限制
+        date_str = str(date)[:10]
+        if not self._check_daily_buy_limit(code, date_str):
+            return
+
         self.cash -= cost
+        is_new = code not in self.holdings
         if code in self.holdings:
             old = self.holdings[code]
             total_shares = old["shares"] + shares
@@ -138,6 +165,16 @@ class NAVTracker:
             self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": old.get("buy_date", str(date)[:10])}
         else:
             self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10]}
+
+        # 存储因子快照到持仓（供_sell时传递给trade_tracker）
+        if factor_score is not None:
+            self.holdings[code]["factor_score"] = factor_score
+        if signal_score is not None:
+            self.holdings[code]["signal_score"] = signal_score
+
+        # 记录新建仓
+        if is_new:
+            self._record_daily_buy(code, date_str)
 
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",
@@ -175,17 +212,25 @@ class NAVTracker:
             log_trade(code, "sell", price, h["shares"], reason, pnl)
         except Exception:
             pass
-        # 记录到策略跟踪系统（闭环）
+        # 记录到策略跟踪系统（闭环）— 含因子快照
         try:
             from src.simulator.trade_tracker import record_trade
             buy_date_str = str(h.get("buy_date", ""))[:10]
             if buy_date_str:
                 from src.data.stock_names import stock_name as _sn
+                # 从持仓中提取因子快照
+                factors = {}
+                signals = {}
+                if h.get("factor_score") is not None:
+                    factors["total_score"] = h["factor_score"]
+                if h.get("signal_score") is not None:
+                    signals["signal_score"] = h["signal_score"]
                 record_trade(
                     code=code, name=_sn(code), action="sell",
                     buy_price=cost_price, sell_price=price,
                     shares=h["shares"], buy_date=buy_date_str,
                     sell_date=str(date)[:10], reason=reason,
+                    factors=factors, signals=signals,
                 )
         except Exception:
             pass
@@ -323,4 +368,5 @@ class NAVTracker:
         tracker.holdings = d.get("holdings", {})
         tracker.nav_history = d.get("nav_history", [])
         tracker.trade_log = d.get("trade_log", [])
+        tracker.peak_nav = d.get("peak_nav", 1.0)
         return tracker
