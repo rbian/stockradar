@@ -961,3 +961,52 @@
 - 无新项目扫描（非周六cron）
 
 **数据状态:** 3/20笔已平仓，暂不调参数
+
+### 2026-05-25 (周一) 复盘+策略日
+1. ✅ **nav_tracker: 单日新建仓限制(max 2) + 因子快照 + peak_nav修复**
+   - 单日新建仓限制: 每天最多新买入2只(加仓不受限)，防止2026-05-12式同日3只全亏(-6%~-9.5%)
+   - 因子快照: _buy时存储factor_score/signal_score到holdings，_sell时传给trade_tracker
+   - peak_nav持久化: from_dict现在恢复peak_nav字段(之前丢失导致回撤计算不准)
+   - nav_state_balanced.json补录peak_nav字段
+   - commit: 6e55f84
+
+2. ✅ **交易复盘工具: 因子数据回填**
+   - 新模块: src/simulator/trade_enrichment.py
+   - 为factors/signals为空的已平仓交易回填买入时的技术信号
+   - 分析发现: 3只亏损股买入时信号76-86分(强烈买入)，信号面没问题
+   - 问题可能在因子评分或市场时机，非信号质量
+   - commit: 7429666
+
+3. ✅ **新因子: momentum_skip (60d-5d动量跳过)**
+   - 灵感来源: FrancoRost1/factor-backtest-engine 的12-1 momentum skip month
+   - 学术依据: 短期动量(1-5天)存在反转效应，中期动量(20-60天)有持续性
+   - 计算: 中期60天动量 - 短期5天动量
+   - 正值 = 中期上涨+短期调整 → 潜在反弹机会
+   - 负值 = 中期下跌+短期假反弹 → 死猫跳警告
+   - 注册为第50个因子, weight=1.0, clip=[-30,30]
+   - commit: 1c9ccb7
+
+4. ✅ **Bot重启** — 停运5天(5/20-5/25)，已重启确认正常运行
+
+#### 代码审查发现
+- 🟢 无严重bug — 所有Traceback为Telegram网络瞬断
+- 🟢 T+1/乒乓防护/止损确认/最小持仓期均正常
+- 🟡 closed_trades的factors/signals全部为空(已修复: 因子快照机制)
+- 🟡 2026-05-12同日auto_buy 3只全亏(已修复: 单日限制max 2)
+- 🟢 数据不足(3/20笔)，暂不调参数
+
+#### 复盘驱动
+- 3只亏损股信号分76-86(强烈买入)，信号面无问题
+- 单日集中买入→新增max_new_buys_per_day=2限制
+- 根本原因待更多数据验证
+
+#### GitHub学习
+- **FrancoRost1/factor-backtest-engine** — 机构级多因子回测框架
+  - 12-1 momentum skip month概念 → 实现为momentum_skip因子
+  - IC time series + alpha regression确认我们已有类似功能
+  - 五因子分位组合(long-only + long-short)思路值得后续参考
+
+#### 数据状态
+- 已平仓: 3笔 | 胜率: 33.3% | 均收益: -2.09% | 3/20笔
+- 当前持仓: 长春高新(000661), 万泰生物(603392), 金龙鱼(001391)
+- 现金: ¥5,120 (仓位99%)
