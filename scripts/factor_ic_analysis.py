@@ -49,6 +49,19 @@ def analyze_factor_ic(daily_quote: pd.DataFrame, start_date: str = "2025-10-01",
     # 构建价格表
     price_pivot = df.pivot_table(index="date", columns="code", values="close")
     
+    # 加载财务数据（循环外，只需加载一次）
+    from src.data.cache import load_financial_cache, load_growth_cache
+    financial_data = pd.DataFrame()
+    for y, q in [(2024,4),(2024,3),(2024,2),(2024,1),(2023,4),(2023,3)]:
+        f = load_financial_cache(y, q, max_age_days=9999)
+        if not f.empty:
+            financial_data = pd.concat([financial_data, f], ignore_index=True)
+    growth = load_growth_cache(2024, 4, max_age_days=9999)
+    if not growth.empty and not financial_data.empty:
+        g_map = dict(zip(growth["code"], growth["YOYNI"]))
+        financial_data["profit_yoy"] = financial_data["code"].map(g_map).mul(100).fillna(financial_data["profit_yoy"])
+    logger.info(f"财务数据: {len(financial_data)}条")
+
     for i, date in enumerate(rebalance_dates):
         date_str = str(date.date()) if hasattr(date, "date") else str(date)
         date_idx = trading_dates.index(date)
@@ -62,7 +75,7 @@ def analyze_factor_ic(daily_quote: pd.DataFrame, start_date: str = "2025-10-01",
         
         # 截取历史数据
         hist_data = df[df["date"] <= date]
-        data = {"daily_quote": hist_data, "codes": codes}
+        data = {"daily_quote": hist_data, "codes": codes, "financial": financial_data}
         
         # 逐因子计算
         try:

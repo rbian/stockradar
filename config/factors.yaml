@@ -37,6 +37,7 @@ categories:
         - 100
         direction: lower_better
         invert: true
+        _suspended: true
       goodwill_ratio:
         clip:
         - 0
@@ -48,6 +49,7 @@ categories:
         - 0
         - 80
         direction: higher_better
+        _suspended: true
       inventory_turnover:
         clip:
         - 0

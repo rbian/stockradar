@@ -89,6 +89,22 @@ def create_engine_v2(weights: dict, suspend_factors: list, suspend_categories: l
     return engine
 
 
+
+def _load_financial():
+    """加载财务数据用于回测"""
+    from src.data.cache import load_financial_cache, load_growth_cache
+    financial = pd.DataFrame()
+    for y, q in [(2024,4),(2024,3),(2024,2),(2024,1),(2023,4),(2023,3)]:
+        f = load_financial_cache(y, q, max_age_days=9999)
+        if not f.empty:
+            financial = pd.concat([financial, f], ignore_index=True)
+    growth = load_growth_cache(2024, 4, max_age_days=9999)
+    if not growth.empty and not financial.empty:
+        g_map = dict(zip(growth["code"], growth["YOYNI"]))
+        financial["profit_yoy"] = financial["code"].map(g_map).mul(100).fillna(financial["profit_yoy"])
+    return financial
+
+
 def run_backtest(daily_quote: pd.DataFrame, engine: FactorEngine,
                  top_n: int = 10, rebalance_days: int = 10,
                  stop_loss: float = -0.15, start_date: str = None,
@@ -118,6 +134,7 @@ def run_backtest(daily_quote: pd.DataFrame, engine: FactorEngine,
             price_map[d] = {}
         price_map[d][row["code"]] = float(row["close"])
 
+    financial = _load_financial()
     for i, date in enumerate(trading_dates):
         date_str = str(date.date()) if hasattr(date, "date") else str(date)
         prices_today = price_map.get(date, {})
@@ -125,7 +142,7 @@ def run_backtest(daily_quote: pd.DataFrame, engine: FactorEngine,
         if i % rebalance_days == 0:
             hist_data = daily_quote[daily_quote["date"] <= date]
             codes = sorted(hist_data["code"].unique())
-            data = {"daily_quote": hist_data, "codes": codes}
+            data = {"daily_quote": hist_data, "codes": codes, "financial": financial}
 
             try:
                 scores = engine.score_all(data, date_str)
