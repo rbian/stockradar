@@ -204,7 +204,7 @@ class NAVTracker:
         self.cash += proceeds
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
-            "shares": h["shares"], "price": price, "reason": reason,
+            "shares": h["shares"], "price": price, "reason": reason, "pnl": pnl,
         })
         # 记录到JSON交易日志(含盈亏)
         try:
@@ -251,7 +251,7 @@ class NAVTracker:
             del self.holdings[code]
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
-            "shares": shares, "price": price, "reason": reason,
+            "shares": shares, "price": price, "reason": reason, "pnl": pnl,
         })
         try:
             from src.simulator.trade_log import log_trade
