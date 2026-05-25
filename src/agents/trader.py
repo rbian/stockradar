@@ -292,8 +292,34 @@ class TraderAgent(BaseAgent):
         day = quote[quote["date"] == latest_date]
         prices = dict(zip(day["code"].tolist(), day["close"].tolist()))
 
-        # 调仓
-        self.nav.rebalance(latest_date, scores, prices, "评分调仓")
+        # 策略级风控检查 (净值回撤/本金回撤)
+        strategy_risk_msg = ''
+        try:
+            import yaml
+            settings_path = Path('config/settings.yaml')
+            cfg = yaml.safe_load(settings_path.read_text())
+            src_cfg = cfg.get('strategy_level_risk', {})
+            if src_cfg.get('enabled', False):
+                from src.risk_management.strategy_risk import StrategyRiskControl
+                risk_ctrl = StrategyRiskControl(
+                    max_nav_drawdown=src_cfg.get('max_nav_drawdown', -0.10),
+                    min_capital_ratio=src_cfg.get('min_capital_ratio', 0.85)
+                )
+                current_nav = self.nav.nav_history[-1]['nav'] if self.nav.nav_history else 1.0
+                initial_nav = self.nav.initial_nav if hasattr(self.nav, 'initial_nav') else 1.0
+                allowed, reason = risk_ctrl.check(current_nav, initial_nav)
+                if not allowed:
+                    strategy_risk_msg = reason
+                    logger.warning(f'策略风控拦截: {reason}')
+                    # 只执行风控检查和止损，跳过调仓
+                else:
+                    logger.info('策略风控检查通过')
+        except Exception as e:
+            logger.debug(f'策略风控检查异常(不影响交易): {e}')
+
+        if not strategy_risk_msg:
+            # 调仓
+            self.nav.rebalance(latest_date, scores, prices, "评分调仓")
         self.nav.update_nav(latest_date, prices)
         
         # 风控检查 — 调仓后再检查一遍持仓
