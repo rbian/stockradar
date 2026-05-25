@@ -162,9 +162,9 @@ class NAVTracker:
             old = self.holdings[code]
             total_shares = old["shares"] + shares
             avg_cost = (old["shares"] * old["cost_price"] + shares * price) / total_shares
-            self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": old.get("buy_date", str(date)[:10])}
+            self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": old.get("buy_date", str(date)[:10]), "peak_price": max(old.get("peak_price", price), price)}
         else:
-            self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10]}
+            self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10], "peak_price": price}
 
         # 存储因子快照到持仓（供_sell时传递给trade_tracker）
         if factor_score is not None:
@@ -283,6 +283,7 @@ class NAVTracker:
         # 加权平均成本 (不含佣金，与_buy保持一致)
         total_shares = h["shares"] + shares
         h["cost_price"] = round((h["cost_price"] * h["shares"] + price * shares) / total_shares, 2)
+        h["peak_price"] = max(h.get("peak_price", price), price)
         h["shares"] = total_shares
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",

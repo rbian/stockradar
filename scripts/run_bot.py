@@ -560,6 +560,23 @@ def main():
                             logger.info(f'主动建仓跳过: 仓位{pos_pct*100:.0f}% 现金¥{cash_now:.0f} 持仓{len(holdings_now)}只')
                     except Exception as e:
                         logger.warning(f'主动建仓检查失败: {e}')
+                # === 更新持仓peak_price（追踪止盈用） ===
+                try:
+                    _pp_tracker = NAVTracker.from_dict(json.loads((PROJECT_ROOT / 'data' / 'nav_state_balanced.json').read_text()))
+                    _pp_dirty = False
+                    for _pp_code, _pp_h in _pp_tracker.holdings.items():
+                        _pp_row = dq[dq['code'] == _pp_code] if 'code' in dq.columns else None
+                        if _pp_row is not None and len(_pp_row) > 0:
+                            _pp_price = float(_pp_row.iloc[0]['close'])
+                            _pp_old = _pp_h.get('peak_price', _pp_price)
+                            if _pp_price > _pp_old:
+                                _pp_h['peak_price'] = _pp_price
+                                _pp_dirty = True
+                    if _pp_dirty:
+                        (PROJECT_ROOT / 'data' / 'nav_state_balanced.json').write_text(json.dumps(_pp_tracker.to_dict(), ensure_ascii=False))
+                except Exception as _pp_e:
+                    logger.debug(f"peak_price更新失败: {_pp_e}")
+
                 # === 每次alert_check都更新nav_history（即使无交易） ===
                 try:
                     from src.simulator.nav_tracker import NAVTracker
@@ -753,7 +770,7 @@ def main():
                         rolling_max = close.rolling(20, min_periods=10).max()
                         drawdown = (close - rolling_max) / rolling_max
                         max_dd = drawdown.min()
-                        if max_dd < -0.20:
+                        if max_dd < -0.15:
                             continue  # 近20日最大回撤超15%
 
                     # 6b: 价格连续5日下跌 → 短期弱势
@@ -1234,6 +1251,15 @@ def main():
                         if half >= 100:
                             tracker._partial_sell(code, half, price, now_str, 'stop_loss_half')
                             rebalance_actions.append(f"🟡 减半止损 {_sn(code)} {half}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
+                        continue
+
+                    # 追踪止盈: 盈利>5%后，从最高价回落>8%时卖出（锁定利润）
+                    # 灵感来源: Larry Williams volatility breakout + trailing stop最佳实践
+                    _peak = h.get('peak_price', h['cost_price'])
+                    if _peak > h['cost_price'] * 1.05 and price < _peak * 0.92:
+                        _trailing_pnl = (price - h['cost_price']) / h['cost_price']
+                        tracker._sell(code, price, now_str, f'trailing_stop_peak{_peak:.1f}')
+                        rebalance_actions.append(f"🔒 追踪止盈 {_sn(code)} {h['shares']}股@¥{price:.2f} (峰值¥{_peak:.1f} 回落{(_peak-price)/_peak*100:.1f}% 盈利{_trailing_pnl*100:.1f}%)")
                         continue
 
                     # 技术面减弱但不到卖出线 → 减仓1/3
