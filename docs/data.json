@@ -2,9 +2,9 @@
   "updated": "2026-05-19",
   "stats": {
     "latest_date": "2026-05-19",
-    "nav": 0.8672,
-    "total_return": -13.28,
-    "max_drawdown": -13.28,
+    "nav": 0.8652,
+    "total_return": -13.48,
+    "max_drawdown": -13.48,
     "holdings_count": 3,
     "total_trades": 9,
     "initial_capital": 1000000,
@@ -44,8 +44,8 @@
     },
     {
       "date": "2026-05-26",
-      "nav": 0.8672,
-      "market_value": 862037.0,
+      "nav": 0.8652,
+      "market_value": 860093.0,
       "holdings_count": 3
     }
   ],
