@@ -197,11 +197,15 @@ def fetch_index_quote_qv(index_code: str = "000300") -> dict:
     Args:
         index_code: 指数代码 (000300=沪深300, 000001=上证指数)
     """
-    data = _execute(TOOL_INDEX, f"{index_code} 指数实时行情")
-    df = _parse_table(data)
-    if df.empty:
+    try:
+        data = _execute(TOOL_INDEX, f"{index_code} 指数实时行情")
+        df = _parse_table(data)
+        if df.empty:
+            return {}
+        return df.iloc[0].to_dict()
+    except Exception as e:
+        logger.debug(f"QVeris指数行情失败: {e}")
         return {}
-    return df.iloc[0].to_dict()
 
 
 def fetch_range_quote_qv(code: str, start: str, end: str) -> pd.DataFrame:

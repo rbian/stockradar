@@ -818,8 +818,16 @@ def main():
                     logger.info(f"无符合条件的买入候选 (过滤统计: {filter_stats})")
                     return
 
-                # 按(因子分*0.6 + 信号分*0.4)排序
-                candidates.sort(key=lambda x: x['factor_score'] * 0.6 + x['signal_score'] * 0.4, reverse=True)
+                # 按(因子分*0.6 + 信号分*0.4)排序，因子-信号不一致时降权
+                def _combined_score(c):
+                    base = c['factor_score'] * 0.6 + c['signal_score'] * 0.4
+                    # 因子-信号背离惩罚: 因子好但信号差(或反之)说明逻辑不一致
+                    if c['factor_score'] > 0 and c['signal_score'] < 35:
+                        base *= 0.7  # 因子好但技术差，打折
+                    elif c['factor_score'] < 0 and c['signal_score'] > 60:
+                        base *= 0.8  # 技术好但因子差，轻打折
+                    return base
+                candidates.sort(key=_combined_score, reverse=True)
                 # 持仓已满时，允许加仓1-2只已有持仓
                 if full_holdings:
                     max_buy = 2 if market_regime != "bearish" else 1
@@ -1065,7 +1073,7 @@ def main():
 
                 held = set(tracker.holdings.keys())
                 total_stocks = len(scores)
-                threshold_rank = int(total_stocks * 0.25)  # 前25% (复盘: 买入一般10次→收紧)
+                threshold_rank = int(total_stocks * 0.20)  # 前20% (复盘: 5/12买入4失误→再收紧)
                 top_rank = int(total_stocks * 0.1)  # 前10%
 
                 # 获取实时价格
