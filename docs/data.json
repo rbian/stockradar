@@ -1,14 +1,14 @@
 {
-  "updated": "2026-05-26",
+  "updated": "2026-05-27",
   "stats": {
-    "latest_date": "2026-05-26",
-    "nav": 0.8527,
-    "total_return": -14.73,
-    "max_drawdown": -14.73,
+    "latest_date": "2026-05-27",
+    "nav": 0.8561,
+    "total_return": -14.39,
+    "max_drawdown": -14.39,
     "holdings_count": 2,
     "total_trades": 10,
     "initial_capital": 1000000,
-    "current_value": 865590.0,
+    "current_value": 856091.0,
     "cash": 279245.0
   },
   "nav_history": [
@@ -50,8 +50,8 @@
     },
     {
       "date": "2026-05-27",
-      "nav": 0.8527,
-      "market_value": 573426.0,
+      "nav": 0.8561,
+      "market_value": 576846.0,
       "holdings_count": 2
     }
   ],
@@ -91,6 +91,10 @@
     {
       "date": "2026-05-26",
       "nav": 1.0569
+    },
+    {
+      "date": "2026-05-27",
+      "nav": 1.0462
     }
   ],
   "holdings": [
@@ -99,9 +103,9 @@
       "name": "长春高新",
       "shares": 3700,
       "cost_price": 88.52,
-      "current_price": 77.76,
-      "market_value": 287712.0,
-      "pnl_pct": -12.16,
+      "current_price": 75.81,
+      "market_value": 280497.0,
+      "pnl_pct": -14.36,
       "weight": 51.7
     },
     {
@@ -109,9 +113,9 @@
       "name": "国货航",
       "shares": 57100,
       "cost_price": 5.36,
-      "current_price": 5.23,
-      "market_value": 298633.0,
-      "pnl_pct": -2.43,
+      "current_price": 5.19,
+      "market_value": 296349.0,
+      "pnl_pct": -3.17,
       "weight": 48.3
     }
   ],
