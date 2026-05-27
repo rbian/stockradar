@@ -84,6 +84,15 @@ def record_trade(code: str, name: str, action: str, buy_price: float, sell_price
     }
     
     log = _load(TRADE_LOG, {"trades": [], "metadata": {}})
+    
+    # 去重保护: 同一代码+同一买卖日期+同一原因视为重复
+    _dup_key = f"{code}:{buy_date}:{sell_date}:{reason}:{shares}"
+    _recent = log["trades"][-20:]  # 只检查最近20笔
+    for _rt in _recent:
+        _rk = f"{_rt.get('code','')}:{_rt.get('buy_date','')}:{_rt.get('sell_date','')}:{_rt.get('reason','')}:{_rt.get('shares',0)}"
+        if _rk == _dup_key:
+            return _rt  # 已存在，跳过
+    
     log["trades"].append(trade)
     
     # 只保留最近500笔

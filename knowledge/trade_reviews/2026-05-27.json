@@ -1,0 +1,166 @@
+{
+  "date": "2026-05-27",
+  "total_reviews": 9,
+  "patterns": [
+    {
+      "pattern": "买入失误",
+      "count": 5,
+      "avg_cost": 7.5,
+      "examples": [
+        {
+          "code": "600085",
+          "name": "同仁堂",
+          "date": "2026-05-12",
+          "analysis": "买入后-6.9%，选股失误"
+        },
+        {
+          "code": "000661",
+          "name": "长春高新",
+          "date": "2026-05-12",
+          "analysis": "买入后-6.2%，选股失误"
+        },
+        {
+          "code": "000002",
+          "name": "万科A",
+          "date": "2026-05-12",
+          "analysis": "买入后-9.5%，选股失误"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 27.97,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.07,
+        "5d": -6.91
+      },
+      "outcome": "bad",
+      "analysis": "买入后-6.9%，选股失误"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 88.52,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.91,
+        "5d": -6.16
+      },
+      "outcome": "bad",
+      "analysis": "买入后-6.2%，选股失误"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 4.04,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.68,
+        "5d": -9.51
+      },
+      "outcome": "bad",
+      "analysis": "买入后-9.5%，选股失误"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "date": "2026-05-13",
+      "price": 4.05,
+      "reason": "smart_rebalance",
+      "pnl": 838.0,
+      "subsequent_returns": {
+        "1d": -3.01,
+        "5d": -15.04
+      },
+      "outcome": "excellent",
+      "analysis": "卖出后-15.0%，成功止盈"
+    },
+    {
+      "code": "603392",
+      "name": "万泰生物",
+      "action": "buy",
+      "date": "2026-05-13",
+      "price": 42.22,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -4.71,
+        "5d": -18.07
+      },
+      "outcome": "bad",
+      "analysis": "买入后-18.1%，选股失误"
+    },
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "sell",
+      "date": "2026-05-14",
+      "price": 27.62,
+      "reason": "smart_rebalance",
+      "pnl": -4165.0,
+      "subsequent_returns": {
+        "1d": -0.94,
+        "5d": -8.2
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-8.2%，止损正确"
+    },
+    {
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "buy",
+      "date": "2026-05-14",
+      "price": 15.76,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.33,
+        "5d": -8.68
+      },
+      "outcome": "bad",
+      "analysis": "买入后-8.7%，选股失误"
+    },
+    {
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "sell",
+      "date": "2026-05-19",
+      "price": 14.93,
+      "reason": "smart_rebalance",
+      "pnl": -17264.0,
+      "subsequent_returns": {
+        "1d": -10.38
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足，无法评估"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "action": "buy",
+      "date": "2026-05-19",
+      "price": 5.36,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.61
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    }
+  ]
+}
