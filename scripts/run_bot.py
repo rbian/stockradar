@@ -1247,7 +1247,9 @@ def main():
                         if not _sl_result['execute']:
                             if _sl_result['status'] in ('pending', 'waiting'):
                                 rebalance_actions.append(f"⏳ 止损待确认 {_sn(code)} ({_sl_result['reason']})")
-                            continue  # 不执行，等确认
+                            # FIX: 只在pnl<=-15%时等确认，-10%~-15%的减半止损不受影响
+                            if pnl_pct <= -0.15:
+                                continue
                     except Exception:
                         pass  # 确认机制失败时fallback到直接止损
                     if pnl_pct <= -0.15:

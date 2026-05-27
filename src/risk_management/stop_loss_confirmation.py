@@ -53,8 +53,8 @@ class StopLossConfirmation:
         if today is None:
             today = datetime.now().strftime("%Y-%m-%d")
 
-        # 极端保护: 亏损超过-20%立即执行
-        if pnl_pct <= -0.20:
+        # 极端保护: 亏损超过-18%立即执行（从-20%收紧，防止长春高新式持续亏损）
+        if pnl_pct <= -0.18:
             self.confirmations.pop(code, None)
             self._save()
             return {"execute": True, "reason": f"极端止损({pnl_pct*100:.1f}%)", "status": "extreme"}
