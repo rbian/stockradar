@@ -1,0 +1,108 @@
+{
+  "trades": [
+    {
+      "code": "000002",
+      "name": "万科A",
+      "buy_price": 4.04,
+      "sell_price": 4.05,
+      "shares": 83800,
+      "buy_date": "2026-05-12",
+      "sell_date": "2026-05-13",
+      "hold_days": 1,
+      "reason": "smart_rebalance",
+      "gross_pnl": 838.0,
+      "net_pnl": 160.06,
+      "return_pct": 0.25,
+      "is_win": true,
+      "factors": {
+        "enriched": true,
+        "enriched_from": "backfill"
+      },
+      "signals": {
+        "signal_score": 76,
+        "signal": "买入",
+        "rsi": 59.1
+      },
+      "recorded_at": "2026-05-13T09:35:06.972093"
+    },
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "buy_price": 27.97,
+      "sell_price": 27.62,
+      "shares": 11900,
+      "buy_date": "2026-05-12",
+      "sell_date": "2026-05-14",
+      "hold_days": 2,
+      "reason": "smart_rebalance",
+      "gross_pnl": -4165.0,
+      "net_pnl": -4826.52,
+      "return_pct": -1.25,
+      "is_win": false,
+      "factors": {
+        "enriched": true,
+        "enriched_from": "backfill"
+      },
+      "signals": {
+        "signal_score": 86,
+        "signal": "强烈买入",
+        "rsi": 46.7
+      },
+      "recorded_at": "2026-05-14T09:35:07.774739"
+    },
+    {
+      "code": "300122",
+      "name": "智飞生物",
+      "buy_price": 15.76,
+      "sell_price": 14.93,
+      "shares": 20800,
+      "buy_date": "2026-05-14",
+      "sell_date": "2026-05-19",
+      "hold_days": 5,
+      "reason": "smart_rebalance",
+      "gross_pnl": -17264.0,
+      "net_pnl": -17902.35,
+      "return_pct": -5.27,
+      "is_win": false,
+      "factors": {
+        "enriched": true,
+        "enriched_from": "backfill"
+      },
+      "signals": {
+        "signal_score": 77,
+        "signal": "买入",
+        "rsi": 52.0
+      },
+      "recorded_at": "2026-05-19T09:35:08.667218"
+    },
+    {
+      "code": "603392",
+      "name": "万泰生物",
+      "buy_price": 42.22,
+      "sell_price": 34.3,
+      "shares": 8000,
+      "buy_date": "2026-05-13",
+      "sell_date": "2026-05-27",
+      "hold_days": 14,
+      "reason": "stop_loss_full",
+      "gross_pnl": -63360.0,
+      "net_pnl": -63972.16,
+      "return_pct": -18.76,
+      "is_win": false,
+      "factors": {},
+      "signals": {},
+      "recorded_at": "2026-05-27T09:35:07.028103"
+    }
+  ],
+  "metadata": {
+    "total_trades": 4,
+    "total_wins": 1,
+    "win_rate": 25.0,
+    "avg_return": -6.26,
+    "avg_hold_days": 5.5,
+    "total_pnl": -86540.97,
+    "best_trade": 0.25,
+    "worst_trade": -18.76,
+    "updated": "2026-05-27T15:00:06.549224"
+  }
+}
