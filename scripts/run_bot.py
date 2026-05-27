@@ -1073,7 +1073,7 @@ def main():
 
                 held = set(tracker.holdings.keys())
                 total_stocks = len(scores)
-                threshold_rank = int(total_stocks * 0.20)  # 前20% (复盘: 5/12买入4失误→再收紧)
+                threshold_rank = int(total_stocks * 0.15)  # 前15% (复盘: 20%门槛仍选入差股,5/12全亏→收紧)
                 top_rank = int(total_stocks * 0.1)  # 前10%
 
                 # 获取实时价格
@@ -1373,7 +1373,7 @@ def main():
                             continue
                         tech = score_stock(stock_data)
                         sig = tech.get('signal_score', 0)
-                        if sig < 50:
+                        if sig < 60:
                             continue
                         best_outside = (code, scores.loc[code, 'score_total'], sig)
                         break
