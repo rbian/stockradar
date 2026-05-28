@@ -111,7 +111,19 @@ class NAVTracker:
                 if not sold:
                     break
 
-            per_stock = self.cash / max(len(new_codes), 1)
+            # 评分加权仓位: 评分高的给更多仓位，评分低的给更少
+            base_alloc = self.cash / max(len(new_codes), 1)
+            try:
+                score_weights = {}
+                for code in new_codes:
+                    if code in scores.index:
+                        s = max(scores.loc[code, "score_total"], 0.1)
+                        score_weights[code] = s
+                total_w = sum(score_weights.values()) if score_weights else 1
+            except Exception:
+                score_weights = {}
+                total_w = 1
+
             for code in new_codes:
                 if code in prices and prices[code] > 0:
                     # 最低评分门槛: 排除评分过低的股票
@@ -121,7 +133,10 @@ class NAVTracker:
                         if code_score < median_score * 0.5:
                             logger.info(f"跳过{code}: 评分{code_score:.2f}低于中位数的50%({median_score:.2f})")
                             continue
-                    shares = int(per_stock / prices[code] / 100) * 100
+                    # 评分加权分配: 高分多配，低分少配
+                    w = score_weights.get(code, 1)
+                    alloc = base_alloc * (w / (total_w / max(len(score_weights), 1)))
+                    shares = int(alloc / prices[code] / 100) * 100
                     if shares >= 100:
                         self._buy(code, shares, prices[code], date, reason)
 
@@ -246,6 +261,9 @@ class NAVTracker:
         proceeds = shares * price * (1 - self.commission_rate)
         self.cash += proceeds
         h["shares"] -= shares
+        # 更新peak_price（部分卖出时价格可能是新高）
+        if price > h.get("peak_price", price):
+            h["peak_price"] = price
         # 如果减到0股，清除持仓
         if h["shares"] <= 0:
             del self.holdings[code]

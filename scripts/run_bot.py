@@ -1272,6 +1272,21 @@ def main():
                         rebalance_actions.append(f"🔒 追踪止盈 {_sn(code)} {h['shares']}股@¥{price:.2f} (峰值¥{_peak:.1f} 回落{(_peak-price)/_peak*100:.1f}% 盈利{_trailing_pnl*100:.1f}%)")
                         continue
 
+
+                    # 时间止损: 持仓超过15天且亏损>10%，趋势已证伪，退出
+                    # 动机: 000661持仓17天亏损-14%仍在持仓，无止损机制处理此情况
+                    _buy_date_str = h.get('buy_date', '')
+                    if _buy_date_str:
+                        try:
+                            from datetime import datetime as _dt
+                            _hold_days = (_dt.strptime(today, '%Y-%m-%d') - _dt.strptime(_buy_date_str, '%Y-%m-%d')).days
+                            if _hold_days >= 15 and pnl_pct < -0.10:
+                                tracker._sell(code, price, now_str, f'time_stop_{_hold_days}d_{pnl_pct*100:.1f}%')
+                                rebalance_actions.append(f"⏰ 时间止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (持仓{_hold_days}天 亏损{pnl_pct*100:.1f}%)")
+                                continue
+                        except Exception:
+                            pass
+
                     # 技术面减弱但不到卖出线 → 减仓1/3
                     if code in scores.index:
                         stock_data = dq_full[dq_full['code'] == code].tail(60)
