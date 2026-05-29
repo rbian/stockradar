@@ -1,14 +1,14 @@
 {
-  "updated": "2026-05-28",
+  "updated": "2026-05-29",
   "stats": {
-    "latest_date": "2026-05-28",
+    "latest_date": "2026-05-29",
     "nav": 0.843,
     "total_return": -15.7,
     "max_drawdown": -15.7,
     "holdings_count": 1,
     "total_trades": 11,
     "initial_capital": 1000000,
-    "current_value": 842401.0,
+    "current_value": 842972.0,
     "cash": 548336.0
   },
   "nav_history": [
@@ -111,6 +111,10 @@
     {
       "date": "2026-05-28",
       "nav": 1.0503
+    },
+    {
+      "date": "2026-05-29",
+      "nav": 1.027
     }
   ],
   "holdings": [
@@ -119,9 +123,9 @@
       "name": "国货航",
       "shares": 57100,
       "cost_price": 5.36,
-      "current_price": 5.15,
-      "market_value": 294065.0,
-      "pnl_pct": -3.92,
+      "current_price": 5.16,
+      "market_value": 294636.0,
+      "pnl_pct": -3.73,
       "weight": 100.0
     }
   ],
