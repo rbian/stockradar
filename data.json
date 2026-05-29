@@ -1,15 +1,15 @@
 {
-  "updated": "2026-05-15",
+  "updated": "2026-05-28",
   "stats": {
-    "latest_date": "2026-05-15",
-    "nav": 0.9819,
-    "total_return": -1.81,
-    "max_drawdown": -1.81,
-    "holdings_count": 3,
-    "total_trades": 7,
+    "latest_date": "2026-05-28",
+    "nav": 0.843,
+    "total_return": -15.7,
+    "max_drawdown": -15.7,
+    "holdings_count": 1,
+    "total_trades": 11,
     "initial_capital": 1000000,
-    "current_value": 941915.0,
-    "cash": 1248.0
+    "current_value": 842401.0,
+    "cash": 548336.0
   },
   "nav_history": [
     {
@@ -35,6 +35,36 @@
       "nav": 0.9819,
       "market_value": 980626.0,
       "holdings_count": 3
+    },
+    {
+      "date": "2026-05-19",
+      "nav": 0.9399,
+      "market_value": 934758.0,
+      "holdings_count": 3
+    },
+    {
+      "date": "2026-05-26",
+      "nav": 0.8668,
+      "market_value": 861705.0,
+      "holdings_count": 3
+    },
+    {
+      "date": "2026-05-27",
+      "nav": 0.8561,
+      "market_value": 576846.0,
+      "holdings_count": 2
+    },
+    {
+      "date": "2026-05-28",
+      "nav": 0.8434,
+      "market_value": 564165.0,
+      "holdings_count": 2
+    },
+    {
+      "date": "2026-05-29",
+      "nav": 0.843,
+      "market_value": 294636.0,
+      "holdings_count": 1
     }
   ],
   "hs300_benchmark": [
@@ -61,41 +91,77 @@
     {
       "date": "2026-05-15",
       "nav": 1.0128
+    },
+    {
+      "date": "2026-05-18",
+      "nav": 1.0098
+    },
+    {
+      "date": "2026-05-19",
+      "nav": 1.0195
+    },
+    {
+      "date": "2026-05-26",
+      "nav": 1.0569
+    },
+    {
+      "date": "2026-05-27",
+      "nav": 1.0462
+    },
+    {
+      "date": "2026-05-28",
+      "nav": 1.0503
     }
   ],
   "holdings": [
     {
-      "code": "000661",
-      "name": "长春高新",
-      "shares": 3700,
-      "cost_price": 88.52,
-      "current_price": 84.15,
-      "market_value": 311355.0,
-      "pnl_pct": -4.94,
-      "weight": 33.0
-    },
-    {
-      "code": "603392",
-      "name": "万泰生物",
-      "shares": 8000,
-      "cost_price": 42.22,
-      "current_price": 39.56,
-      "market_value": 316480.0,
-      "pnl_pct": -6.3,
-      "weight": 34.0
-    },
-    {
-      "code": "300122",
-      "name": "智飞生物",
-      "shares": 20800,
-      "cost_price": 15.76,
-      "current_price": 15.04,
-      "market_value": 312832.0,
-      "pnl_pct": -4.57,
-      "weight": 33.0
+      "code": "001391",
+      "name": "国货航",
+      "shares": 57100,
+      "cost_price": 5.36,
+      "current_price": 5.15,
+      "market_value": 294065.0,
+      "pnl_pct": -3.92,
+      "weight": 100.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-29 09:35",
+      "code": "000661",
+      "name": "长春高新",
+      "action": "sell",
+      "shares": 3700,
+      "price": 72.8,
+      "reason": "stop_loss_full"
+    },
+    {
+      "date": "2026-05-27 09:35",
+      "code": "603392",
+      "name": "万泰生物",
+      "action": "sell",
+      "shares": 8000,
+      "price": 34.3,
+      "reason": "stop_loss_full"
+    },
+    {
+      "date": "2026-05-19 09:35",
+      "code": "001391",
+      "name": "国货航",
+      "action": "buy",
+      "shares": 57100,
+      "price": 5.36,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-05-19 09:35",
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "sell",
+      "shares": 20800,
+      "price": 14.93,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-14 09:35",
       "code": "300122",
