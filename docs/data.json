@@ -2,14 +2,14 @@
   "updated": "2026-05-28",
   "stats": {
     "latest_date": "2026-05-28",
-    "nav": 0.8434,
-    "total_return": -15.66,
-    "max_drawdown": -15.66,
-    "holdings_count": 2,
-    "total_trades": 10,
+    "nav": 0.843,
+    "total_return": -15.7,
+    "max_drawdown": -15.7,
+    "holdings_count": 1,
+    "total_trades": 11,
     "initial_capital": 1000000,
-    "current_value": 843410.0,
-    "cash": 279245.0
+    "current_value": 842401.0,
+    "cash": 548336.0
   },
   "nav_history": [
     {
@@ -59,6 +59,12 @@
       "nav": 0.8434,
       "market_value": 564165.0,
       "holdings_count": 2
+    },
+    {
+      "date": "2026-05-29",
+      "nav": 0.843,
+      "market_value": 294636.0,
+      "holdings_count": 1
     }
   ],
   "hs300_benchmark": [
@@ -109,16 +115,6 @@
   ],
   "holdings": [
     {
-      "code": "000661",
-      "name": "长春高新",
-      "shares": 3700,
-      "cost_price": 88.52,
-      "current_price": 73.0,
-      "market_value": 270100.0,
-      "pnl_pct": -17.53,
-      "weight": 51.7
-    },
-    {
       "code": "001391",
       "name": "国货航",
       "shares": 57100,
@@ -126,10 +122,19 @@
       "current_price": 5.15,
       "market_value": 294065.0,
       "pnl_pct": -3.92,
-      "weight": 48.3
+      "weight": 100.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-05-29 09:35",
+      "code": "000661",
+      "name": "长春高新",
+      "action": "sell",
+      "shares": 3700,
+      "price": 72.8,
+      "reason": "stop_loss_full"
+    },
     {
       "date": "2026-05-27 09:35",
       "code": "603392",
