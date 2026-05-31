@@ -388,4 +388,8 @@ class NAVTracker:
         tracker.nav_history = d.get("nav_history", [])
         tracker.trade_log = d.get("trade_log", [])
         tracker.peak_nav = d.get("peak_nav", 1.0)
+        # 补全缺失的peak_price（旧数据迁移/保存丢失时fallback到cost_price）
+        for code, h in tracker.holdings.items():
+            if "peak_price" not in h or h["peak_price"] is None:
+                h["peak_price"] = h.get("cost_price", 0)
         return tracker

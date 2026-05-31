@@ -34,7 +34,7 @@ KNOWN_PROJECTS = {
 
 
 def search_github(query: str, min_stars: int = 100) -> list[dict]:
-    """Search GitHub via web_fetch, parse results
+    """Search GitHub via Search API, parse results
 
     Args:
         query: search keywords
@@ -45,11 +45,13 @@ def search_github(query: str, min_stars: int = 100) -> list[dict]:
     """
     results = []
     try:
-        url = f"https://github.com/search?q={query}+stars%3A%3E{min_stars}&s=stars&type=Repositories&o=desc"
-        from web_fetch import web_fetch as _fetch
-        # Can't use tool directly, use requests
-        import requests
-        resp = requests.get(url, headers={"Accept": "application/json"}, timeout=10)
+        import requests as _req
+        # Use GitHub Search API (returns JSON, no web_fetch needed)
+        api_url = f"https://api.github.com/search/repositories?q={query}+stars%3A%3E{min_stars}&s=stars&type=Repositories&per_page=10"
+        resp = _req.get(api_url, headers={
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "StockRadar-Bot",
+        }, timeout=15)
         if resp.status_code == 200:
             data = resp.json()
             items = data.get("items", [])
@@ -71,28 +73,12 @@ def search_github(query: str, min_stars: int = 100) -> list[dict]:
                         "relevance_score": rel_score,
                         "source": f"search:{query}",
                     })
+        else:
+            logger.debug(f"GitHub API returned {resp.status_code}")
     except Exception as e:
-        # Fallback: scrape HTML
-        try:
-            from web_fetch import web_fetch
-            page = web_fetch(url, maxChars=5000)
-            # Parse repo names from search results
-            import re
-            repos = re.findall(r'href="/([^/]+/[^/]+)"', page)
-            for repo in repos[:10]:
-                if repo not in [r["repo"] for r in results]:
-                    results.append({
-                        "repo": repo,
-                        "description": "",
-                        "stars": 0,
-                        "relevance_score": 3,
-                        "source": f"search:{query}",
-                    })
-        except Exception as e2:
-            logger.warning(f"GitHub search failed: {e2}")
+        logger.warning(f"GitHub search failed: {e}")
 
     return results
-
 
 def scan_trending() -> list[dict]:
     """Scan GitHub Trending page for finance-related repos"""
