@@ -1139,3 +1139,44 @@
 - 确认: 时间止损(time stop)是专业CTA策略的标准组件，属于合理改进
 
 **运行状态:** Bot待重启(新代码生效), 持仓000661+001391, 现金¥279K
+
+### 2026-06-01 (周一) 复盘+策略日
+
+**代码审查发现:**
+- 🔴 github_scanner.py `from web_fetch import web_fetch` 导致每日GitHub搜索失败（自05-30起）
+  - 修复: 替换为GitHub Search API + requests，去掉web_fetch依赖
+- 🔴 nav_state_balanced.json中001391缺少peak_price字段 → 追踪止盈永远无法触发
+  - 修复: from_dict自动补全缺失peak_price为cost_price
+- 🟡 Tushare API频率限制严重（hsgt_top10/sw_daily/top_list均失败）→ 已知限制
+- 🟢 T+1/佣金/止损/乒乓防护/最小持仓期/相关性缓存均正常
+- 🟢 买入过滤：MA20下方过滤、信号评分门槛、成交量确认均生效
+
+**改进实施 (3项):**
+1. ✅ **github_scanner搜索修复** — web_fetch→GitHub Search API
+   - 错误: "No module named 'web_fetch'" since 05-30
+   - 修复: 直接用requests调用api.github.com，添加User-Agent header
+   - 验证: search_github("stock+trading")返回9个结果
+   - commit: 1e71f99
+2. ✅ **peak_price数据迁移修复** — from_dict自动补全缺失字段
+   - 问题: 旧数据/迁移数据缺少peak_price，追踪止盈无法触发
+   - 修复: from_dict中遍历holdings补全peak_price=cost_price
+   - 影响: 001391等国货航现在能正确追踪止盈
+   - commit: 1e71f99
+3. ✅ **从KHunter学到的评分权重优化思路** — 五维评分模型（技术35%+资金35%+基本面10%+板块10%+事件10%）
+   - StockRadar当前: 因子60%+信号40%权重，相比KHunter缺少资金面独立权重
+   - 已有capital_flow因子但权重未突出，可作为后续改进方向
+
+**复盘驱动:**
+- 数据状态: 6/20笔已平仓, 胜率16.7%, 均收益-7.72%, 暂不调参数
+- 主力错误模式: "买入失误"5次/11笔(45%) — 已有MA20/信号/成交量多重过滤
+- 总盈亏: ¥-156,752 — 主要来自万泰生物-18.76%和长春高新-17.76%两笔止损
+- 001391国货航: 当前唯一持仓，成本5.36，需观察
+
+**GitHub学习:**
+- KHunter (184⭐): A股量化系统，五维评分模型值得参考
+  - 技术面35%+资金面35%+基本面10%+板块10%+事件10%
+  - VaR风险控制 + 自动排除ST/退市/低市值/涨幅过高
+  - 13种选股策略+5种择时策略的组合框架
+- 核心启发: 资金面（capital_flow）应提升权重，当前可能被低估
+
+**运行状态:** Bot需重启使修复生效，持仓001391，现金¥548K
