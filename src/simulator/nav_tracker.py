@@ -72,13 +72,19 @@ class NAVTracker:
         watchlist = set(scores.head(self.top_n + 10).index.tolist()) - target_codes  # 11-20名缓冲区
         current_codes = set(self.holdings.keys())
 
-        # 止损检查 (最小持仓期: 3天内不触发止损，除非跌幅超-20%)
+        # 止损检查 (ATR动态止损 + 最小持仓期3天)
         today_str_sl = str(date)[:10]
         for code in list(self.holdings.keys()):
             h = self.holdings[code]
             if code in prices and prices[code] > 0:
                 pnl = (prices[code] - h["cost_price"]) / h["cost_price"]
-                if pnl <= self.stop_loss:
+                # ATR动态止损线: 2倍ATR/price，限制在[-10%, -25%]区间
+                # 高波动股给更多空间，低波动股止损更紧
+                try:
+                    atr_stop = self._calc_atr_stop(code)
+                except Exception:
+                    atr_stop = self.stop_loss
+                if pnl <= atr_stop:
                     # 最小持仓期保护: 持仓<3天且跌幅<20%时不止损，等确认
                     buy_dt = h.get("buy_date", "")
                     try:
@@ -88,7 +94,8 @@ class NAVTracker:
                         hold_days = 99
                     if hold_days < 3 and pnl > -0.20:
                         continue  # 跳过，等待确认
-                    self._sell(code, prices[code], date, f"止损({pnl:+.1f}%)")
+                    reason = f"止损({pnl:+.1f}%, ATR线{atr_stop*100:.1f}%)"
+                    self._sell(code, prices[code], date, reason)
 
         # 卖出: 不在目标也不在缓冲区的 (T+1检查)
         today_str = str(date)[:10]
@@ -323,6 +330,46 @@ class NAVTracker:
         except Exception:
             pass
 
+
+    def _calc_atr_stop(self, code: str) -> float:
+        """Calculate ATR-based dynamic stop loss for a stock.
+        Returns stop loss threshold (negative), clamped to [-10%, -25%].
+        Uses 2x ATR(14) / cost_price as the stop distance.
+        """
+        try:
+            import numpy as np
+            from pathlib import Path
+            import pandas as pd
+            h = self.holdings.get(code, {})
+            cost_price = h.get("cost_price", 0)
+            if cost_price <= 0:
+                return self.stop_loss
+            # Load recent daily data from parquet cache
+            pq_dir = Path(__file__).parent.parent.parent / "data" / "cache" / "daily_quote"
+            pq_files = sorted(pq_dir.glob("*.parquet"))[-20:]  # last 20 files
+            if not pq_files:
+                return self.stop_loss
+            dfs = [pd.read_parquet(f) for f in pq_files]
+            df = pd.concat(dfs, ignore_index=True)
+            stock_df = df[df["code"] == code].tail(20).sort_values("date" if "date" in df.columns else df.columns[0])
+            if len(stock_df) < 5:
+                return self.stop_loss
+            # Simple ATR proxy: average daily range over last 14 days
+            if "high" in stock_df.columns and "low" in stock_df.columns:
+                daily_range = (stock_df["high"] - stock_df["low"]).tail(14)
+            else:
+                # Fallback: use close-to-close absolute changes
+                daily_range = stock_df["close"].diff().abs().tail(14)
+            atr = daily_range.mean()
+            if atr <= 0 or np.isnan(atr):
+                return self.stop_loss
+            # 2x ATR as stop distance, as fraction of cost_price
+            atr_stop_pct = -(2 * atr / cost_price)
+            # Clamp to [-10%, -25%]
+            atr_stop_pct = max(-0.25, min(-0.10, atr_stop_pct))
+            return atr_stop_pct
+        except Exception:
+            return self.stop_loss
 
     def update_nav(self, date, prices: dict):
         """更新每日净值"""
