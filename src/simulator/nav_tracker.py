@@ -72,12 +72,22 @@ class NAVTracker:
         watchlist = set(scores.head(self.top_n + 10).index.tolist()) - target_codes  # 11-20名缓冲区
         current_codes = set(self.holdings.keys())
 
-        # 止损检查
+        # 止损检查 (最小持仓期: 3天内不触发止损，除非跌幅超-20%)
+        today_str_sl = str(date)[:10]
         for code in list(self.holdings.keys()):
             h = self.holdings[code]
             if code in prices and prices[code] > 0:
                 pnl = (prices[code] - h["cost_price"]) / h["cost_price"]
                 if pnl <= self.stop_loss:
+                    # 最小持仓期保护: 持仓<3天且跌幅<20%时不止损，等确认
+                    buy_dt = h.get("buy_date", "")
+                    try:
+                        from datetime import datetime as _dt
+                        hold_days = (_dt.strptime(today_str_sl, "%Y-%m-%d") - _dt.strptime(buy_dt, "%Y-%m-%d")).days
+                    except Exception:
+                        hold_days = 99
+                    if hold_days < 3 and pnl > -0.20:
+                        continue  # 跳过，等待确认
                     self._sell(code, prices[code], date, f"止损({pnl:+.1f}%)")
 
         # 卖出: 不在目标也不在缓冲区的 (T+1检查)
