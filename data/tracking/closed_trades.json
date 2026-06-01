@@ -92,17 +92,53 @@
       "factors": {},
       "signals": {},
       "recorded_at": "2026-05-27T09:35:07.028103"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "buy_price": 88.52,
+      "sell_price": 72.8,
+      "shares": 3700,
+      "buy_date": "2026-05-12",
+      "sell_date": "2026-05-29",
+      "hold_days": 17,
+      "reason": "stop_loss_full",
+      "gross_pnl": -58164.0,
+      "net_pnl": -58760.88,
+      "return_pct": -17.76,
+      "is_win": false,
+      "factors": {},
+      "signals": {},
+      "recorded_at": "2026-05-29T09:35:06.449809"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "buy_price": 5.36,
+      "sell_price": 5.17,
+      "shares": 57100,
+      "buy_date": "2026-05-19",
+      "sell_date": "2026-05-29",
+      "hold_days": 10,
+      "reason": "smart_rebalance",
+      "gross_pnl": -10849.0,
+      "net_pnl": -11450.26,
+      "return_pct": -3.54,
+      "is_win": false,
+      "factors": {},
+      "signals": {},
+      "recorded_at": "2026-05-29T09:40:06.449228"
     }
   ],
   "metadata": {
-    "total_trades": 4,
+    "total_trades": 6,
     "total_wins": 1,
-    "win_rate": 25.0,
-    "avg_return": -6.26,
-    "avg_hold_days": 5.5,
-    "total_pnl": -86540.97,
+    "win_rate": 16.7,
+    "avg_return": -7.72,
+    "avg_hold_days": 8.2,
+    "total_pnl": -156752.11,
     "best_trade": 0.25,
     "worst_trade": -18.76,
-    "updated": "2026-05-27T15:00:06.549224"
+    "updated": "2026-05-29T09:40:06.449375"
   }
 }

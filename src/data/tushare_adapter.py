@@ -28,6 +28,20 @@ from src.data.cache import _cache_path, _is_expired
 MAX_RETRIES = 3
 BASE_DELAY = 2  # seconds
 
+# ── Global rate limiter (1 call/min for Tushare free tier) ──
+_last_api_call_time = 0.0
+_MIN_API_INTERVAL = 65.0  # seconds, >60s to avoid rate limit
+
+def _rate_limit_wait():
+    """Wait if needed to respect Tushare 1-call/min rate limit."""
+    global _last_api_call_time
+    elapsed = time.time() - _last_api_call_time
+    if elapsed < _MIN_API_INTERVAL:
+        wait = _MIN_API_INTERVAL - elapsed
+        logger.debug(f'Tushare rate limit: waiting {wait:.1f}s')
+        time.sleep(wait)
+    _last_api_call_time = time.time()
+
 
 def _retry_api_call(fn, *args, **kwargs):
     """Call Tushare API with exponential backoff retry.
@@ -38,6 +52,7 @@ def _retry_api_call(fn, *args, **kwargs):
     if fn_name in _DENIED_APIS:
         logger.debug(f"Tushare API跳过(无权限缓存): {fn_name}")
         return None
+    _rate_limit_wait()
     for attempt in range(MAX_RETRIES):
         try:
             result = fn(*args, **kwargs)
