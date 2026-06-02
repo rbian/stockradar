@@ -1199,3 +1199,49 @@
 - quant-trading (je-suis-tm): Heikin-Ashi/Pair Trading等策略模式 → 后续可参考
 
 **数据状态:** 6/20笔已平仓，胜率16.7%，暂不调参数
+
+### 2026-06-03 (周三) 风控+仓位日 改进记录
+
+**代码审查发现:**
+- 🔴 组合回撤-15.5%，二元熔断器(8%)冻结所有买入，¥548K现金闲置 → 已修复
+- 🟡 "买入失误"6/7笔(85.7%)，买入后当日即跌，缺少盘中动量检查 → 已修复
+- 🟢 T+1检查：所有卖出路径（_auto_sell/_smart_rebalance/reduce_to_5/强制换仓）均正确
+- 🟢 Commission：_buy(1+rate)和_sell(1-rate)每次正确扣除
+- 🟢 _partial_sell: shares=0时清除持仓，peak_price正确更新
+- 🟢 _add_position: 加权平均成本计算正确
+- 🟢 乒乓防护：daily_swaps.json记录swap pairs，反向操作被拦截
+- 🟡 nav_history deduplicate到1条/天（设计如此，非bug）
+- 🟢 Telegram Conflict错误：transient，单实例运行无问题
+
+**复盘驱动改进:**
+- 数据状态: 7/20笔已平仓，胜率14.3%，均收益-6.99%，暂不调参数
+- 主力错误模式: "买入失误"6次 — 多数在买入当日下跌
+- 改进: 盘中动量过滤(条件4b)直接回应此模式
+
+**改进实施 (3项):**
+1. ✅ **🔴 分级回撤熔断器** — 替代二元8%阻断
+   - 旧: drawdown > 8% → block ALL buys
+   - 新: <8%正常 / 8-15%(scale=0.5,signal≥65) / 15-20%(scale=0.3,signal≥75) / >20%阻断
+   - 灵感来源: QLib SoftTopkStrategy的risk_degree动态暴露
+   - 影响: 当前-15.5%回撤下，Bot可以买入但仓位缩减50%，信号门槛65+
+   - commit: d688f9b
+
+2. ✅ **🟡 盘中动量过滤(条件4b)** — 不买入当日下跌超1%的股票
+   - 复盘驱动: 5/12买入失误6次，多数当日即跌
+   - 实现: 检查当前价 vs 今日开盘价，低于1%+则跳过
+   - commit: d688f9b
+
+3. ✅ **🟢 市场宽度诊断** — 新增market_breadth.py
+   - 计算HS300涨跌比例、平均涨跌幅、宽度信号
+   - 每轮alert_check记录日志，非阻断性
+   - 后续可用于调整买入门槛的参考
+   - commit: d688f9b
+
+**GitHub学习:**
+- microsoft/qlib: SoftTopkStrategy的risk_degree概念 → 启发分级熔断器设计
+  - risk_degree: 动态调整目标仓位暴露，而非二元开关
+  - trade_impact_limit: 单次调仓权重上限 → 后续可参考
+- je-suis-tm/quant-trading: 多策略组合思路 → 后续可参考
+
+**数据状态:** 7/20笔已平仓，胜率14.3%，暂不调参数
+**运行状态:** Bot需重启使新代码生效，当前持仓001391国货航57100股
