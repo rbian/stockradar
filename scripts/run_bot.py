@@ -445,12 +445,20 @@ def main():
             except Exception:
                 pass
 
-        def _check_portfolio_drawdown(tracker) -> bool:
-            """组合最大回撤熔断器: NAV从峰值回撤>8%时禁止新买入
+        def _check_portfolio_drawdown(tracker, return_detail=False):
+            """组合回撤分级熔断器: 替代二元8%阻断，采用渐进式风控
             
-            来源: 机构风控标准，8%回撤触发减仓/暂停是常见阈值。
-            使用持久化的peak_nav（nav_tracker.py），重启后仍有效。
-            数据: 3/20已平仓，暂不调整8%阈值。
+            灵感来源: QLib SoftTopkStrategy的risk_degree动态暴露
+            
+            分级:
+              < 8%: 正常 (scale=1.0, min_signal=0)
+              8-15%: 缩减 (scale=0.5, min_signal=65)
+              15-20%: 极小 (scale=0.3, min_signal=75)
+              > 20%: 全面阻断
+            
+            Returns:
+              return_detail=False: bool (是否允许买入)
+              return_detail=True: dict {allowed, scale, min_signal, drawdown}
             """
             try:
                 peak_nav = getattr(tracker, 'peak_nav', 0)
@@ -460,17 +468,31 @@ def main():
                     if nav_history and isinstance(nav_history, list):
                         peak_nav = max((h.get('nav', 0) for h in nav_history if isinstance(h, dict)), default=0)
                 if peak_nav <= 0:
-                    return True
+                    result = {'allowed': True, 'scale': 1.0, 'min_signal': 0, 'drawdown': 0}
+                    return result if return_detail else True
                 current_nav = tracker.get_nav()['nav'] if hasattr(tracker, 'get_nav') else 0
                 if current_nav <= 0:
-                    return True
+                    result = {'allowed': True, 'scale': 1.0, 'min_signal': 0, 'drawdown': 0}
+                    return result if return_detail else True
                 drawdown = (current_nav - peak_nav) / peak_nav
-                if drawdown < -0.08:
-                    logger.info(f"⚠️ 组合回撤{drawdown:.1%}超8%阈值，暂停新买入 (peak={peak_nav:.4f}, now={current_nav:.4f})")
-                    return False
-                return True
+                
+                # Tiered response
+                if drawdown >= -0.08:
+                    result = {'allowed': True, 'scale': 1.0, 'min_signal': 0, 'drawdown': drawdown}
+                elif drawdown >= -0.15:
+                    logger.info(f"⚠️ 组合回撤{drawdown:.1%} [Tier2:缩减50%仓位, 信号门槛65]")
+                    result = {'allowed': True, 'scale': 0.5, 'min_signal': 65, 'drawdown': drawdown}
+                elif drawdown >= -0.20:
+                    logger.info(f"⚠️ 组合回撤{drawdown:.1%} [Tier3:极小仓位30%, 信号门槛75]")
+                    result = {'allowed': True, 'scale': 0.3, 'min_signal': 75, 'drawdown': drawdown}
+                else:
+                    logger.info(f"🔴 组合回撤{drawdown:.1%} [Tier4:全面阻断] (peak={peak_nav:.4f}, now={current_nav:.4f})")
+                    result = {'allowed': False, 'scale': 0, 'min_signal': 999, 'drawdown': drawdown}
+                
+                return result if return_detail else result['allowed']
             except Exception:
-                return True  # 出错不限制
+                result = {'allowed': True, 'scale': 1.0, 'min_signal': 0, 'drawdown': 0}
+                return result if return_detail else True  # 出错不限制
 
 
         async def alert_check():
@@ -529,6 +551,14 @@ def main():
                         if sold_count > 0:
                             await _auto_buy(dq)
                             await pages_update()
+
+                # 市场宽度诊断 (非阻断性，仅日志记录)
+                if _is_trading_day():
+                    try:
+                        from src.risk_management.market_breadth import log_market_breadth
+                        log_market_breadth(dq)
+                    except Exception:
+                        pass
 
                 # 主动调仓: 评分驱动 + 技术面恶化
                 if _is_trading_day():
@@ -677,9 +707,12 @@ def main():
                     logger.info(f"现金仅¥{tracker.cash:.0f}，保留缓冲，跳过买入")
                     return
 
-                # 组合回撤熔断器
-                if not _check_portfolio_drawdown(tracker):
+                # 组合回撤分级熔断器
+                _dd_info = _check_portfolio_drawdown(tracker, return_detail=True)
+                if not _dd_info['allowed']:
                     return
+                _dd_scale = _dd_info.get('scale', 1.0)
+                _dd_min_signal = _dd_info.get('min_signal', 0)
 
                 # Step 1: 因子评分排名
                 engine = FactorEngine()
@@ -720,13 +753,15 @@ def main():
                         filter_stats["no_data"] += 1
                         continue
 
-                    # 条件1: 技术信号评分 (大盘择时调整)
+                    # 条件1: 技术信号评分 (大盘择时+回撤分级调整)
                     tech = score_stock(stock_data)
                     min_signal = 30
                     if market_regime == "bearish":
                         min_signal = 40  # bearish: moderate
                     elif market_regime == "bullish":
                         min_signal = 25  # bullish: low
+                    # 回撤期间提高信号门槛: Tier2(+65), Tier3(+75)
+                    min_signal = max(min_signal, _dd_min_signal)
                     if tech.get('signal_score', 0) < min_signal:
                         filter_stats["signal"] += 1
                         continue
@@ -754,6 +789,13 @@ def main():
                         vol_ma5 = vol.tail(6).iloc[:-1].mean()
                         if vol_ma5 > 0 and vol.iloc[-1] < vol_ma5 * 0.5:
                             continue  # 缩量，资金不关注
+
+                    # 条件4b: 盘中动量过滤 — 不买入当日已经下跌的股票（避免接飞刀）
+                    # 复盘驱动: 5/12买入失误6次中，多数在买入当日即下跌
+                    if 'open' in stock_data.columns and len(stock_data) > 0:
+                        today_open = float(stock_data.iloc[-1]['open'])
+                        if today_open > 0 and latest_price < today_open * 0.99:
+                            continue  # 当前价低于今日开盘价1%以上，盘中弱势
 
                     # 条件5: 短期趋势 (大盘择时调整)
                     ma5 = close.rolling(5).mean().iloc[-1]
@@ -944,6 +986,10 @@ def main():
                     remaining_candidates = len(buy_list) - buy_list.index(c)
                     per_stock = tracker.cash / max(remaining_candidates, 1)
                     shares = int(per_stock / price / 100) * 100
+                    # 回撤分级缩减: Tier2缩减50%, Tier3缩减70%
+                    if _dd_scale < 1.0:
+                        shares = int(shares * _dd_scale / 100) * 100
+                        logger.info(f"回撤缩减仓位 {code}: scale={_dd_scale:.1f}, shares={shares}")
                     # 波动率调整仓位: 高波动股缩减仓位，降低"买入后大亏"风险
                     # 复盘驱动: 5/12三只买入失误股(同仁堂-6.9%, 长春高新-6.2%, 万科-9.5%)均属高波动
                     try:
@@ -1531,10 +1577,17 @@ def main():
                     logger.info(f"调仓: 回滚 卖出资金{sell_amount:.0f} 不够买100股@{buy_price}")
                     # 钱不够买100股，保留现金不回滚（避免乒乓）
                     return
-                # 组合回撤熔断器
-                if not _check_portfolio_drawdown(tracker):
-                    logger.info('调仓买入被回撤熔断器拦截')
+                # 组合回撤分级熔断器
+                _dd_info_rb = _check_portfolio_drawdown(tracker, return_detail=True)
+                if not _dd_info_rb['allowed']:
+                    logger.info(f'调仓买入被回撤熔断器拦截 (回撤{_dd_info_rb.get("drawdown",0):.1%})')
                     return
+                _rb_dd_scale = _dd_info_rb.get('scale', 1.0)
+                if _rb_dd_scale < 1.0:
+                    buy_shares = int(buy_shares * _rb_dd_scale / 100) * 100
+                    logger.info(f"回撤缩减调仓仓位: scale={_rb_dd_scale:.1f}, shares={buy_shares}")
+                    if buy_shares < 100:
+                        return
                 # Consecutive loss protection for rebalance buy
                 try:
                     from src.risk_management.consecutive_loss import ConsecutiveLossProtection
