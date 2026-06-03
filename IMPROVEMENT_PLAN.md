@@ -1245,3 +1245,36 @@
 
 **数据状态:** 7/20笔已平仓，胜率14.3%，暂不调参数
 **运行状态:** Bot需重启使新代码生效，当前持仓001391国货航57100股
+
+### 2026-06-04 (周四) 数据+基建日 改进记录
+
+**代码审查发现:**
+- 🔴🔴 **严重BUG: smart_rebalance卖出后不保存state导致幽灵交易**
+  - 根因: smart_rebalance执行tracker._sell后，如果后续买入失败（资金不够、回撤熔断、连续亏损保护等），函数直接return而不调用_save_nav
+  - 影响: closed_trades.json记录了卖出，但nav_state_balanced.json未更新，导致同一持仓被反复"卖出"
+  - 实例: 001391国货航在closed_trades中有3笔卖出记录（05-29/06-02/06-03），但nav_state一直未删除持仓
+  - 修复: 在_sell之后立即_save_nav，确保卖出状态不丢失
+  - commit: f0a4b2b
+- 🟡 closed_trades去重机制不够强（只按sell_date去重）
+  - 修复: 增加position-level去重（同code+buy_date+shares视为同一持仓）
+  - commit: cf1c0de
+- 🟢 Tushare rate-limit重试等待时间太短（2s/4s vs 需要65s+）
+  - 修复: 频率超限错误时等待至少65s
+  - commit: 1f234b2
+
+**复盘驱动改进:**
+- 数据状态: 6/20笔已平仓（清理后），胜率16.7%，暂不调参数
+- 主要错误模式: "买入失误"仍然占主导，已有盘中动量过滤应对
+- 001391幽灵交易问题修复后，后续closed_trades数据将更准确
+
+**改进实施 (3项):**
+1. ✅ **🔴 smart_rebalance _sell后立即_save_nav** — 防止卖出状态丢失
+2. ✅ **🟡 closed_trades position-level去重** — 防止同一持仓重复记录卖出
+3. ✅ **🟢 Tushare rate-limit重试优化** — 频率超限时等待65s+
+
+**GitHub学习:**
+- KHunter (191⭐): 五维评分模型（技术35%/资金面35%/基本面10%/板块10%/事件10%）— 资金面权重最高，值得参考。我们目前资金流权重仅10%
+- alphasift (122⭐): AI选股引擎，T+N评估机制（evaluate saved runs）— 我们已有trade_reviews做类似功能
+
+**数据状态:** 6/20笔已平仓，胜率16.7%，暂不调参数
+**运行状态:** Bot需重启使新代码生效
