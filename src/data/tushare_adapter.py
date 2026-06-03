@@ -26,7 +26,7 @@ from src.data.cache import _cache_path, _is_expired
 # ── Retry with exponential backoff ──
 
 MAX_RETRIES = 3
-BASE_DELAY = 2  # seconds
+BASE_DELAY = 2  # seconds (base, overridden for rate-limit errors)
 
 # ── Global rate limiter (1 call/min for Tushare free tier) ──
 _last_api_call_time = 0.0
@@ -59,9 +59,13 @@ def _retry_api_call(fn, *args, **kwargs):
             return result
         except Exception as e:
             if attempt < MAX_RETRIES - 1:
-                delay = BASE_DELAY * (2 ** attempt)
+                # Rate limit errors need 65+ second waits
+                is_rate_limit = '频率超限' in str(e) or 'rate limit' in str(e).lower()
+                delay = max(_MIN_API_INTERVAL, BASE_DELAY * (2 ** attempt)) if is_rate_limit else BASE_DELAY * (2 ** attempt)
                 logger.warning(f"Tushare API retry {attempt + 1}/{MAX_RETRIES} after {delay}s: {e}")
                 time.sleep(delay)
+                if is_rate_limit:
+                    _last_api_call_time = time.time()  # Reset timer after rate-limit wait
             else:
                 logger.warning(f"Tushare API failed after {MAX_RETRIES} attempts: {e}")
                 if '没有接口' in str(e) or '权限' in str(e):
