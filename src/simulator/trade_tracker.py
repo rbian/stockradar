@@ -85,13 +85,22 @@ def record_trade(code: str, name: str, action: str, buy_price: float, sell_price
     
     log = _load(TRADE_LOG, {"trades": [], "metadata": {}})
     
-    # 去重保护: 同一代码+同一买卖日期+同一原因视为重复
+    # 去重保护: 
+    # 1. 同一代码+同一买卖日期+同一原因视为重复
+    # 2. 同一代码+同一buy_date已有sell记录则跳过（防止state未保存导致的重复卖出）
     _dup_key = f"{code}:{buy_date}:{sell_date}:{reason}:{shares}"
-    _recent = log["trades"][-20:]  # 只检查最近20笔
+    _recent = log["trades"][-20:]
     for _rt in _recent:
         _rk = f"{_rt.get('code','')}:{_rt.get('buy_date','')}:{_rt.get('sell_date','')}:{_rt.get('reason','')}:{_rt.get('shares',0)}"
         if _rk == _dup_key:
-            return _rt  # 已存在，跳过
+            return _rt  # 精确重复，跳过
+    # 防止同一持仓被重复卖出记录（state未保存导致同一holding被多次卖出）
+    _pos_key = f"{code}:{buy_date}:{shares}"
+    for _rt in _recent:
+        _pk = f"{_rt.get('code','')}:{_rt.get('buy_date','')}:{_rt.get('shares',0)}"
+        if _pk == _pos_key:
+            logger.warning(f"跳过重复卖出记录 {code} buy:{buy_date} shares:{shares} (已有sell记录)")
+            return _rt
     
     log["trades"].append(trade)
     
