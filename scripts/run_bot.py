@@ -1552,6 +1552,9 @@ def main():
                 h = tracker.holdings[sell_candidate]
                 sell_pnl = (sell_price - h['cost_price']) * h['shares']
                 tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
+                # 立即保存卖出状态，防止后续买入失败导致卖出丢失
+                _save_nav(tracker, dq)
+
 
                 # 买入（用卖出资金）+ 保留最低现金缓冲
                 # FIX: _sell已将卖出收入加到tracker.cash，不能重复加sell_amount
