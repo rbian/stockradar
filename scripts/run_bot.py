@@ -494,6 +494,213 @@ def main():
                 result = {'allowed': True, 'scale': 1.0, 'min_signal': 0, 'drawdown': 0}
                 return result if return_detail else True  # 出错不限制
 
+        def _verify_nav_integrity(tracker):
+            """校验nav_state数据完整性 — 每次alert_check前执行
+            
+            检查项:
+            1. holdings的shares是否为非负整数
+            2. cost_price是否为正数
+            3. closed_trades中已平仓的股票是否仍出现在holdings中（状态不一致）
+            4. cash是否为负（不可能的状态）
+            5. daily_trade_count是否异常（>15笔/天）
+            """
+            issues = []
+            try:
+                # Check 1&2: holdings sanity
+                for code, h in list(tracker.holdings.items()):
+                    shares = h.get('shares', 0)
+                    cost = h.get('cost_price', 0)
+                    if shares <= 0:
+                        issues.append(f"🔴 {code} shares={shares}, deleting orphan holding")
+                        del tracker.holdings[code]
+                    elif cost <= 0:
+                        issues.append(f"🔴 {code} cost_price={cost}, deleting corrupt holding")
+                        del tracker.holdings[code]
+                
+                # Check 3: cross-check with closed_trades
+                try:
+                    from src.simulator.trade_tracker import _load, TRADE_LOG
+                    ct = _load(TRADE_LOG, {"trades": []})
+                    recent_sells = {t['code']: t['sell_date'] for t in ct.get('trades', [])[-20:]}
+                    for code in list(tracker.holdings.keys()):
+                        if code in recent_sells:
+                            # Stock was recorded as sold but still in holdings — possible if partial sell
+                            # Only flag if the sell was recent (last 2 days) and was a full sell
+                            import datetime as _dt_check
+                            sell_date_str = recent_sells[code]
+                            try:
+                                sell_dt = _dt_check.datetime.strptime(sell_date_str, '%Y-%m-%d')
+                                if (_dt_check.datetime.now() - sell_dt).days <= 2:
+                                    # Check if it was a full position sell (shares match)
+                                    for t in ct.get('trades', [])[-20:]:
+                                        if t['code'] == code and t.get('reason', '') in ('stop_loss_full', 'smart_rebalance', 'auto_stop'):
+                                            issues.append(f"🟡 {code} sold on {sell_date_str} ({t.get('reason')}) but still in holdings — verify manually")
+                            except Exception:
+                                pass
+                except Exception:
+                    pass  # closed_trades not available, skip check
+                
+                # Check 4: negative cash
+                if tracker.cash < 0:
+                    issues.append(f"🔴 NEGATIVE CASH: ¥{tracker.cash:.0f} — critical state corruption")
+                
+                # Check 5: daily trade count
+                try:
+                    _gt_f = PROJECT_ROOT / 'data' / 'daily_trade_count.json'
+                    if _gt_f.exists():
+                        _gt_data = json.loads(_gt_f.read_text())
+                        _gt_today = datetime.now().strftime('%Y-%m-%d')
+                        _gt_count = _gt_data.get(_gt_today, 0)
+                        if _gt_count > 15:
+                            issues.append(f"🔴 异常交易频率: 今日{_gt_count}笔 — 可能存在无限交易循环")
+                except Exception:
+                    pass
+                
+                if issues:
+                    for issue in issues:
+                        logger.warning(f"NAV完整性检查: {issue}")
+                    # Save corrected state if holdings were cleaned
+                    if any('deleting' in i for i in issues):
+                        nav_file = PROJECT_ROOT / 'data' / 'nav_state_balanced.json'
+                        nav_file.write_text(json.dumps(tracker.to_dict(), ensure_ascii=False))
+                        logger.info("NAV完整性: 已修复并保存")
+                
+                # === 交易节奏异常检测 (改进3: 灵感来自statarb的交易成本优化) ===
+                # 检测5天内同一股票反复买卖(乒乓)或单日超5笔交易
+                try:
+                    _tl = tracker.trade_log[-50:]  # 最近50笔
+                    _today = datetime.now().strftime('%Y-%m-%d')
+                    
+                    # 检测1: 同一股票5天内买卖循环
+                    _code_trades = {}
+                    for t in _tl:
+                        c = t['code']
+                        if c not in _code_trades:
+                            _code_trades[c] = []
+                        _code_trades[c].append((t.get('date', '')[:10], t['action']))
+                    
+                    for c, trades_list in _code_trades.items():
+                        if len(trades_list) >= 4:  # 至少4次操作(买-卖-买-卖)
+                            recent = trades_list[-4:]
+                            # 检查是否有交替买卖模式
+                            actions = [a for _, a in recent]
+                            if actions in (['buy','sell','buy','sell'], ['sell','buy','sell','buy']):
+                                from src.data.stock_names import stock_name as _sn_chk
+                                issues.append(f"🟡 乒乓交易检测: {_sn_chk(c)}({c}) 最近{len(trades_list)}笔操作={actions}")
+                    
+                    # 检测2: 单日交易密度
+                    _day_counts = {}
+                    for t in _tl:
+                        d = t.get('date', '')[:10]
+                        _day_counts[d] = _day_counts.get(d, 0) + 1
+                    for d, cnt in _day_counts.items():
+                        if cnt > 8:
+                            issues.append(f"🟡 高频交易日: {d}共{cnt}笔交易")
+                except Exception:
+                    pass
+                
+            except Exception as e:
+                logger.debug(f"NAV完整性检查失败: {e}")
+
+        def _log_portfolio_risk(tracker, dq):
+            """组合风险诊断日志 — 灵感来自statarb项目的风险分解
+            
+            输出到日志（不影响交易决策），用于daily-improve分析:
+            1. 持仓集中度: 最大单只占比
+            2. 板块集中度: 最大板块占比  
+            3. 组合相关性: 持仓间平均相关系数
+            4. 系统性风险暴露: 用PCA第一主成分解释率衡量
+            """
+            try:
+                if not tracker.holdings or dq is None:
+                    return
+                
+                import numpy as np
+                held_codes = list(tracker.holdings.keys())
+                
+                # 计算各持仓市值
+                prices = {}
+                for code in held_codes:
+                    rows = dq[dq['code'] == code] if 'code' in dq.columns else None
+                    if rows is not None and len(rows) > 0:
+                        prices[code] = float(rows.iloc[-1]['close'])
+                
+                values = {c: tracker.holdings[c]['shares'] * prices.get(c, 0) for c in held_codes}
+                total = sum(values.values())
+                if total <= 0:
+                    return
+                
+                # 1. 集中度
+                max_weight = max(values.values()) / total
+                top3_weight = sum(sorted(values.values(), reverse=True)[:3]) / total
+                
+                # 2. 相关性
+                corr_matrix = []
+                valid_codes = []
+                for code in held_codes:
+                    stock = dq[dq['code'] == code].tail(60)['close'] if 'code' in dq.columns else None
+                    if stock is not None and len(stock) >= 30:
+                        ret = stock.pct_change().dropna().values
+                        if np.std(ret) > 0:
+                            corr_matrix.append(ret[-30:])
+                            valid_codes.append(code)
+                
+                avg_corr = 0
+                if len(corr_matrix) >= 2:
+                    corr_count = 0
+                    corr_sum = 0
+                    for i in range(len(corr_matrix)):
+                        for j in range(i+1, len(corr_matrix)):
+                            min_len = min(len(corr_matrix[i]), len(corr_matrix[j]))
+                            c = np.corrcoef(corr_matrix[i][-min_len:], corr_matrix[j][-min_len:])[0, 1]
+                            if not np.isnan(c):
+                                corr_sum += c
+                                corr_count += 1
+                    avg_corr = corr_sum / corr_count if corr_count > 0 else 0
+                
+                # 3. PCA系统性风险 (first principal component explained variance ratio)
+                pca_var = 0
+                if len(corr_matrix) >= 3:
+                    try:
+                        min_len = min(len(r) for r in corr_matrix)
+                        aligned = np.array([r[-min_len:] for r in corr_matrix])
+                        if aligned.shape[1] >= 10:
+                            from numpy.linalg import svd
+                            U, S, Vt = svd(aligned, full_matrices=False)
+                            pca_var = (S[0] ** 2) / sum(S ** 2)
+                    except Exception:
+                        pass
+                
+                # 4. 盈亏分布
+                pnl_dist = []
+                for code in held_codes:
+                    h = tracker.holdings[code]
+                    p = prices.get(code, 0)
+                    if p > 0 and h.get('cost_price', 0) > 0:
+                        pnl_dist.append((p - h['cost_price']) / h['cost_price'] * 100)
+                
+                avg_pnl = np.mean(pnl_dist) if pnl_dist else 0
+                worst_pnl = min(pnl_dist) if pnl_dist else 0
+                
+                logger.info(
+                    f"组合风险诊断: 集中度{max_weight:.0%}(top3:{top3_weight:.0%}) "
+                    f"相关性{avg_corr:.2f} PCA系统风险{pca_var:.0%} "
+                    f"持仓盈亏{avg_pnl:+.1f}%(最差{worst_pnl:+.1f}%) "
+                    f"现金{tracker.cash/10000:.0f}万"
+                )
+                
+                # 集中度预警
+                if max_weight > 0.4:
+                    logger.warning(f"⚠️ 集中度预警: 单只持仓占比{max_weight:.0%}")
+                if avg_corr > 0.6:
+                    logger.warning(f"⚠️ 相关性预警: 平均相关性{avg_corr:.2f}, 组合分散不足")
+                if pca_var > 0.7:
+                    logger.warning(f"⚠️ 系统性风险预警: PCA第一主成分{pca_var:.0%}, 组合高度同涨同跌")
+                    
+            except Exception as e:
+                logger.debug(f"组合风险诊断失败: {e}")
+
+
 
         async def alert_check():
             if not _is_trading_day():
@@ -518,6 +725,12 @@ def main():
                 from src.data.stock_names import stock_name as _sn
                 from src.data.sina_adapter import fetch_realtime_quotes
                 nav_data = json.load(open(PROJECT_ROOT / 'data' / 'nav_state_balanced.json'))
+                # === NAV完整性校验 ===
+                from src.simulator.nav_tracker import NAVTracker as _NAV_CHK
+                _chk_tracker = _NAV_CHK.from_dict(nav_data)
+                _verify_nav_integrity(_chk_tracker)
+                # Reload after potential corrections
+                nav_data = json.load(open(PROJECT_ROOT / 'data' / 'nav_state_balanced.json'))
                 holdings = nav_data.get('holdings', {})
                 cash = nav_data.get('cash', 0)
                 
@@ -535,6 +748,9 @@ def main():
                     dq = orch.context.read("data.daily_quote")
                 if dq is None:
                     return
+                # === 组合风险诊断 (每轮alert_check) ===
+                _risk_tracker = _NAV_CHK.from_dict(nav_data)
+                _log_portfolio_risk(_risk_tracker, dq)
                 alerts = check_alerts(holdings, dq)
                 if alerts:
                     names = {c: _sn(c) for c in holdings}
