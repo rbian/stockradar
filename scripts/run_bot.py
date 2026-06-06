@@ -1915,6 +1915,23 @@ def main():
         scheduler.add_job(monthly_report, "cron", day="1", hour=9, minute=0,
                           timezone="Asia/Shanghai")
 
+        # D7 数据源健康巡检: 盘前9:35 + 盘后18:00
+        async def data_health_check():
+            if not _is_trading_day(): return
+            try:
+                from src.infra.data_health import run_health_check
+                alert = run_health_check()
+                if alert:
+                    for uid in ALLOWED_USERS:
+                        try:
+                            await app.bot.send_message(chat_id=uid, text=alert)
+                        except Exception:
+                            pass
+            except Exception as e:
+                logger.warning(f"数据健康检查失败: {e}")
+        scheduler.add_job(data_health_check, "cron", hour="9,18", minute=35,
+                          day_of_week="mon-fri", timezone="Asia/Shanghai")
+
         scheduler.start()
         logger.info("Scheduler: 数据→调仓→IC→日报→Pages→预警5min→复盘→ 周六:进化+GitHub扫描→ 月初:进化月报")
 
