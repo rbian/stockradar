@@ -22,7 +22,7 @@ categories:
         direction: higher_better
         params:
           period: 5
-    weight: 0.1
+    weight: 0.15
   fundamental:
     factors:
       accrual_ratio:
@@ -316,4 +316,4 @@ categories:
         - 0
         direction: lower_better
         invert: true
-    weight: 0.6
+    weight: 0.55

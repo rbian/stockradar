@@ -445,6 +445,20 @@ def main():
             except Exception:
                 pass
 
+
+        def _record_to_blacklist(code, sell_price, cost_price, sell_date):
+            """Record trade result to blacklist for auto-learning"""
+            try:
+                from src.risk_management.stock_blacklist import StockBlacklist
+                _bl = StockBlacklist()
+                pnl_pct = (sell_price - cost_price) / cost_price if cost_price > 0 else 0
+                if pnl_pct < -0.03:
+                    _bl.record_loss(code, sell_date, pnl_pct)
+                elif pnl_pct > 0.02:
+                    _bl.record_win(code, sell_date, pnl_pct)
+            except Exception:
+                pass
+
         def _check_portfolio_drawdown(tracker, return_detail=False):
             """组合回撤分级熔断器: 替代二元8%阻断，采用渐进式风控
             
@@ -1449,6 +1463,7 @@ def main():
                             logger.info(f'减仓跳过{code}: 今天买入T+1限制')
                             continue
                         tracker._sell(code, price, now_str, 'reduce_to_5')
+                        _record_to_blacklist(code, price, h['cost_price'], today)
                         sold.append(f"{_sn(code)} {h['shares']}股@¥{price:.2f} ({reason})")
                     if sold:
                         _save_nav(tracker, dq)
@@ -1516,6 +1531,7 @@ def main():
                         pass  # 确认机制失败时fallback到直接止损
                     if pnl_pct <= -0.15:
                         tracker._sell(code, price, now_str, 'stop_loss_full')
+                        _record_to_blacklist(code, price, h['cost_price'], today)
                         rebalance_actions.append(f"🔴 全部止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
                         continue
                     elif pnl_pct <= -0.10:
@@ -1531,6 +1547,7 @@ def main():
                     if _peak > h['cost_price'] * 1.05 and price < _peak * 0.92:
                         _trailing_pnl = (price - h['cost_price']) / h['cost_price']
                         tracker._sell(code, price, now_str, f'trailing_stop_peak{_peak:.1f}')
+                        _record_to_blacklist(code, price, h['cost_price'], today)
                         rebalance_actions.append(f"🔒 追踪止盈 {_sn(code)} {h['shares']}股@¥{price:.2f} (峰值¥{_peak:.1f} 回落{(_peak-price)/_peak*100:.1f}% 盈利{_trailing_pnl*100:.1f}%)")
                         continue
 
@@ -1544,6 +1561,7 @@ def main():
                             _hold_days = (_dt.strptime(today, '%Y-%m-%d') - _dt.strptime(_buy_date_str, '%Y-%m-%d')).days
                             if _hold_days >= 15 and pnl_pct < -0.10:
                                 tracker._sell(code, price, now_str, f'time_stop_{_hold_days}d_{pnl_pct*100:.1f}%')
+                                _record_to_blacklist(code, price, h['cost_price'], today)
                                 rebalance_actions.append(f"⏰ 时间止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (持仓{_hold_days}天 亏损{pnl_pct*100:.1f}%)")
                                 continue
                         except Exception:
@@ -1768,6 +1786,7 @@ def main():
                 h = tracker.holdings[sell_candidate]
                 sell_pnl = (sell_price - h['cost_price']) * h['shares']
                 tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
+                _record_to_blacklist(sell_candidate, sell_price, h['cost_price'], today)
                 # 立即保存卖出状态，防止后续买入失败导致卖出丢失
                 _save_nav(tracker, dq)
 
