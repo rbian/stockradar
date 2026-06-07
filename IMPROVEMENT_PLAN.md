@@ -1318,3 +1318,41 @@
 
 **数据状态:** 6/20笔已平仓，胜率16.7%，暂不调参数
 **运行状态:** Bot需重启使新代码生效
+
+### 2026-06-08 (周一) 复盘+策略日 改进记录
+
+**代码审查发现:**
+- 🔴 **黑名单record_loss/record_win从未被调用** — StockBlacklist机制完整但未激活，亏损股票不会被自动追踪
+  - 修复: 在所有5个卖出路径后调用_record_to_blacklist()
+  - commit: 0560b3c
+- 🟡 capital_flow权重仅0.10（KHunter建议资金面占35%，我们远低于此）
+  - 修复: capital_flow 0.10→0.15, technical 0.60→0.55
+- 🟢 T+1检查: 所有5个sell路径均有buy_date==today检查 ✓
+- 🟢 _save_nav: 所有sell路径后均正确调用（stop_loss在循环后统一save，smart_rebalance在sell后立即save）✓
+- 🟢 Commission: _buy(1+rate)和_sell(1-rate)每次正确扣除 ✓
+- 🟢 乒乓防护: daily_swaps.json记录pairs，反向操作拦截 ✓
+- 🟢 closed_trades: 6笔无重复（06-04去重修复生效）✓
+- 🟡 Tushare rate limit: hsgt_top10/sw_daily/top_list全部被限（已知限制，65s重试已优化）
+
+**复盘驱动改进 (数据不足6/20，只修bug不加参数):**
+- 主力错误模式: "买入失误"6次 — 5/12同日买入3只全亏
+- 改进1: 激活黑名单自动追踪 — 亏损超3%记录，同一股30天内2次亏损→黑名单30天，信号×0.5
+- 改进2: 回填历史亏损 — 000661/600085/603392已入黑名单至2026-07-08
+- 改进3: 资金面权重提升0.10→0.15 — 更重视主力资金流向
+
+**改进实施 (3项):**
+1. ✅ **🔴 激活黑名单record_loss/record_win** — 所有5个卖出路径全覆盖
+   - stop_loss_full / trailing_stop / time_stop / smart_rebalance / reduce_to_5
+   - 阈值: 亏损>3%记录, 盈利>2%记录win
+   - commit: 0560b3c
+2. ✅ **🟡 资金面权重提升** — capital_flow 0.10→0.15, technical 0.60→0.55
+   - 灵感: KHunter五维模型资金面占35%
+   - commit: 0560b3c
+3. ✅ **🟢 黑名单历史回填** — 000661/600085/603392入黑名单，7月8日到期
+
+**GitHub学习:**
+- 浏览KHunter (191⭐): 资金面35%权重 → 已提升capital_flow到0.15
+- 无其他高星项目提供直接可用的alpha思路
+
+**数据状态:** 6/20笔已平仓，胜率16.7%，暂不调参数
+**运行状态:** 当前空仓(cash ¥842K)，Bot需重启使新代码生效
