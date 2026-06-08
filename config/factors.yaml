@@ -22,7 +22,7 @@ categories:
         direction: higher_better
         params:
           period: 5
-    weight: 0.15
+    weight: 0.2
   fundamental:
     factors:
       accrual_ratio:
@@ -93,7 +93,7 @@ categories:
         - 0
         - 40
         direction: higher_better
-    weight: 0.15
+    weight: 0.2
   llm:
     factors:
       earnings_sentiment:
@@ -316,4 +316,4 @@ categories:
         - 0
         direction: lower_better
         invert: true
-    weight: 0.55
+    weight: 0.45

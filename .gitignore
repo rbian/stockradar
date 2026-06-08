@@ -42,5 +42,12 @@ logs/
 
 # Backup files
 *.bak
-src/data/
+# src/data/*.parquet (keep .py files tracked)
 docs/*.md
+
+# Ignore data artifacts but NOT source code in src/data/
+src/data/__pycache__/
+src/data/*.parquet
+src/data/*.json
+src/data/*.db
+

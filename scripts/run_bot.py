@@ -965,6 +965,23 @@ def main():
                     logger.debug(f'市场状态fallback: {_e}')
                     market_regime = "neutral"  # 默认中性
 
+                # 波动率状态: HS300近期ATR/价格比 → 高波动时提高买入门槛
+                vol_regime = "normal"
+                try:
+                    import pandas as _pd
+                    _idx_df = orch.context.read("data.daily_quote")
+                    if _idx_df is not None and not _idx_df.empty:
+                        # 取HS300成分股的平均波动率
+                        if 'pct_chg' in _idx_df.columns:
+                            _recent_pct = _idx_df.groupby('code').tail(10).groupby('code')['pct_chg'].std()
+                            _avg_vol = _recent_pct.median()
+                            if _avg_vol > 2.5:  # 日均振幅>2.5%为高波动
+                                vol_regime = "high_vol"
+                            elif _avg_vol > 1.8:
+                                vol_regime = "elevated"
+                except Exception:
+                    pass
+
                 # Step 2: 多条件过滤候选股
                 candidates = []
                 filter_stats = {"total": 0, "no_data": 0, "signal": 0, "rsi": 0, "bias": 0, "vol": 0, "trend": 0, "risk": 0}
@@ -992,6 +1009,11 @@ def main():
                         min_signal = 25  # bullish: low
                     # 回撤期间提高信号门槛: Tier2(+65), Tier3(+75)
                     min_signal = max(min_signal, _dd_min_signal)
+                    # 高波动环境额外提高门槛 (+10/+5)
+                    if vol_regime == "high_vol":
+                        min_signal += 10
+                    elif vol_regime == "elevated":
+                        min_signal += 5
                     if tech.get('signal_score', 0) < min_signal:
                         filter_stats["signal"] += 1
                         continue
@@ -1378,7 +1400,7 @@ def main():
                     buy_date = h.get('buy_date', '')
                     if buy_date == today:
                         continue
-                    # 最小持仓期: 买入不足2个交易日不主动调仓卖出（降低交易成本损耗）
+                    # 最小持仓期: 买入不足3个交易日不主动调仓卖出（降低交易成本损耗，复盘: 2天太短导致频繁换仓）
                     try:
                         from datetime import timedelta
                         buy_dt = datetime.strptime(buy_date, '%Y-%m-%d').date()
@@ -1390,7 +1412,7 @@ def main():
                             if temp.weekday() < 5:
                                 weekday_diff += 1
                             temp += timedelta(days=1)
-                        if weekday_diff < 2:
+                        if weekday_diff < 3:
                             continue
                     except Exception:
                         pass
@@ -1675,7 +1697,7 @@ def main():
                         best_outside = (code, scores.loc[code, 'score_total'], sig)
                         break
                     
-                    # 强制换仓条件: 场外标的评分比持仓最差的高15%以上
+                    # 强制换仓条件: 场外标的评分比持仓最差的高20%以上（复盘: 15%门槛导致过早换仓损失佣金）
                     if best_outside and worst_held_score > 0:
                         # T+1: 强制换仓也不能卖今天买入的
                         worst_h = tracker.holdings.get(worst_held_code, {})
@@ -1693,13 +1715,13 @@ def main():
                                 if _tmp2.weekday() < 5:
                                     _wdiff2 += 1
                                 _tmp2 += _td2(days=1)
-                            if _wdiff2 < 2:
-                                logger.info(f'强制换仓跳过{worst_held_code}: 持仓不足2个交易日({_wdiff2}天)')
+                            if _wdiff2 < 3:
+                                logger.info(f'强制换仓跳过{worst_held_code}: 持仓不足3个交易日({_wdiff2}天)')
                                 return
                         except Exception:
                             pass
                         score_improvement = (best_outside[1] - worst_held_score) / worst_held_score
-                        if score_improvement >= 0.15:
+                        if score_improvement >= 0.20:
                             sell_list = [(worst_held_code, f"评分{worst_held_score:.1f}(排名{worst_held_rank}) 远低于场外{best_outside[1]:.1f}")]
                             logger.info(f"强制换仓: {worst_held_code}(评分{worst_held_score:.1f}) → {best_outside[0]}(评分{best_outside[1]:.1f}) 提升{score_improvement*100:.0f}%")
                         else:
