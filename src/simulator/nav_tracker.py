@@ -281,9 +281,21 @@ class NAVTracker:
         # 更新peak_price（部分卖出时价格可能是新高）
         if price > h.get("peak_price", price):
             h["peak_price"] = price
-        # 如果减到0股，清除持仓
+        # 如果减到0股，清除持仓（视为完整平仓）
         if h["shares"] <= 0:
             del self.holdings[code]
+            # 补记完整平仓到策略跟踪（否则trade_tracker只有partial_sell记录，缺少完整平仓标记）
+            try:
+                from src.simulator.trade_tracker import record_trade
+                from src.data.stock_names import stock_name as _sn
+                record_trade(
+                    code=code, name=_sn(code), action="sell",
+                    buy_price=cost_price, sell_price=price,
+                    shares=shares, buy_date=str(h.get("buy_date", ""))[:10],
+                    sell_date=str(date)[:10], reason=reason + "_final",
+                )
+            except Exception:
+                pass
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
             "shares": shares, "price": price, "reason": reason, "pnl": pnl,

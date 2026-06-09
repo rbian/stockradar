@@ -965,6 +965,21 @@ def main():
                     logger.debug(f'市场状态fallback: {_e}')
                     market_regime = "neutral"  # 默认中性
 
+                # 市场广度过滤: 当日下跌股>60%时禁止auto_buy（复盘: 5/12系统性下跌日买入全亏）
+                try:
+                    _mb_dq = orch.context.read("data.daily_quote")
+                    if _mb_dq is not None and 'pct_chg' in _mb_dq.columns:
+                        _latest = _mb_dq.groupby('code').tail(1)
+                        _declining = (_latest['pct_chg'] < 0).sum()
+                        _total_mb = len(_latest)
+                        if _total_mb > 100:
+                            _breadth_ratio = _declining / _total_mb
+                            if _breadth_ratio > 0.60:
+                                logger.info(f'auto_buy跳过: 市场广度差({_declining}/{_total_mb}={_breadth_ratio:.0%}下跌)')
+                                return
+                except Exception:
+                    pass
+
                 # 波动率状态: HS300近期ATR/价格比 → 高波动时提高买入门槛
                 vol_regime = "normal"
                 try:

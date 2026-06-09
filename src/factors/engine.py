@@ -166,12 +166,16 @@ class FactorEngine:
                     if clip_range and clip_range[0] is not None:
                         raw_values = raw_values.clip(*clip_range)
 
-                    # 标准化
-                    std = raw_values.std()
-                    if std == 0 or pd.isna(std):
+                    # 标准化: 使用排名百分位（比z-score更抗异常值，参考Qlib最佳实践）
+                    # 排名归一化到[-1, 1]区间，极端值不会主导评分
+                    _valid = raw_values.dropna()
+                    if len(_valid) < 5:
                         normalized = pd.Series(0.0, index=raw_values.index)
                     else:
-                        normalized = (raw_values - raw_values.mean()) / std
+                        _ranked = raw_values.rank(pct=True, na_option='keep')
+                        # 映射到[-1, 1]: percentile 0→-1, 0.5→0, 1→1
+                        normalized = (_ranked - 0.5) * 2
+                        normalized = normalized.fillna(0)
 
                     # 方向调整
                     # 防止NaN传播：填充NaN为0（缺失数据的因子不计分）
