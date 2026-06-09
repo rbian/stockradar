@@ -1392,3 +1392,26 @@
 - je-suis-tm/quant-trading — 确认技术指标组合策略方向，无新的可直接集成的alpha
 
 - commit: 4c620f4
+
+### 2026-06-10 (周三) 风控+仓位日
+**代码审查发现:**
+- 🟢 交易逻辑（T+1、现金检查、佣金、止损）正确无bug
+- 🟡 _partial_sell减到0股时只记partial_sell不记完整平仓 → trade_tracker记录不完整
+- 🔴 5/12批次auto_buy全亏 — 缺少市场广度过滤，系统性下跌日仍买入
+- 🟢 乒乓防护、止损确认、连续亏损保护机制均正常运行
+- 数据状态: 6/20笔已平仓，暂不调参数
+
+**改进实施 (3项):**
+1. ✅ **市场广度过滤** — auto_buy新增检查：当日下跌股>60%时禁止买入
+   - 动机: 5/12系统性下跌日auto_buy买入全部亏损，需在市场整体弱势时停止建仓
+   - 实现: 读取daily_quote最新日pct_chg，统计下跌/总数比例
+2. ✅ **排名归一化** — 因子引擎从z-score改为rank-based normalization
+   - 动机: z-score受极端值影响大，Qlib等成熟量化框架使用排名归一化
+   - 实现: raw_values.rank(pct=True)映射到[-1,1]，更抗异常值
+3. ✅ **_partial_sell完整平仓记录** — 部分卖出减到0股时补记完整平仓到trade_tracker
+   - 之前: 只记录partial_sell，trade_tracker缺少完整平仓标记
+   - 修复: shares<=0时补记action="sell"，reason追加"_final"后缀
+
+**GitHub学习:**
+- 浏览microsoft/qlib (44k⭐) — 借鉴rank-based normalization替代z-score，已实施
+- RD-Agent自动因子挖掘思路值得后续探索，但当前规模下优先完善现有因子体系
