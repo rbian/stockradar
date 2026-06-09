@@ -1,15 +1,15 @@
 {
-  "updated": "2026-06-03",
+  "updated": "2026-06-09",
   "stats": {
-    "latest_date": "2026-06-03",
-    "nav": 0.843,
-    "total_return": -15.7,
-    "max_drawdown": -15.7,
-    "holdings_count": 1,
-    "total_trades": 11,
+    "latest_date": "2026-06-09",
+    "nav": 0.8421,
+    "total_return": -15.79,
+    "max_drawdown": -15.79,
+    "holdings_count": 0,
+    "total_trades": 12,
     "initial_capital": 1000000,
-    "current_value": 842972.0,
-    "cash": 548336.0
+    "current_value": 842107.0,
+    "cash": 842107.0
   },
   "nav_history": [
     {
@@ -77,6 +77,12 @@
       "nav": 0.843,
       "market_value": 294636.0,
       "holdings_count": 1
+    },
+    {
+      "date": "2026-06-04",
+      "nav": 0.8421,
+      "market_value": 0,
+      "holdings_count": 0
     }
   ],
   "hs300_benchmark": [
@@ -135,21 +141,31 @@
     {
       "date": "2026-06-03",
       "nav": 1.0346
+    },
+    {
+      "date": "2026-06-04",
+      "nav": 1.0311
+    },
+    {
+      "date": "2026-06-05",
+      "nav": 1.0008
+    },
+    {
+      "date": "2026-06-09",
+      "nav": 0.9985
     }
   ],
-  "holdings": [
+  "holdings": [],
+  "trades": [
     {
+      "date": "2026-06-04 09:35",
       "code": "001391",
       "name": "国货航",
+      "action": "sell",
       "shares": 57100,
-      "cost_price": 5.36,
-      "current_price": 5.16,
-      "market_value": 294636.0,
-      "pnl_pct": -3.73,
-      "weight": 100.0
-    }
-  ],
-  "trades": [
+      "price": 5.15,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-05-29 09:35",
       "code": "000661",
