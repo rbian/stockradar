@@ -1415,3 +1415,50 @@
 **GitHub学习:**
 - 浏览microsoft/qlib (44k⭐) — 借鉴rank-based normalization替代z-score，已实施
 - RD-Agent自动因子挖掘思路值得后续探索，但当前规模下优先完善现有因子体系
+
+### 2026-06-11 (周四) 数据+基建日
+
+**代码审查发现:**
+- 🟡 _sell记录到trade_tracker使用剩余股数而非原始总仓位 → P&L被低估
+  - 场景: 买入1000股→partial_sell 500→_sell剩余500，trade_tracker只记录500股
+  - 修复: 新增original_shares追踪，_sell和_partial_sell(清零时)都记录原始总仓位
+- 🟡 _partial_sell清零时重复调用record_trade（dedup捕获但代码混乱）
+  - 修复: 用is_full_close标志区分，消除重复录制路径
+- 🔴 ConsecutiveLossProtection无冷却恢复机制 → 5连亏后永久lockout
+  - 场景: 0持仓+halt锁定=永远无法新开仓→永远没有盈利交易→永远不reset
+  - 修复: 添加cooldown_days(5)后降级到reduce模式(50%仓位)
+- 🟢 数据源健康: Tushare 3个API持久化黑名单（hsgt_top10/sw_daily/top_list），已知限制
+- 🟢 无新ERROR（Telegram网络traceback是transient）
+
+**复盘驱动:**
+- 错误模式: "买入失误"仍占主导（6次），所有买入5日内均下跌
+- 数据状态: 6/20笔已平仓，胜率16.7%，暂不调参数
+- 当前空仓(¥842K)，连续亏损保护已触发冷却恢复→降级到50%仓位模式
+
+**改进实施 (3项):**
+1. ✅ **🟡 _sell/_partial_sell原始仓位追踪** (nav_tracker.py)
+   - 新增original_shares字段: _buy设置、_add_position累加
+   - _sell: 记录original_shares到trade_tracker（修复前只记剩余股数）
+   - _partial_sell: 消除重复录制路径，清零时正确记录原始仓位
+   - commit: ab1b222
+
+2. ✅ **🔴 ConsecutiveLossProtection冷却恢复** (consecutive_loss.py)
+   - 问题: halt阈值触发后，0持仓+无新交易=永不恢复（死锁）
+   - 修复: 距最近亏损卖出≥5个交易日后，降级halt→reduce(50%仓位)
+   - 影响: 当前5连亏+空仓状态，冷却恢复后bot可以50%仓位重新建仓
+   - commit: ab1b222
+
+3. ✅ **🟢 日内位置过滤器** (intraday_filter.py + run_bot.py)
+   - GitHub学习: aurumq-rl board-aware price limit proximity check
+   - 规则: 日涨幅>7%或日内位置>85%+涨幅>5%时跳过买入
+   - 动机: 直接应对"买入失误"模式 — 不追当日已有大涨的股票
+   - 集成: _auto_buy条件4c，与现有RSI/bias/MA20过滤同一模式
+   - commit: ab1b222
+
+**GitHub学习:**
+- yupoet/aurumq-rl: A股RL选股框架，296因子+board-aware limits
+  - 借鉴: board-aware price limit proximity → 实现为日内位置过滤器
+  - 其他洞察: rank-z归一化在长panel中会丢失因子幅度信号（验证我们rank-based方向正确）
+  - Strategy D top-K score-weighted sizing（我们的评分加权仓位方向正确）
+- chm020924/StockAnalysisSystem: A股AI多因子+增强技术分析
+  - 确认MACD/RSI集成方向与我们一致
