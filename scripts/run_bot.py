@@ -1064,6 +1064,19 @@ def main():
                         if today_open > 0 and latest_price < today_open * 0.99:
                             continue  # 当前价低于今日开盘价1%以上，盘中弱势
 
+                    # 条件4c: 日内位置过滤 — 不追日涨幅>7%或接近涨停的股票
+                    # GitHub学习: aurumq-rl board-aware price limit proximity
+                    # 数据: buy_list实时价格 ≈ latest close, 用stock_data OHLC判断日内位置
+                    try:
+                        from src.risk_management.intraday_filter import should_skip_buy as _intraday_skip
+                        _skip, _skip_reason = _intraday_skip(stock_data, latest_price)
+                        if _skip:
+                            filter_stats.setdefault("intraday", 0)
+                            filter_stats["intraday"] += 1
+                            continue
+                    except Exception:
+                        pass
+
                     # 条件5: 短期趋势 (大盘择时调整)
                     ma5 = close.rolling(5).mean().iloc[-1]
                     if market_regime == "bearish":

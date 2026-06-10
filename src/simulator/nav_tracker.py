@@ -196,7 +196,7 @@ class NAVTracker:
             avg_cost = (old["shares"] * old["cost_price"] + shares * price) / total_shares
             self.holdings[code] = {"shares": total_shares, "cost_price": avg_cost, "buy_date": old.get("buy_date", str(date)[:10]), "peak_price": max(old.get("peak_price", price), price)}
         else:
-            self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10], "peak_price": price}
+            self.holdings[code] = {"shares": shares, "cost_price": price, "buy_date": str(date)[:10], "peak_price": price, "original_shares": shares}
 
         # 存储因子快照到持仓（供_sell时传递给trade_tracker）
         if factor_score is not None:
@@ -257,10 +257,11 @@ class NAVTracker:
                     factors["total_score"] = h["factor_score"]
                 if h.get("signal_score") is not None:
                     signals["signal_score"] = h["signal_score"]
+                _orig_shares = h.get("original_shares", h["shares"])
                 record_trade(
                     code=code, name=_sn(code), action="sell",
                     buy_price=cost_price, sell_price=price,
-                    shares=h["shares"], buy_date=buy_date_str,
+                    shares=_orig_shares, buy_date=buy_date_str,
                     sell_date=str(date)[:10], reason=reason,
                     factors=factors, signals=signals,
                 )
@@ -277,25 +278,16 @@ class NAVTracker:
         pnl = (price - cost_price) * shares
         proceeds = shares * price * (1 - self.commission_rate)
         self.cash += proceeds
+        original_shares = h.get("original_shares", h["shares"])
         h["shares"] -= shares
         # 更新peak_price（部分卖出时价格可能是新高）
         if price > h.get("peak_price", price):
             h["peak_price"] = price
-        # 如果减到0股，清除持仓（视为完整平仓）
-        if h["shares"] <= 0:
+
+        is_full_close = h["shares"] <= 0
+        if is_full_close:
             del self.holdings[code]
-            # 补记完整平仓到策略跟踪（否则trade_tracker只有partial_sell记录，缺少完整平仓标记）
-            try:
-                from src.simulator.trade_tracker import record_trade
-                from src.data.stock_names import stock_name as _sn
-                record_trade(
-                    code=code, name=_sn(code), action="sell",
-                    buy_price=cost_price, sell_price=price,
-                    shares=shares, buy_date=str(h.get("buy_date", ""))[:10],
-                    sell_date=str(date)[:10], reason=reason + "_final",
-                )
-            except Exception:
-                pass
+
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "sell",
             "shares": shares, "price": price, "reason": reason, "pnl": pnl,
@@ -305,18 +297,34 @@ class NAVTracker:
             log_trade(code, "sell", price, shares, reason, pnl)
         except Exception:
             pass
-        # 记录减仓到策略跟踪（与_sell一致）
-        try:
-            from src.simulator.trade_tracker import record_trade
-            from src.data.stock_names import stock_name as _sn
-            record_trade(
-                code=code, name=_sn(code), action="partial_sell",
-                buy_price=cost_price, sell_price=price,
-                shares=shares, buy_date=str(h.get("buy_date", ""))[:10],
-                sell_date=str(date)[:10], reason=reason,
-            )
-        except Exception:
-            pass
+
+        # 记录到策略跟踪
+        if is_full_close:
+            # 完整平仓: 记录原始总仓位（而非仅最后部分），确保trade_tracker P&L准确
+            try:
+                from src.simulator.trade_tracker import record_trade
+                from src.data.stock_names import stock_name as _sn
+                record_trade(
+                    code=code, name=_sn(code), action="sell",
+                    buy_price=cost_price, sell_price=price,
+                    shares=original_shares, buy_date=str(h.get("buy_date", ""))[:10],
+                    sell_date=str(date)[:10], reason=reason + "_final",
+                )
+            except Exception:
+                pass
+        else:
+            # 部分减仓: 只记录部分信息（trade_tracker dedup会自动处理）
+            try:
+                from src.simulator.trade_tracker import record_trade
+                from src.data.stock_names import stock_name as _sn
+                record_trade(
+                    code=code, name=_sn(code), action="partial_sell",
+                    buy_price=cost_price, sell_price=price,
+                    shares=shares, buy_date=str(h.get("buy_date", ""))[:10],
+                    sell_date=str(date)[:10], reason=reason,
+                )
+            except Exception:
+                pass
 
     def _add_position(self, code: str, shares: int, price: float, date, reason: str):
         """加仓（已有持仓增持）"""
@@ -332,6 +340,7 @@ class NAVTracker:
         h["cost_price"] = round((h["cost_price"] * h["shares"] + price * shares) / total_shares, 2)
         h["peak_price"] = max(h.get("peak_price", price), price)
         h["shares"] = total_shares
+        h["original_shares"] = h.get("original_shares", 0) + shares
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",
             "shares": shares, "price": price, "reason": reason,

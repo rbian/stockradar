@@ -7,10 +7,13 @@
 - 如果连续亏损>=3笔，新买入仓位缩减为正常的50%
 - 如果连续亏损>=5笔，暂停新买入
 - 一笔盈利交易后恢复正常仓位
+- 冷却恢复: 连续亏损达到halt阈值后，经过N个交易日无新亏损交易，自动降级到缩减模式
+  （防止"0持仓+0交易=永久lockout"的死锁）
 """
 
 import json
 from pathlib import Path
+from datetime import datetime, timedelta
 from loguru import logger
 
 
@@ -23,6 +26,7 @@ class ConsecutiveLossProtection:
         self.reduce_threshold = cfg.get("reduce_threshold", 3)  # 连续亏损>=3笔开始缩减
         self.halt_threshold = cfg.get("halt_threshold", 5)  # 连续亏损>=5笔暂停买入
         self.reduce_factor = cfg.get("reduce_factor", 0.5)  # 缩减到50%
+        self.cooldown_days = cfg.get("cooldown_days", 5)  # 冷却期: N个交易日后降级
 
     def check(self, tracker) -> dict:
         """检查是否需要缩减仓位
@@ -55,6 +59,25 @@ class ConsecutiveLossProtection:
                 break  # 遇到盈利就中断
 
         if consecutive_losses >= self.halt_threshold:
+            # 冷却恢复检查: 距离最近一笔亏损卖出已过N个交易日，降级到缩减模式
+            # 这解决"0持仓+halt锁死=永不恢复"的死锁
+            latest_sell_date = self._parse_date(recent_sells[0].get('date', ''))
+            if latest_sell_date:
+                today = datetime.now().date()
+                calendar_days = (today - latest_sell_date).days
+                # 估算交易日: calendar_days * 5/7
+                trading_days = int(calendar_days * 5 / 7)
+                if trading_days >= self.cooldown_days:
+                    logger.info(
+                        f"连续亏损冷却恢复: {consecutive_losses}笔亏损，已过{trading_days}个交易日"
+                        f"(≥{self.cooldown_days})，降级到缩减模式({self.reduce_factor*100:.0f}%)"
+                    )
+                    return {
+                        "allowed": True,
+                        "position_scale": self.reduce_factor,
+                        "consecutive_losses": consecutive_losses,
+                        "reason": f"连续亏损{consecutive_losses}笔已冷却{trading_days}天，降级到缩减模式"
+                    }
             return {
                 "allowed": False,
                 "position_scale": 0.0,
@@ -75,3 +98,15 @@ class ConsecutiveLossProtection:
                 "consecutive_losses": consecutive_losses,
                 "reason": "正常"
             }
+
+    @staticmethod
+    def _parse_date(date_str: str):
+        """Parse date string, return date object or None"""
+        if not date_str:
+            return None
+        for fmt in ('%Y-%m-%d %H:%M', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S'):
+            try:
+                return datetime.strptime(date_str[:19], fmt).date()
+            except ValueError:
+                continue
+        return None
