@@ -1462,3 +1462,44 @@
   - Strategy D top-K score-weighted sizing（我们的评分加权仓位方向正确）
 - chm020924/StockAnalysisSystem: A股AI多因子+增强技术分析
   - 确认MACD/RSI集成方向与我们一致
+
+### 2026-06-12 (周五) 策略迭代+周报日
+
+**代码审查发现:**
+- 🔴 **`_daily_new_buys`不持久化** — to_dict/from_dict缺失此字段，每5分钟alert_check重建时重置为{}，单日新建仓限制(max 2)完全失效。2026-06-11买入5只新股票
+- 🔴 **add_position无限加仓** — 000001加仓14次、601658加仓12次（每5分钟一次），_today_added只追踪per-stock但不限制总次数
+- 🔴 **sector_map.json仅5条数据** — 板块分散度检查形同虚设，4只银行股全部买入（已修复：tushare拉取5520只）
+- 🟡 **板块惩罚不够硬** — 0.7权重惩罚不足以阻止4只银行集中持仓，需硬限制
+- 🟢 交易逻辑T+1/佣金/止损确认/乒乓防护均正常
+- 🟢 peak_nav=1.0在nav_history最高也是1.0时是正确的
+
+**复盘驱动 (数据: 12/20笔已平仓, <20不调参数):**
+- 错误模式: "买入失误"仍占主导
+- 6/11事件: 空仓→同日建仓5只(4银行)→频繁加仓→95%仓位单日完成
+- 根因: _daily_new_buys不持久化+无全局加仓限制+无行业硬限制
+
+**改进实施 (3项):**
+1. ✅ **🔴 _daily_new_buys持久化** (nav_tracker.py)
+   - to_dict新增`_daily_new_buys`字段
+   - from_dict恢复+清理过期数据(保留当月)
+   - 效果: 每日新建仓max 2限制跨alert_check周期生效
+   - commit: f9fd2ee
+
+2. ✅ **🔴 add_position全局日频限制** (run_bot.py)
+   - 新增`_MAX_DAILY_ADDS = 3`，每天全局最多3次加仓
+   - 从daily_adds.json恢复已用次数，跨周期累积
+   - 效果: 防止000001式14次/天疯狂加仓
+   - commit: f9fd2ee
+
+3. ✅ **🟡 板块硬限制+sector_map完善** (run_bot.py + data/)
+   - sector_map.json从5条→5520条(tushare stock_basic)
+   - 新增`_SECTOR_HARD_CAP = 2`：同行业≥2只时排除买入候选
+   - 效果: 防止4只银行集中持仓
+   - commit: f9fd2ee
+
+**GitHub学习:**
+- 无高星新项目发现
+- 推进IMPROVEMENT_PLAN: 板块集中度从惩罚→硬限制
+
+**数据状态:** 12/20笔已平仓，胜率33.3%，暂不调参数
+**运行状态:** Bot需重启使新代码生效，当前5只持仓(4银行+1家电)，现金¥46K
