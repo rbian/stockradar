@@ -2,14 +2,14 @@
   "updated": "2026-06-10",
   "stats": {
     "latest_date": "2026-06-10",
-    "nav": 0.8421,
-    "total_return": -15.79,
-    "max_drawdown": -15.79,
-    "holdings_count": 0,
-    "total_trades": 12,
+    "nav": 0.8416,
+    "total_return": -15.84,
+    "max_drawdown": -15.84,
+    "holdings_count": 4,
+    "total_trades": 17,
     "initial_capital": 1000000,
-    "current_value": 842107.0,
-    "cash": 842107.0
+    "current_value": 841653.0,
+    "cash": 575829.0
   },
   "nav_history": [
     {
@@ -83,6 +83,12 @@
       "nav": 0.8421,
       "market_value": 0,
       "holdings_count": 0
+    },
+    {
+      "date": "2026-06-11",
+      "nav": 0.8416,
+      "market_value": 265744.0,
+      "holdings_count": 4
     }
   ],
   "hs300_benchmark": [
@@ -159,8 +165,94 @@
       "nav": 0.9832
     }
   ],
-  "holdings": [],
+  "holdings": [
+    {
+      "code": "601658",
+      "name": "邮储银行",
+      "shares": 24000,
+      "cost_price": 5.07,
+      "current_price": 5.08,
+      "market_value": 121920.0,
+      "pnl_pct": 0.2,
+      "weight": 45.7
+    },
+    {
+      "code": "000001",
+      "name": "平安银行",
+      "shares": 5200,
+      "cost_price": 11.37,
+      "current_price": 11.32,
+      "market_value": 58864.0,
+      "pnl_pct": -0.44,
+      "weight": 22.2
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "shares": 400,
+      "cost_price": 84.9,
+      "current_price": 83.9,
+      "market_value": 33560.0,
+      "pnl_pct": -1.18,
+      "weight": 12.8
+    },
+    {
+      "code": "601838",
+      "name": "成都银行",
+      "shares": 2600,
+      "cost_price": 19.74,
+      "current_price": 19.8,
+      "market_value": 51480.0,
+      "pnl_pct": 0.3,
+      "weight": 19.3
+    }
+  ],
   "trades": [
+    {
+      "date": "2026-06-11 09:45",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 15800,
+      "price": 5.06,
+      "reason": "add_score0_sig90"
+    },
+    {
+      "date": "2026-06-11 09:40",
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "shares": 2600,
+      "price": 19.74,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 09:40",
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "shares": 400,
+      "price": 84.9,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 09:35",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 5200,
+      "price": 11.37,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 09:35",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 8200,
+      "price": 5.08,
+      "reason": "auto_buy"
+    },
     {
       "date": "2026-06-04 09:35",
       "code": "001391",
