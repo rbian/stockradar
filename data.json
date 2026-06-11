@@ -1,15 +1,15 @@
 {
-  "updated": "2026-06-10",
+  "updated": "2026-06-11",
   "stats": {
-    "latest_date": "2026-06-10",
-    "nav": 0.8423,
-    "total_return": -15.77,
-    "max_drawdown": -15.77,
+    "latest_date": "2026-06-11",
+    "nav": 0.8437,
+    "total_return": -15.63,
+    "max_drawdown": -15.63,
     "holdings_count": 5,
-    "total_trades": 25,
+    "total_trades": 35,
     "initial_capital": 1000000,
-    "current_value": 842428.0,
-    "cash": 146508.0
+    "current_value": 843729.0,
+    "cash": 46189.0
   },
   "nav_history": [
     {
@@ -86,8 +86,8 @@
     },
     {
       "date": "2026-06-11",
-      "nav": 0.8423,
-      "market_value": 695803.0,
+      "nav": 0.8437,
+      "market_value": 797540.0,
       "holdings_count": 5
     }
   ],
@@ -163,61 +163,155 @@
     {
       "date": "2026-06-10",
       "nav": 0.9832
+    },
+    {
+      "date": "2026-06-11",
+      "nav": 0.9678
     }
   ],
   "holdings": [
     {
       "code": "601658",
       "name": "邮储银行",
-      "shares": 33700,
+      "shares": 40500,
       "cost_price": 5.07,
-      "current_price": 5.08,
-      "market_value": 171196.0,
-      "pnl_pct": 0.23,
-      "weight": 24.6
+      "current_price": 5.1,
+      "market_value": 206550.0,
+      "pnl_pct": 0.55,
+      "weight": 25.8
     },
     {
       "code": "000001",
       "name": "平安银行",
-      "shares": 20200,
+      "shares": 26000,
       "cost_price": 11.31,
-      "current_price": 11.32,
-      "market_value": 228664.0,
-      "pnl_pct": 0.13,
-      "weight": 32.9
+      "current_price": 11.3,
+      "market_value": 293800.0,
+      "pnl_pct": -0.06,
+      "weight": 37.0
     },
     {
       "code": "000333",
       "name": "美的集团",
       "shares": 400,
       "cost_price": 84.9,
-      "current_price": 83.9,
-      "market_value": 33560.0,
-      "pnl_pct": -1.18,
-      "weight": 4.9
+      "current_price": 85.35,
+      "market_value": 34140.0,
+      "pnl_pct": 0.53,
+      "weight": 4.3
     },
     {
       "code": "601838",
       "name": "成都银行",
       "shares": 5000,
       "cost_price": 19.78,
-      "current_price": 19.8,
-      "market_value": 99000.0,
-      "pnl_pct": 0.1,
-      "weight": 14.2
+      "current_price": 19.76,
+      "market_value": 98800.0,
+      "pnl_pct": -0.1,
+      "weight": 12.4
     },
     {
       "code": "002142",
       "name": "宁波银行",
       "shares": 5000,
       "cost_price": 32.6,
-      "current_price": 32.7,
-      "market_value": 163500.0,
-      "pnl_pct": 0.31,
-      "weight": 23.5
+      "current_price": 32.85,
+      "market_value": 164250.0,
+      "pnl_pct": 0.77,
+      "weight": 20.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-11 10:20",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 700,
+      "price": 11.3,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:20",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 800,
+      "price": 5.1,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:15",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 800,
+      "price": 11.31,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:15",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 1000,
+      "price": 5.09,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:10",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 1100,
+      "price": 11.33,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:10",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 1300,
+      "price": 5.1,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:05",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 1400,
+      "price": 11.32,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:05",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 1600,
+      "price": 5.1,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:00",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 1800,
+      "price": 11.29,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 10:00",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 2100,
+      "price": 5.08,
+      "reason": "auto_buy"
+    },
     {
       "date": "2026-06-11 10:00",
       "code": "601838",
@@ -397,51 +491,6 @@
       "shares": 11900,
       "price": 27.62,
       "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-13 09:35",
-      "code": "603392",
-      "name": "万泰生物",
-      "action": "buy",
-      "shares": 8000,
-      "price": 42.22,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-13 09:35",
-      "code": "000002",
-      "name": "万科A",
-      "action": "sell",
-      "shares": 83800,
-      "price": 4.05,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-12 09:35",
-      "code": "000002",
-      "name": "万科A",
-      "action": "buy",
-      "shares": 83800,
-      "price": 4.04,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-05-12 09:35",
-      "code": "000661",
-      "name": "长春高新",
-      "action": "buy",
-      "shares": 3700,
-      "price": 88.52,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-05-12 09:35",
-      "code": "600085",
-      "name": "同仁堂",
-      "action": "buy",
-      "shares": 11900,
-      "price": 27.97,
-      "reason": "auto_buy"
     }
   ]
 }
