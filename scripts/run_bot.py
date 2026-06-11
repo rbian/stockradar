@@ -1187,6 +1187,16 @@ def main():
 
                 candidates.sort(key=lambda x: _sector_penalty(x['code'], x['factor_score'] * 0.6 + x['signal_score'] * 0.4), reverse=True)
 
+                # 🛡️ 板块硬限制: 同行业持仓≥2只时排除候选（复盘: 2026-06-11买入4只银行）
+                _SECTOR_HARD_CAP = 2
+                if sector_map:
+                    _before = len(candidates)
+                    candidates = [c for c in candidates if
+                        c['code'] not in sector_map or
+                        sector_counts.get(sector_map[c['code']].get('sector', '未知'), 0) < _SECTOR_HARD_CAP]
+                    if len(candidates) < _before:
+                        logger.info(f"板块硬限制排除{_before - len(candidates)}只候选（同行业≥{_SECTOR_HARD_CAP}只）")
+
                 # 🛡️ 相关性过滤: 跳过与现有持仓高度相关的候选（>0.7），降低组合风险
                 if held and dq_full is not None:
                     _filtered = []
@@ -1678,6 +1688,7 @@ def main():
                                     rebalance_actions.append(f"🟢 加仓[{tier}] {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig} 加¥{add_amount/10000:.0f}万)")
                                     # 记录今天已加仓
                                     _today_added.add(code)
+                                    _today_add_count += 1
                                     _daily_adds[today] = list(_today_added)
                                     _add_log_file.parent.mkdir(exist_ok=True)
                                     _add_log_file.write_text(_json_add.dumps(_daily_adds))

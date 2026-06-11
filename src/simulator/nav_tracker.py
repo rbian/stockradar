@@ -456,6 +456,7 @@ class NAVTracker:
             "nav_history": self.nav_history,
             "trade_log": self.trade_log,
             "peak_nav": self.peak_nav,
+            "_daily_new_buys": self._daily_new_buys,
         }
 
     @classmethod
@@ -466,8 +467,19 @@ class NAVTracker:
         tracker.nav_history = d.get("nav_history", [])
         tracker.trade_log = d.get("trade_log", [])
         tracker.peak_nav = d.get("peak_nav", 1.0)
+        # 恢复每日新建仓计数（跨alert_check周期持久化，修复单日限制失效bug）
+        tracker._daily_new_buys = d.get("_daily_new_buys", {})
+        # 清理过期数据（只保留近7天）
+        from datetime import date as _date
+        _today = _date.today().isoformat()
+        tracker._daily_new_buys = {k: v for k, v in tracker._daily_new_buys.items() if k >= _today[:8] + '01'}
         # 补全缺失的peak_price（旧数据迁移/保存丢失时fallback到cost_price）
         for code, h in tracker.holdings.items():
             if "peak_price" not in h or h["peak_price"] is None:
                 h["peak_price"] = h.get("cost_price", 0)
+        # 修复peak_nav: 如果nav_history有数据但peak_nav<=1.0，重新计算
+        if tracker.nav_history and tracker.peak_nav <= 1.0:
+            _actual_peak = max(h2["nav"] for h2 in tracker.nav_history if isinstance(h2, dict) and "nav" in h2)
+            if _actual_peak > tracker.peak_nav:
+                tracker.peak_nav = _actual_peak
         return tracker
