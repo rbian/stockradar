@@ -2,14 +2,14 @@
   "updated": "2026-06-10",
   "stats": {
     "latest_date": "2026-06-10",
-    "nav": 0.8419,
-    "total_return": -15.81,
-    "max_drawdown": -15.81,
+    "nav": 0.8423,
+    "total_return": -15.77,
+    "max_drawdown": -15.77,
     "holdings_count": 5,
-    "total_trades": 22,
+    "total_trades": 25,
     "initial_capital": 1000000,
-    "current_value": 842450.0,
-    "cash": 246298.0
+    "current_value": 842428.0,
+    "cash": 146508.0
   },
   "nav_history": [
     {
@@ -86,8 +86,8 @@
     },
     {
       "date": "2026-06-11",
-      "nav": 0.8419,
-      "market_value": 595572.0,
+      "nav": 0.8423,
+      "market_value": 695803.0,
       "holdings_count": 5
     }
   ],
@@ -169,22 +169,22 @@
     {
       "code": "601658",
       "name": "邮储银行",
-      "shares": 30100,
+      "shares": 33700,
       "cost_price": 5.07,
       "current_price": 5.08,
-      "market_value": 152908.0,
-      "pnl_pct": 0.24,
-      "weight": 25.6
+      "market_value": 171196.0,
+      "pnl_pct": 0.23,
+      "weight": 24.6
     },
     {
       "code": "000001",
       "name": "平安银行",
-      "shares": 17200,
+      "shares": 20200,
       "cost_price": 11.31,
       "current_price": 11.32,
-      "market_value": 194704.0,
-      "pnl_pct": 0.1,
-      "weight": 32.7
+      "market_value": 228664.0,
+      "pnl_pct": 0.13,
+      "weight": 32.9
     },
     {
       "code": "000333",
@@ -194,17 +194,17 @@
       "current_price": 83.9,
       "market_value": 33560.0,
       "pnl_pct": -1.18,
-      "weight": 5.7
+      "weight": 4.9
     },
     {
       "code": "601838",
       "name": "成都银行",
-      "shares": 2600,
-      "cost_price": 19.74,
+      "shares": 5000,
+      "cost_price": 19.78,
       "current_price": 19.8,
-      "market_value": 51480.0,
-      "pnl_pct": 0.3,
-      "weight": 8.6
+      "market_value": 99000.0,
+      "pnl_pct": 0.1,
+      "weight": 14.2
     },
     {
       "code": "002142",
@@ -214,10 +214,37 @@
       "current_price": 32.7,
       "market_value": 163500.0,
       "pnl_pct": 0.31,
-      "weight": 27.4
+      "weight": 23.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-11 10:00",
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "shares": 2400,
+      "price": 19.82,
+      "reason": "add_score0_sig81"
+    },
+    {
+      "date": "2026-06-11 09:55",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "shares": 3000,
+      "price": 11.29,
+      "reason": "auto_buy"
+    },
+    {
+      "date": "2026-06-11 09:55",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "shares": 3600,
+      "price": 5.07,
+      "reason": "auto_buy"
+    },
     {
       "date": "2026-06-11 09:55",
       "code": "002142",
