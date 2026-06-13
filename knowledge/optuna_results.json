@@ -208,5 +208,35 @@
     },
     "n_trials": 50,
     "improvement": "+538.5%"
+  },
+  {
+    "date": "2026-06-13 09:18",
+    "best_score": 3.4318,
+    "best_category_weights": {
+      "capital_flow": 2.006,
+      "fundamental": 1.227,
+      "llm": 0.71,
+      "market_sentiment": 1.05,
+      "technical": 0.121
+    },
+    "best_factor_weights": {
+      "capital_flow_main_force_net_1d": 1.374,
+      "capital_flow_main_force_net_5d": 1.909,
+      "capital_flow_margin_balance_change": 1.336,
+      "fundamental_accrual_ratio": 0.888,
+      "fundamental_debt_ratio": 0.897,
+      "fundamental_goodwill_ratio": 1.212,
+      "llm_earnings_sentiment": 1.408,
+      "llm_news_sentiment_7d": 1.42,
+      "llm_research_consensus": 0.321,
+      "market_sentiment_high_low_position": 0.802,
+      "market_sentiment_limit_up_count": 1.432,
+      "market_sentiment_turnover_anomaly": 0.258,
+      "technical_amplitude": 1.381,
+      "technical_bollinger_width": 1.646,
+      "technical_candlestick_score": 0.883
+    },
+    "n_trials": 50,
+    "improvement": "+46.3%"
   }
 ]
