@@ -1646,6 +1646,10 @@ def main():
                                         _act_log_file.parent.mkdir(exist_ok=True)
                                         _act_log_file.write_text(_json_act.dumps(_daily_actions))
 
+                # 卖出操作后立即持久化，防止后续加仓失败导致卖出状态丢失
+                if rebalance_actions:
+                    _save_nav(tracker, dq)
+
                 if len(tracker.holdings) <= 5 and tracker.cash >= 10000 and _today_add_count < 3:
                     for code in list(held):
                         if code not in tracker.holdings or code not in scores.index:
