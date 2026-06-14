@@ -1646,7 +1646,7 @@ def main():
                                         _act_log_file.parent.mkdir(exist_ok=True)
                                         _act_log_file.write_text(_json_act.dumps(_daily_actions))
 
-                if len(tracker.holdings) <= 5 and tracker.cash >= 10000:
+                if len(tracker.holdings) <= 5 and tracker.cash >= 10000 and _today_add_count < 3:
                     for code in list(held):
                         if code not in tracker.holdings or code not in scores.index:
                             continue
