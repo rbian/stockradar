@@ -1560,6 +1560,7 @@ def main():
                     _daily_adds = {k: v for k, v in _daily_adds.items() if k == today}
                 except Exception:
                     _daily_adds = {}
+                _today_add_count = len(_today_added)  # 从已有记录恢复今日加仓次数
 
                 for code in list(held):
                     if code not in tracker.holdings:

@@ -248,6 +248,9 @@ class FactorTracker:
                     adjustments[factor_name]['ic_decay_pct'] = f"{status.ic_decay_pct:.1%}"
                     adjustments[factor_name]['ic_10d'] = f"{ic_10d:.4f}"
                     adjustments[factor_name]['ic_30d'] = f"{ic_30d:.4f}"
+                    adjustments[factor_name].setdefault('old_weight', old_weight)
+                    adjustments[factor_name].setdefault('new_weight', status.current_weight)
+                    adjustments[factor_name].setdefault('multiplier', status.weight_multiplier)
 
                 # 基于 IC 一致性调整 multiplier
                 if positive_ratio > 0.7 and status.ic_20d_avg > 0.02:
@@ -300,7 +303,7 @@ class FactorTracker:
                 logger.info(
                     f"  {name}: {adj['action']} "
                     f"({adj.get('old_weight', 0):.3f} → {adj.get('new_weight', 0):.3f}, "
-                    f"mult={adj.get('multiplier', '?'):.3f})"
+                    f"mult={adj.get('multiplier', 0):.3f})"
                 )
 
         # 持久化IC状态到JSON
