@@ -1503,3 +1503,60 @@
 
 **数据状态:** 12/20笔已平仓，胜率33.3%，暂不调参数
 **运行状态:** Bot需重启使新代码生效，当前5只持仓(4银行+1家电)，现金¥46K
+
+### 2026-06-15 (周一) 复盘+策略日
+
+**代码审查发现:**
+- 🔴 **`_today_add_count`未初始化** — _smart_rebalance每次执行都崩溃（6/12全天每5min报错）
+  - 直接影响: 加仓操作从不持久化，000333被重复买入49次
+  - 间接影响: _save_nav在加仓崩溃后永不执行，导致卖出操作也不持久化
+  - 连锁: 001391在不同日期被重复卖出4次（跨日幻影交易）
+- 🔴 **IC追踪multiplier格式化错误** — `adj.get('multiplier', '?')`返回字符串'?'后`:.3f`崩溃
+  - decay_penalty路径的adjustments缺少multiplier字段
+- 🔴 **缺加仓全局节流检查** — commit消息声称有max 3/day但实际check从未实现
+- 🟡 **trade_log污染** — 270条中235条是幻影交易（同一交易被重复记录）
+- 🟢 T+1/佣金/止损确认/乒乓防护逻辑正确
+- 🟢 因子引擎NaN防护+rank normalization正确
+
+**复盘驱动 (数据: 12/20笔已平仓, <20不调参数):**
+- 错误模式: "买入失误"仍占主导（6次, 5/12系统性下跌日）
+- 胜率33.3%, 均收益-3.79%, 总盈亏¥-156K
+- 数据状态仍不足，暂不调参数
+
+**改进实施 (4项):**
+1. ✅ **🔴 _today_add_count初始化 + decay_penalty缺失字段补充** (run_bot.py + factor_tracker.py)
+   - `_today_add_count = len(_today_added)`从已有记录恢复
+   - decay_penalty的adjustments补充old_weight/new_weight/multiplier
+   - multiplier默认值从'?'改为0
+   - commit: 9ce5702
+
+2. ✅ **🔴 全局加仓节流 + 幻影交易清理** (run_bot.py + trade_log.json)
+   - 添加`_today_add_count < 3`check在加仓入口
+   - 清理235条幻影交易记录（trade_log从270→35条）
+   - commit: 9b2367c
+
+3. ✅ **🔴 卖出后立即_save_nav** (run_bot.py)
+   - 设计缺陷: 卖出只在_smart_rebalance末尾持久化
+   - 如果加仓crash，卖出状态丢失，次日重复卖出
+   - 修复: 卖出block结束后立即_save_nav
+   - commit: b6e115c
+
+4. ✅ **🟢 decay_penalty adjustments字段完整性** (factor_tracker.py)
+   - 旧: decay_penalty只有action/ic_decay_pct/ic_10d/ic_30d
+   - 新: 补充old_weight/new_weight/multiplier，确保日志格式一致
+
+**GitHub学习:**
+- noterminusgit/statarb: 生产级统计套利系统，20+ alpha策略
+  - 确认rank-based normalization方向正确（我们已实现）
+  - Winsorization思路：我们用clip_range+rank已等效覆盖
+- waylandzhang/ai-quant-book: 多智能体量化架构
+  - Regime detection + multi-agent思路值得后续探索
+  - 当前已有基础regime detection（market_breadth + vol_regime）
+- randomwalkhan/Short-Term-Reversal-Strategy: 短期反转策略
+  - staged-entry + 回测概率评估思路有参考价值
+
+**数据状态:** 12/20笔已平仓，暂不调参数
+**下次TODO:**
+- [ ] 数据达到20笔后，根据strategy_report调参
+- [ ] 推进Phase 4: 复盘→自动调参闭环
+- [ ] 监控修复后_smart_rebalance是否正常运行
