@@ -1247,6 +1247,21 @@ def main():
                     pass
                 candidates = [c for c in candidates if c['code'] not in _today_sold_codes_auto]
 
+                # 🛡️ 每日每股买入限制: 同一只股票每天最多通过auto_buy买入1次（防止5分钟周期重复加仓）
+                _today_auto_bought = set()
+                try:
+                    _ab_log_f = PROJECT_ROOT / 'data' / 'daily_auto_buys.json'
+                    _ab_td = datetime.now().strftime('%Y-%m-%d')
+                    if _ab_log_f.exists():
+                        _ab_data = json.loads(_ab_log_f.read_text())
+                        _today_auto_bought = set(_ab_data.get(_ab_td, []))
+                except Exception:
+                    pass
+                _before_dedup = len(candidates)
+                candidates = [c for c in candidates if c['code'] not in _today_auto_bought]
+                if len(candidates) < _before_dedup:
+                    logger.info(f"每日买入限制: 排除今日已auto_buy的{_before_dedup - len(candidates)}只")
+
                 buy_list = candidates[:max_buy]
 
                 # 检查板块集中度
@@ -1345,6 +1360,22 @@ def main():
                             pass
                         tracker._buy(code, shares, price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'auto_buy')
                         bought.append(f"{_sn(code)} {shares}股@¥{price:.2f} ({c['reason']})")
+                        # 记录到daily_auto_buys防止今日重复买入
+                        try:
+                            _ab_log_f = PROJECT_ROOT / 'data' / 'daily_auto_buys.json'
+                            _ab_td = datetime.now().strftime('%Y-%m-%d')
+                            _ab_data = {}
+                            if _ab_log_f.exists():
+                                _ab_data = json.loads(_ab_log_f.read_text())
+                            _ab_data = {k: v for k, v in _ab_data.items() if k == _ab_td}
+                            _today_list = _ab_data.get(_ab_td, [])
+                            if code not in _today_list:
+                                _today_list.append(code)
+                            _ab_data[_ab_td] = _today_list
+                            _ab_log_f.parent.mkdir(exist_ok=True)
+                            _ab_log_f.write_text(json.dumps(_ab_data))
+                        except Exception:
+                            pass
 
                 if bought:
                     _save_nav(tracker, dq)
