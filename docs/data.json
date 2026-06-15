@@ -2,14 +2,14 @@
   "updated": "2026-06-12",
   "stats": {
     "latest_date": "2026-06-12",
-    "nav": 0.8396,
-    "total_return": -16.04,
-    "max_drawdown": -16.04,
+    "nav": 0.841,
+    "total_return": -15.9,
+    "max_drawdown": -15.9,
     "holdings_count": 5,
-    "total_trades": 36,
+    "total_trades": 37,
     "initial_capital": 1000000,
-    "current_value": 846211.0,
-    "cash": 36194.0
+    "current_value": 846207.0,
+    "cash": 26380.0
   },
   "nav_history": [
     {
@@ -98,8 +98,8 @@
     },
     {
       "date": "2026-06-15",
-      "nav": 0.8396,
-      "market_value": 803449.0,
+      "nav": 0.841,
+      "market_value": 814631.0,
       "holdings_count": 5
     }
   ],
@@ -194,7 +194,7 @@
       "current_price": 5.2,
       "market_value": 210600.0,
       "pnl_pct": 2.52,
-      "weight": 25.5
+      "weight": 25.2
     },
     {
       "code": "000001",
@@ -204,7 +204,7 @@
       "current_price": 11.24,
       "market_value": 292240.0,
       "pnl_pct": -0.59,
-      "weight": 36.5
+      "weight": 36.1
     },
     {
       "code": "000333",
@@ -224,20 +224,29 @@
       "current_price": 20.07,
       "market_value": 110385.0,
       "pnl_pct": 1.36,
-      "weight": 13.5
+      "weight": 13.4
     },
     {
       "code": "002142",
       "name": "宁波银行",
-      "shares": 5000,
+      "shares": 5300,
       "cost_price": 32.6,
       "current_price": 32.7,
-      "market_value": 163500.0,
+      "market_value": 173310.0,
       "pnl_pct": 0.31,
-      "weight": 20.2
+      "weight": 21.2
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-15 09:40",
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "buy",
+      "shares": 300,
+      "price": 32.68,
+      "reason": "add_score0_sig78"
+    },
     {
       "date": "2026-06-15 09:35",
       "code": "601838",
@@ -497,15 +506,6 @@
       "action": "sell",
       "shares": 20800,
       "price": 14.93,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-14 09:35",
-      "code": "300122",
-      "name": "智飞生物",
-      "action": "buy",
-      "shares": 20800,
-      "price": 15.76,
       "reason": "smart_rebalance"
     }
   ]
