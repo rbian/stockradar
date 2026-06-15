@@ -1257,6 +1257,18 @@ def main():
                         _today_auto_bought = set(_ab_data.get(_ab_td, []))
                 except Exception:
                     pass
+                # 🛡️ 跨函数去重: 也检查_smart_rebalance今日已加仓的股票（daily_adds.json + daily_actions.json）
+                try:
+                    _da_f = PROJECT_ROOT / 'data' / 'daily_actions.json'
+                    if _da_f.exists():
+                        _da_data = json.loads(_da_f.read_text())
+                        _today_auto_bought |= set(_da_data.get(_ab_td, {}).get('add', []))
+                    _adl_f = PROJECT_ROOT / 'data' / 'daily_adds.json'
+                    if _adl_f.exists():
+                        _adl_data = json.loads(_adl_f.read_text())
+                        _today_auto_bought |= set(_adl_data.get(_ab_td, []))
+                except Exception:
+                    pass
                 _before_dedup = len(candidates)
                 candidates = [c for c in candidates if c['code'] not in _today_auto_bought]
                 if len(candidates) < _before_dedup:
