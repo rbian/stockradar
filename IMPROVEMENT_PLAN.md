@@ -1560,3 +1560,61 @@
 - [ ] 数据达到20笔后，根据strategy_report调参
 - [ ] 推进Phase 4: 复盘→自动调参闭环
 - [ ] 监控修复后_smart_rebalance是否正常运行
+
+### 2026-06-16 (周一) 复盘+策略日
+
+**代码审查发现:**
+- 🔴 **`_auto_buy`无每股日频买入限制** — 000333在6/12每5分钟被重复买入(100@82.99→82.95→83.00→83.23)
+  - 根因: `_auto_buy`与`_smart_rebalance`各自独立追踪，`_auto_buy`完全没有per-stock daily buy tracking
+  - 影响: 现金被快速消耗在单一股票上
+  - 状态: ✅ 已修复(commit 2efa309)
+- 🔴 **`_auto_buy`与`_smart_rebalance`跨函数重复加仓** — 两函数用不同文件追踪(daily_auto_buys.json vs daily_actions.json)
+  - 根因: `_smart_rebalance`加仓000333后，`_auto_buy`在同cycle又买入000333
+  - 状态: ✅ 已修复(commit c3ab2f0)
+- 🟡 **市场广度过滤仅1日** — 5/12系统性下跌前3天市场已连续走弱
+  - 状态: ✅ 已增加3日连续下跌过滤(commit c77fb75)
+- 🟢 之前修复的`_today_add_count`和IC multiplier问题确认已生效
+- 🟢 nav_tracker的T+1/佣金/加权成本逻辑正确
+- 🟢 _partial_sell/_sell持仓一致性验证通过
+- 🟢 _verify_nav_integrity每轮检查正常运行
+
+**复盘驱动 (数据: 12/20笔已平仓, <20不调参数):**
+- 错误模式: "买入失误"仍占主导（6次, 5/12系统性下跌日）
+- 胜率33.3%, 均收益-3.79%, 总盈亏¥-156K
+- 新增3日市场趋势过滤直接针对"买入失误"模式
+- 数据状态仍不足，暂不调参数
+
+**改进实施 (3项):**
+1. ✅ **🔴 _auto_buy每日每股买入限制** (run_bot.py)
+   - 新增`daily_auto_buys.json`追踪文件
+   - 每只股票每天最多通过auto_buy买入1次
+   - 防止5分钟周期重复加仓同一股票
+   - commit: 2efa309
+
+2. ✅ **🔴 跨函数去重** (run_bot.py)
+   - `_auto_buy`现在也检查`daily_actions.json`和`daily_adds.json`
+   - 防止`_smart_rebalance`和`_auto_buy`在同一5分钟cycle重复加仓
+   - commit: c3ab2f0
+
+3. ✅ **🟡 多日市场趋势过滤** (run_bot.py)
+   - GitHub学习: zhou343-de/stock-trader-ai 的"先活下来"理念
+   - 新增3日连续负收益或3日均幅<-1.0%时阻止auto_buy
+   - 直接针对5/12系统性下跌日的"买入失误"模式
+   - commit: c77fb75
+
+**GitHub学习:**
+- zhou343-de/stock-trader-ai (⭐8): 八层风控·37因子自进化·A股全自动量化系统
+  - 学到: 多日市场趋势检查的必要性（我们只有1日广度过滤）
+  - 已实现: 3日连续下跌过滤
+- blaahhrrgg/equity-risk-model (⭐36): 多因子风险模型
+  - 确认: rank-based normalization方向正确
+  - 后续可探索: 风险因子归因分析
+- stefan-jansen/machine-learning-for-trading: ML for trading教科书
+  - 参考: ML模型用于信号预测（当前用规则引擎，未来可考虑）
+
+**数据状态:** 12/20笔已平仓，暂不调参数
+**运行状态:** Bot已重启加载新代码，5只持仓(邮储/平安/美的/成都/宁波)，现金¥18K
+**下次TODO:**
+- [ ] 数据达到20笔后，根据strategy_report调参
+- [ ] 监控新的去重机制是否正常工作（检查daily_auto_buys.json）
+- [ ] 推进Phase 4: 复盘→自动调参闭环
