@@ -977,6 +977,18 @@ def main():
                             if _breadth_ratio > 0.60:
                                 logger.info(f'auto_buy跳过: 市场广度差({_declining}/{_total_mb}={_breadth_ratio:.0%}下跌)')
                                 return
+                        # 多日市场趋势过滤: 过去3天平均跌幅持续为负 → 系统性下跌中，禁止买入
+                        # GitHub学习: zhou343-de/stock-trader-ai 的"先活下来"理念
+                        # 复盘驱动: 5/12前3天市场已经连续走弱，单日广度过滤不够
+                        _recent_3d = _mb_dq.groupby('code').tail(3)
+                        if len(_recent_3d) >= 100:
+                            _daily_avg_ret = _recent_3d.groupby(_recent_3d['date'] if 'date' in _recent_3d.columns else _recent_3d.index)['pct_chg'].mean()
+                            if len(_daily_avg_ret) >= 3:
+                                _consecutive_neg = all(r < 0 for r in _daily_avg_ret.tail(3))
+                                _avg_3d = _daily_avg_ret.tail(3).mean()
+                                if _consecutive_neg or _avg_3d < -1.0:
+                                    logger.info(f'auto_buy跳过: 3日市场趋势偏弱(连续负收益={_consecutive_neg}, 3日均幅={_avg_3d:.2f}%)')
+                                    return
                 except Exception:
                     pass
 
