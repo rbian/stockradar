@@ -1,14 +1,14 @@
 {
-  "updated": "2026-06-12",
+  "updated": "2026-06-15",
   "stats": {
-    "latest_date": "2026-06-12",
-    "nav": 0.8418,
-    "total_return": -15.82,
-    "max_drawdown": -15.82,
+    "latest_date": "2026-06-15",
+    "nav": 0.8335,
+    "total_return": -16.65,
+    "max_drawdown": -16.65,
     "holdings_count": 5,
     "total_trades": 38,
     "initial_capital": 1000000,
-    "current_value": 846349.0,
+    "current_value": 833474.0,
     "cash": 18199.0
   },
   "nav_history": [
@@ -98,8 +98,8 @@
     },
     {
       "date": "2026-06-15",
-      "nav": 0.8418,
-      "market_value": 823553.0,
+      "nav": 0.8335,
+      "market_value": 815275.0,
       "holdings_count": 5
     }
   ],
@@ -183,6 +183,10 @@
     {
       "date": "2026-06-12",
       "nav": 0.9728
+    },
+    {
+      "date": "2026-06-15",
+      "nav": 1.0053
     }
   ],
   "holdings": [
@@ -191,9 +195,9 @@
       "name": "邮储银行",
       "shares": 40500,
       "cost_price": 5.07,
-      "current_price": 5.2,
-      "market_value": 210600.0,
-      "pnl_pct": 2.52,
+      "current_price": 5.11,
+      "market_value": 206955.0,
+      "pnl_pct": 0.74,
       "weight": 25.0
     },
     {
@@ -201,9 +205,9 @@
       "name": "平安银行",
       "shares": 26000,
       "cost_price": 11.31,
-      "current_price": 11.24,
-      "market_value": 292240.0,
-      "pnl_pct": -0.59,
+      "current_price": 11.06,
+      "market_value": 287560.0,
+      "pnl_pct": -2.18,
       "weight": 35.7
     },
     {
@@ -211,9 +215,9 @@
       "name": "美的集团",
       "shares": 500,
       "cost_price": 84.27,
-      "current_price": 83.23,
-      "market_value": 41615.0,
-      "pnl_pct": -1.23,
+      "current_price": 80.93,
+      "market_value": 40465.0,
+      "pnl_pct": -3.96,
       "weight": 5.1
     },
     {
@@ -221,9 +225,9 @@
       "name": "成都银行",
       "shares": 5500,
       "cost_price": 19.8,
-      "current_price": 20.07,
-      "market_value": 110385.0,
-      "pnl_pct": 1.36,
+      "current_price": 20.03,
+      "market_value": 110165.0,
+      "pnl_pct": 1.16,
       "weight": 13.2
     },
     {
@@ -231,9 +235,9 @@
       "name": "宁波银行",
       "shares": 5300,
       "cost_price": 32.6,
-      "current_price": 32.7,
-      "market_value": 173310.0,
-      "pnl_pct": 0.31,
+      "current_price": 32.1,
+      "market_value": 170130.0,
+      "pnl_pct": -1.53,
       "weight": 21.0
     }
   ],
