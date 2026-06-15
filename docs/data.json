@@ -2,14 +2,14 @@
   "updated": "2026-06-12",
   "stats": {
     "latest_date": "2026-06-12",
-    "nav": 0.8462,
-    "total_return": -15.38,
-    "max_drawdown": -15.38,
+    "nav": 0.8396,
+    "total_return": -16.04,
+    "max_drawdown": -16.04,
     "holdings_count": 5,
-    "total_trades": 35,
+    "total_trades": 36,
     "initial_capital": 1000000,
-    "current_value": 846171.0,
-    "cash": 46189.0
+    "current_value": 846211.0,
+    "cash": 36194.0
   },
   "nav_history": [
     {
@@ -94,6 +94,12 @@
       "date": "2026-06-12",
       "nav": 0.8462,
       "market_value": 799982.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-06-15",
+      "nav": 0.8396,
+      "market_value": 803449.0,
       "holdings_count": 5
     }
   ],
@@ -188,7 +194,7 @@
       "current_price": 5.2,
       "market_value": 210600.0,
       "pnl_pct": 2.52,
-      "weight": 25.8
+      "weight": 25.5
     },
     {
       "code": "000001",
@@ -198,7 +204,7 @@
       "current_price": 11.24,
       "market_value": 292240.0,
       "pnl_pct": -0.59,
-      "weight": 37.0
+      "weight": 36.5
     },
     {
       "code": "000333",
@@ -208,17 +214,17 @@
       "current_price": 83.23,
       "market_value": 33292.0,
       "pnl_pct": -1.97,
-      "weight": 4.3
+      "weight": 4.2
     },
     {
       "code": "601838",
       "name": "成都银行",
-      "shares": 5000,
-      "cost_price": 19.78,
+      "shares": 5500,
+      "cost_price": 19.8,
       "current_price": 20.07,
-      "market_value": 100350.0,
-      "pnl_pct": 1.47,
-      "weight": 12.4
+      "market_value": 110385.0,
+      "pnl_pct": 1.36,
+      "weight": 13.5
     },
     {
       "code": "002142",
@@ -228,10 +234,19 @@
       "current_price": 32.7,
       "market_value": 163500.0,
       "pnl_pct": 0.31,
-      "weight": 20.5
+      "weight": 20.2
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-15 09:35",
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "shares": 500,
+      "price": 19.97,
+      "reason": "add_score0_sig77"
+    },
     {
       "date": "2026-06-11 10:20",
       "code": "000001",
@@ -491,15 +506,6 @@
       "action": "buy",
       "shares": 20800,
       "price": 15.76,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-14 09:35",
-      "code": "600085",
-      "name": "同仁堂",
-      "action": "sell",
-      "shares": 11900,
-      "price": 27.62,
       "reason": "smart_rebalance"
     }
   ]
