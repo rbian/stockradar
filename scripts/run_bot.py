@@ -1152,6 +1152,17 @@ def main():
                     logger.info(f"无符合条件的买入候选 (过滤统计: {filter_stats})")
                     return
 
+                # Kelly update: 从已平仓交易更新参数
+                try:
+                    from src.risk_management.kelly_position import KellyPositionManager
+                    _kpm_up = KellyPositionManager()
+                    _recent_sells = [t for t in tracker.trade_log if t.get('action') == 'sell' and 'pnl' in t]
+                    if len(_recent_sells) >= 5 and len(_recent_sells) > _kpm_up.total_trades:
+                        _kpm_up.update_from_trades(_recent_sells)
+                        logger.info(f"Kelly更新: {_kpm_up.get_status()}")
+                except Exception:
+                    pass
+
                 # 按(因子分*0.6 + 信号分*0.4)排序，因子-信号不一致时降权
                 def _combined_score(c):
                     base = c['factor_score'] * 0.6 + c['signal_score'] * 0.4
@@ -1167,6 +1178,23 @@ def main():
                     max_buy = 2 if market_regime != "bearish" else 1
                 else:
                     max_buy = min(5 - len(held), 3) if market_regime != "bearish" else 1
+
+                # Kelly Criterion仓位管理: 根据历史胜率调整买入数量
+                # GitHub学习: MarketRegimeNet — Kelly Criterion with Brier score penalty
+                # 策略胜率低时自动减少同时新建仓数量，防止过度暴露
+                try:
+                    from src.risk_management.kelly_position import KellyPositionManager
+                    _kpm = KellyPositionManager()
+                    _kelly_pct = _kpm.get_position_pct()
+                    if _kpm.total_trades >= _kpm.min_trades:
+                        if _kpm.win_rate < 0.30:
+                            max_buy = 1  # 胜率<30%: 最多只买1只
+                            logger.info(f"Kelly限制: 胜率{_kpm.win_rate:.0%}<30%, max_buy=1")
+                        elif _kpm.win_rate < 0.40:
+                            max_buy = min(max_buy, 2)  # 胜率<40%: 最多买2只
+                            logger.info(f"Kelly限制: 胜率{_kpm.win_rate:.0%}<40%, max_buy≤2")
+                except Exception as _ke:
+                    logger.debug(f"Kelly集成fallback: {_ke}")
 
                 # === 板块分散度检查 ===
                 sector_file = PROJECT_ROOT / "data" / "sector_map.json"
