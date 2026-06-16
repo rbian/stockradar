@@ -1451,6 +1451,32 @@ def main():
                 if len(tracker.holdings) == 0:
                     return
 
+                # 🔴 调仓冷却: 上次卖出后15分钟内不执行评分驱动调仓（防止级联清仓）
+                # 复盘: 2026-06-16 25分钟内连卖5只→仅剩2只，过度反应
+                _rebalance_cooldown = False
+                try:
+                    _scf = PROJECT_ROOT / 'data' / 'last_sell_time.json'
+                    _lcd = json.loads(_scf.read_text()) if _scf.exists() else {}
+                    _last_sell_str = _lcd.get('last_sell', '')
+                    if _last_sell_str:
+                        from datetime import datetime as _dt_cd
+                        _last_sell_dt = _dt_cd.strptime(_last_sell_str[:19], '%Y-%m-%d %H:%M:%S')
+                        _minutes_since_sell = (datetime.now() - _last_sell_dt).total_seconds() / 60
+                        if _minutes_since_sell < 15:
+                            logger.info(f'调仓冷却中: 距上次卖出{_minutes_since_sell:.0f}分钟')
+                            _rebalance_cooldown = True
+                except Exception:
+                    pass
+
+                def _record_sell_time():
+                    """Record sell time for cooldown tracking"""
+                    try:
+                        _scf_r = PROJECT_ROOT / 'data' / 'last_sell_time.json'
+                        _scf_r.parent.mkdir(exist_ok=True)
+                        _scf_r.write_text(json.dumps({'last_sell': datetime.now().strftime('%Y-%m-%d %H:%M:%S')}))
+                    except Exception:
+                        pass
+
                 # 评分排名
                 engine = FactorEngine()
                 dq_full = orch.context.read("data.daily_quote")
@@ -1519,6 +1545,13 @@ def main():
                     elif sig < 35:
                         sell_list.append((code, f"技术信号={sig}"))
 
+                # 冷却期: 跳过评分驱动的减仓和换仓（止损/止盈不受影响，在加减仓循环中处理）
+                if _rebalance_cooldown:
+                    # 仍然执行止损/止盈检查，跳过评分驱动的调仓
+                    _skip_rebalance_sells = True
+                else:
+                    _skip_rebalance_sells = False
+
                 # === 持仓相关性计算（带缓存，避免5min周期重复计算） ===
                 _corr_cache = {}
                 def _calc_avg_correlation(code, held_codes, dq_data):
@@ -1553,7 +1586,7 @@ def main():
                         return 0.0
 
                 # === 减仓模式: 持仓>5只时一次性卖出所有差的 ===
-                if len(tracker.holdings) > 5:
+                if len(tracker.holdings) > 5 and not _skip_rebalance_sells:
                     excess = len(tracker.holdings) - 5
                     # 排序：评分低优先 + 相关性高优先
                     def _sell_priority(item):
@@ -1583,6 +1616,7 @@ def main():
                     if sold:
                         _save_nav(tracker, dq)
                         _incr_trade_count()
+                        _record_sell_time()
                         msg = f"📉 **一次性减仓** ({len(tracker.holdings)+len(sold)}→{len(tracker.holdings)})\n" + "\n".join(f"  • {s}" for s in sold)
                         for uid in ALLOWED_USERS:
                             await app.bot.send_message(chat_id=uid, text=msg)
@@ -1648,6 +1682,7 @@ def main():
                     if pnl_pct <= -0.15:
                         tracker._sell(code, price, now_str, 'stop_loss_full')
                         _record_to_blacklist(code, price, h['cost_price'], today)
+                        _record_sell_time()
                         rebalance_actions.append(f"🔴 全部止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (亏损{pnl_pct*100:.1f}%)")
                         continue
                     elif pnl_pct <= -0.10:
@@ -1664,6 +1699,7 @@ def main():
                         _trailing_pnl = (price - h['cost_price']) / h['cost_price']
                         tracker._sell(code, price, now_str, f'trailing_stop_peak{_peak:.1f}')
                         _record_to_blacklist(code, price, h['cost_price'], today)
+                        _record_sell_time()
                         rebalance_actions.append(f"🔒 追踪止盈 {_sn(code)} {h['shares']}股@¥{price:.2f} (峰值¥{_peak:.1f} 回落{(_peak-price)/_peak*100:.1f}% 盈利{_trailing_pnl*100:.1f}%)")
                         continue
 
@@ -1678,6 +1714,7 @@ def main():
                             if _hold_days >= 15 and pnl_pct < -0.10:
                                 tracker._sell(code, price, now_str, f'time_stop_{_hold_days}d_{pnl_pct*100:.1f}%')
                                 _record_to_blacklist(code, price, h['cost_price'], today)
+                                _record_sell_time()
                                 rebalance_actions.append(f"⏰ 时间止损 {_sn(code)} {h['shares']}股@¥{price:.2f} (持仓{_hold_days}天 亏损{pnl_pct*100:.1f}%)")
                                 continue
                         except Exception:
@@ -1705,7 +1742,7 @@ def main():
                 if rebalance_actions:
                     _save_nav(tracker, dq)
 
-                if len(tracker.holdings) <= 5 and tracker.cash >= 10000 and _today_add_count < 3:
+                if len(tracker.holdings) <= 5 and tracker.cash >= 10000 and _today_add_count < 3 and not _skip_rebalance_sells:
                     for code in list(held):
                         if code not in tracker.holdings or code not in scores.index:
                             continue
@@ -1772,6 +1809,8 @@ def main():
                                         # 诊断日志
                     held_info = {c: (list(scores.index).index(c)+1 if c in scores.index else 999, round(scores.loc[c,'score_total'],1) if c in scores.index else 0) for c in held}
                     logger.info(f'调仓检查: 持仓评分={held_info}')
+                    if _skip_rebalance_sells:
+                        return
                     # 持仓都健康，但检查是否有明显更好的标的 → 强制换仓
                     # 找持仓中评分最低的
                     held_ranks = [(code, list(scores.index).index(code)+1, scores.loc[code, 'score_total']) 
@@ -1829,6 +1868,9 @@ def main():
                         return
 
                 # 正常调仓: 卖评分最差的1只
+                if _skip_rebalance_sells:
+                    logger.info('调仓冷却中，跳过正常调仓')
+                    return
                 sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
                 sell_candidate, sell_reason = sell_list[0]
 
@@ -1908,6 +1950,7 @@ def main():
                 sell_pnl = (sell_price - h['cost_price']) * h['shares']
                 tracker._sell(sell_candidate, sell_price, datetime.now().strftime('%Y-%m-%d %H:%M'), 'smart_rebalance')
                 _record_to_blacklist(sell_candidate, sell_price, h['cost_price'], today)
+                _record_sell_time()
                 # 立即保存卖出状态，防止后续买入失败导致卖出丢失
                 _save_nav(tracker, dq)
 
