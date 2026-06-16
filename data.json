@@ -2,14 +2,14 @@
   "updated": "2026-06-15",
   "stats": {
     "latest_date": "2026-06-15",
-    "nav": 0.8308,
-    "total_return": -16.92,
-    "max_drawdown": -16.92,
-    "holdings_count": 4,
-    "total_trades": 41,
+    "nav": 0.828,
+    "total_return": -17.2,
+    "max_drawdown": -17.2,
+    "holdings_count": 1,
+    "total_trades": 46,
     "initial_capital": 1000000,
-    "current_value": 833715.0,
-    "cash": 252304.0
+    "current_value": 826225.0,
+    "cash": 756340.0
   },
   "nav_history": [
     {
@@ -104,9 +104,9 @@
     },
     {
       "date": "2026-06-16",
-      "nav": 0.8308,
-      "market_value": 578485.0,
-      "holdings_count": 4
+      "nav": 0.828,
+      "market_value": 71640.0,
+      "holdings_count": 1
     }
   ],
   "hs300_benchmark": [
@@ -197,47 +197,62 @@
   ],
   "holdings": [
     {
-      "code": "601658",
-      "name": "邮储银行",
-      "shares": 40500,
-      "cost_price": 5.07,
-      "current_price": 5.11,
-      "market_value": 206955.0,
-      "pnl_pct": 0.74,
-      "weight": 35.3
-    },
-    {
-      "code": "000333",
-      "name": "美的集团",
-      "shares": 500,
-      "cost_price": 84.27,
-      "current_price": 80.93,
-      "market_value": 40465.0,
-      "pnl_pct": -3.96,
-      "weight": 7.2
-    },
-    {
-      "code": "601838",
-      "name": "成都银行",
-      "shares": 7700,
-      "cost_price": 19.83,
-      "current_price": 20.03,
-      "market_value": 154231.0,
-      "pnl_pct": 1.01,
-      "weight": 26.2
-    },
-    {
-      "code": "002142",
-      "name": "宁波银行",
-      "shares": 5600,
-      "cost_price": 32.57,
-      "current_price": 32.1,
-      "market_value": 179760.0,
-      "pnl_pct": -1.44,
-      "weight": 31.3
+      "code": "600160",
+      "name": "巨化股份",
+      "shares": 1500,
+      "cost_price": 47.76,
+      "current_price": 46.59,
+      "market_value": 69885.0,
+      "pnl_pct": -2.45,
+      "weight": 100.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-16 10:05",
+      "code": "600160",
+      "name": "巨化股份",
+      "action": "buy",
+      "shares": 1500,
+      "price": 47.76,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-16 10:05",
+      "code": "601838",
+      "name": "成都银行",
+      "action": "sell",
+      "shares": 7700,
+      "price": 19.83,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-16 10:00",
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "sell",
+      "shares": 40500,
+      "price": 5.07,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-16 09:55",
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "sell",
+      "shares": 5600,
+      "price": 31.88,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-16 09:50",
+      "code": "000333",
+      "name": "美的集团",
+      "action": "sell",
+      "shares": 500,
+      "price": 79.54,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-06-16 09:45",
       "code": "601838",
@@ -462,51 +477,6 @@
       "shares": 15800,
       "price": 5.06,
       "reason": "add_score0_sig90"
-    },
-    {
-      "date": "2026-06-11 09:40",
-      "code": "601838",
-      "name": "成都银行",
-      "action": "buy",
-      "shares": 2600,
-      "price": 19.74,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 09:40",
-      "code": "000333",
-      "name": "美的集团",
-      "action": "buy",
-      "shares": 400,
-      "price": 84.9,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 09:35",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "buy",
-      "shares": 5200,
-      "price": 11.37,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 09:35",
-      "code": "601658",
-      "name": "邮储银行",
-      "action": "buy",
-      "shares": 8200,
-      "price": 5.08,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-04 09:35",
-      "code": "001391",
-      "name": "国货航",
-      "action": "sell",
-      "shares": 57100,
-      "price": 5.15,
-      "reason": "smart_rebalance"
     }
   ]
 }
