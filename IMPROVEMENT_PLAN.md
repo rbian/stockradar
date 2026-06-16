@@ -1618,3 +1618,51 @@
 - [ ] 数据达到20笔后，根据strategy_report调参
 - [ ] 监控新的去重机制是否正常工作（检查daily_auto_buys.json）
 - [ ] 推进Phase 4: 复盘→自动调参闭环
+
+### 2026-06-17 (周三) 风控+仓位日
+
+**代码审查发现:**
+- 🔴 **T+1违规**: _add_position不更新buy_date，允许当天加仓当天卖出
+  - 交易记录: 002142 09:35买入→09:55卖出, 601838 09:45买入→10:05卖出
+  - 影响: T+1规则形同虚设，可能违反A股交易规则
+- 🟡 **级联清仓**: 25分钟内连卖5只(09:40→10:05)，持仓5→2只
+  - 每个alert_check(5min)触发一次评分驱动卖出，无冷却机制
+- 🟡 **Kelly未使用**: KellyPositionManager存在但从未在run_bot.py中调用
+- 🟢 佣金计算正确，止损/止盈逻辑完整
+- 🟢 因子引擎NaN防护有效
+
+**改进实施 (3项):**
+
+1. ✅ **🔴 T+1修复 + 因子传递** (nav_tracker.py + run_bot.py)
+   - _add_position新增last_add_date字段记录加仓日期
+   - 所有5处T+1检查更新: 同时检查buy_date和last_add_date
+   - _add_position新增factor_score/signal_score参数
+   - smart_rebalance调用_add_position时传递实际分数(原来传0)
+   - commit: 974df83
+
+2. ✅ **🟡 卖出冷却机制** (run_bot.py)
+   - 新增last_sell_time.json追踪最近卖出时间
+   - 卖出后15分钟内跳过评分驱动的减仓/换仓/加仓
+   - 止损(-15%/-10%)、追踪止盈、时间止损不受冷却限制
+   - 所有5个卖出路径均记录冷却时间
+   - commit: 4fde6da
+
+3. ✅ **🟢 Kelly Criterion集成** (run_bot.py)
+   - GitHub学习: MarketRegimeNet (lu8848) — Kelly + temperature calibration
+   - auto_buy根据历史胜率动态限制max_buy
+   - 胜率<30%(当前23.5%)→max_buy=1, <40%→max_buy≤2
+   - 每次auto_buy自动从trade_log更新Kelly参数
+   - commit: b1f3aad
+
+**复盘驱动:**
+- 错误模式: "买入失误"6次（均来自5/12系统性下跌日）
+- Kelly集成直接回应: 胜率23.5%→限制单次仅买1只
+- 卖出冷却回应: 6/16级联清仓模式
+
+**GitHub学习:**
+- **MarketRegimeNet** (lu8848): Kelly Criterion + Brier score penalty
+  - 学到: 模型置信度低时自动缩减仓位
+  - 已实现: Kelly胜率门槛(max_buy限制)
+  - 未来可做: 温度校准(将signal_score映射到实际胜率)
+
+**数据状态:** 17/20笔已平仓，暂不调参数
