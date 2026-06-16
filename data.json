@@ -2,14 +2,14 @@
   "updated": "2026-06-15",
   "stats": {
     "latest_date": "2026-06-15",
-    "nav": 0.8322,
-    "total_return": -16.78,
-    "max_drawdown": -16.78,
-    "holdings_count": 5,
-    "total_trades": 39,
+    "nav": 0.8308,
+    "total_return": -16.92,
+    "max_drawdown": -16.92,
+    "holdings_count": 4,
+    "total_trades": 41,
     "initial_capital": 1000000,
-    "current_value": 833500.0,
-    "cash": 8595.0
+    "current_value": 833715.0,
+    "cash": 252304.0
   },
   "nav_history": [
     {
@@ -104,9 +104,9 @@
     },
     {
       "date": "2026-06-16",
-      "nav": 0.8322,
-      "market_value": 823593.0,
-      "holdings_count": 5
+      "nav": 0.8308,
+      "market_value": 578485.0,
+      "holdings_count": 4
     }
   ],
   "hs300_benchmark": [
@@ -204,16 +204,6 @@
       "current_price": 5.11,
       "market_value": 206955.0,
       "pnl_pct": 0.74,
-      "weight": 24.7
-    },
-    {
-      "code": "000001",
-      "name": "平安银行",
-      "shares": 26000,
-      "cost_price": 11.31,
-      "current_price": 11.06,
-      "market_value": 287560.0,
-      "pnl_pct": -2.18,
       "weight": 35.3
     },
     {
@@ -224,17 +214,17 @@
       "current_price": 80.93,
       "market_value": 40465.0,
       "pnl_pct": -3.96,
-      "weight": 5.1
+      "weight": 7.2
     },
     {
       "code": "601838",
       "name": "成都银行",
-      "shares": 5500,
-      "cost_price": 19.8,
+      "shares": 7700,
+      "cost_price": 19.83,
       "current_price": 20.03,
-      "market_value": 110165.0,
-      "pnl_pct": 1.16,
-      "weight": 13.1
+      "market_value": 154231.0,
+      "pnl_pct": 1.01,
+      "weight": 26.2
     },
     {
       "code": "002142",
@@ -244,10 +234,28 @@
       "current_price": 32.1,
       "market_value": 179760.0,
       "pnl_pct": -1.44,
-      "weight": 21.9
+      "weight": 31.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-16 09:45",
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "shares": 2200,
+      "price": 19.9,
+      "reason": "add_score0_sig71"
+    },
+    {
+      "date": "2026-06-16 09:40",
+      "code": "000001",
+      "name": "平安银行",
+      "action": "sell",
+      "shares": 26000,
+      "price": 11.07,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-06-16 09:35",
       "code": "002142",
@@ -499,24 +507,6 @@
       "shares": 57100,
       "price": 5.15,
       "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-05-29 09:35",
-      "code": "000661",
-      "name": "长春高新",
-      "action": "sell",
-      "shares": 3700,
-      "price": 72.8,
-      "reason": "stop_loss_full"
-    },
-    {
-      "date": "2026-05-27 09:35",
-      "code": "603392",
-      "name": "万泰生物",
-      "action": "sell",
-      "shares": 8000,
-      "price": 34.3,
-      "reason": "stop_loss_full"
     }
   ]
 }
