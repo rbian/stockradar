@@ -326,7 +326,8 @@ class NAVTracker:
             except Exception:
                 pass
 
-    def _add_position(self, code: str, shares: int, price: float, date, reason: str):
+    def _add_position(self, code: str, shares: int, price: float, date, reason: str,
+                     factor_score: float = None, signal_score: float = None):
         """加仓（已有持仓增持）"""
         h = self.holdings.get(code)
         if not h:
@@ -341,6 +342,13 @@ class NAVTracker:
         h["peak_price"] = max(h.get("peak_price", price), price)
         h["shares"] = total_shares
         h["original_shares"] = h.get("original_shares", 0) + shares
+        # T+1: 记录最近加仓日期，防止当天加仓当天卖出
+        h["last_add_date"] = str(date)[:10]
+        # 更新因子快照（供_sell时传递给trade_tracker）
+        if factor_score is not None:
+            h["factor_score"] = factor_score
+        if signal_score is not None:
+            h["signal_score"] = signal_score
         self.trade_log.append({
             "date": str(date)[:16] if len(str(date)) > 10 else str(date), "code": code, "action": "buy",
             "shares": shares, "price": price, "reason": reason,

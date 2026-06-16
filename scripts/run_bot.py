@@ -865,10 +865,10 @@ def main():
                 for code in codes:
                     if code not in tracker.holdings:
                         continue
-                    # T+1: 当天买入的不能卖
+                    # T+1: 当天买入/加仓的不能卖
                     h = tracker.holdings[code]
-                    if h.get('buy_date', '') == today_str:
-                        logger.info(f"T+1限制: {code}今天买入，不能卖出")
+                    if h.get('buy_date', '') == today_str or h.get('last_add_date', '') == today_str:
+                        logger.info(f"T+1限制: {code}今天买入/加仓，不能卖出")
                         continue
                     price_row = dq[dq['code'] == code] if 'code' in dq.columns else None
                     if price_row is not None and len(price_row) > 0:
@@ -1488,10 +1488,10 @@ def main():
                     if code not in scores.index:
                         sell_list.append((code, "无评分数据"))
                         continue
-                    # T+1: 当天买入的不能卖
+                    # T+1: 当天买入/加仓的不能卖
                     h = tracker.holdings[code]
                     buy_date = h.get('buy_date', '')
-                    if buy_date == today:
+                    if buy_date == today or h.get('last_add_date', '') == today:
                         continue
                     # 最小持仓期: 买入不足3个交易日不主动调仓卖出（降低交易成本损耗，复盘: 2天太短导致频繁换仓）
                     try:
@@ -1573,9 +1573,9 @@ def main():
                         if not price:
                             continue
                         h = tracker.holdings[code]
-                        # T+1: 当天买入的不能卖
-                        if h.get('buy_date', '') == today:
-                            logger.info(f'减仓跳过{code}: 今天买入T+1限制')
+                        # T+1: 当天买入/加仓的不能卖
+                        if h.get('buy_date', '') == today or h.get('last_add_date', '') == today:
+                            logger.info(f'减仓跳过{code}: 今天买入/加仓T+1限制')
                             continue
                         tracker._sell(code, price, now_str, 'reduce_to_5')
                         _record_to_blacklist(code, price, h['cost_price'], today)
@@ -1625,9 +1625,9 @@ def main():
                     if not price:
                         continue
 
-                    # T+1: 当天买入的不能卖
+                    # T+1: 当天买入/加仓的不能卖
                     buy_date = h.get('buy_date', '')
-                    if buy_date == today:
+                    if buy_date == today or h.get('last_add_date', '') == today:
                         continue
 
                     pnl_pct = (price - h['cost_price']) / h['cost_price']
@@ -1744,7 +1744,7 @@ def main():
                                 add_amount = max(10000, min(tracker.cash * add_pct, 80000))
                                 add_shares = int(add_amount / price / 100) * 100
                                 if add_shares >= 100 and add_shares * price <= tracker.cash:
-                                    tracker._add_position(code, add_shares, price, now_str, f'add_score{scores.loc[code,"score_total"]:.0f}_sig{sig}')
+                                    tracker._add_position(code, add_shares, price, now_str, f'add_score{scores.loc[code,"score_total"]:.0f}_sig{sig}', factor_score=float(scores.loc[code, 'score_total']), signal_score=float(sig))
                                     rebalance_actions.append(f"🟢 加仓[{tier}] {_sn(code)} +{add_shares}股@¥{price:.2f} (排名{rank} 信号{sig} 加¥{add_amount/10000:.0f}万)")
                                     # 记录今天已加仓
                                     _today_added.add(code)
@@ -1801,7 +1801,7 @@ def main():
                         # T+1: 强制换仓也不能卖今天买入的
                         worst_h = tracker.holdings.get(worst_held_code, {})
                         worst_buy_date = worst_h.get('buy_date', '')
-                        if worst_buy_date == today:
+                        if worst_buy_date == today or worst_h.get('last_add_date', '') == today:
                             logger.info(f'强制换仓跳过{worst_held_code}: 今天买入T+1限制')
                             return
                         # 最小持仓期: 强制换仓也需持有≥2个交易日
