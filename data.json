@@ -2,14 +2,14 @@
   "updated": "2026-06-15",
   "stats": {
     "latest_date": "2026-06-15",
-    "nav": 0.8335,
-    "total_return": -16.65,
-    "max_drawdown": -16.65,
+    "nav": 0.8322,
+    "total_return": -16.78,
+    "max_drawdown": -16.78,
     "holdings_count": 5,
-    "total_trades": 38,
+    "total_trades": 39,
     "initial_capital": 1000000,
-    "current_value": 833474.0,
-    "cash": 18199.0
+    "current_value": 833500.0,
+    "cash": 8595.0
   },
   "nav_history": [
     {
@@ -100,6 +100,12 @@
       "date": "2026-06-15",
       "nav": 0.8335,
       "market_value": 815275.0,
+      "holdings_count": 5
+    },
+    {
+      "date": "2026-06-16",
+      "nav": 0.8322,
+      "market_value": 823593.0,
       "holdings_count": 5
     }
   ],
@@ -198,7 +204,7 @@
       "current_price": 5.11,
       "market_value": 206955.0,
       "pnl_pct": 0.74,
-      "weight": 25.0
+      "weight": 24.7
     },
     {
       "code": "000001",
@@ -208,7 +214,7 @@
       "current_price": 11.06,
       "market_value": 287560.0,
       "pnl_pct": -2.18,
-      "weight": 35.7
+      "weight": 35.3
     },
     {
       "code": "000333",
@@ -228,20 +234,29 @@
       "current_price": 20.03,
       "market_value": 110165.0,
       "pnl_pct": 1.16,
-      "weight": 13.2
+      "weight": 13.1
     },
     {
       "code": "002142",
       "name": "宁波银行",
-      "shares": 5300,
-      "cost_price": 32.6,
+      "shares": 5600,
+      "cost_price": 32.57,
       "current_price": 32.1,
-      "market_value": 170130.0,
-      "pnl_pct": -1.53,
-      "weight": 21.0
+      "market_value": 179760.0,
+      "pnl_pct": -1.44,
+      "weight": 21.9
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-16 09:35",
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "buy",
+      "shares": 300,
+      "price": 31.98,
+      "reason": "add_score0_sig73"
+    },
     {
       "date": "2026-06-15 09:45",
       "code": "000333",
@@ -502,15 +517,6 @@
       "shares": 8000,
       "price": 34.3,
       "reason": "stop_loss_full"
-    },
-    {
-      "date": "2026-05-19 09:35",
-      "code": "001391",
-      "name": "国货航",
-      "action": "buy",
-      "shares": 57100,
-      "price": 5.36,
-      "reason": "smart_rebalance"
     }
   ]
 }
