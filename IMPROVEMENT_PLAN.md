@@ -140,6 +140,46 @@
 
 - commit: 0ab6d0b
 
+### 2026-06-18 (周四) 数据+基建日
+
+**代码审查发现:**
+- 🟢 T+1规则在所有卖出路径正确实现（_auto_sell, _smart_rebalance, rebalance）
+- 🟢 乒乓防护正常（swap_pair tracking + daily_auto_buys去重）
+- 🟢 佣金每次交易正确扣取（commission_rate in _buy/_sell/_partial_sell）
+- 🟢 加权平均成本计算正确（_buy中的avg_cost公式）
+- 🟡 closed_trades.json中有2笔test交易污染统计数据（已修复）
+- 🟡 factor_tracker日志格式偶发报错 'Unknown format code f for str'（已修复）
+- 🟢 当前组合: 4只持仓(600160/601058/600958/601985), 现金¥306k, 回撤-17.5%
+- 🟢 Kelly限制生效: 胜率9%<30%, max_buy=1（实际真实胜率13.3%）
+- 🟡 logs中06-12出现_smart_rebalance的_today_add_count作用域错误（已自愈）
+
+**复盘驱动:**
+- 数据状态: 15/20笔真实已平仓（排除2笔test后），暂不调参数
+- 真实胜率: 13.3%, 均收益: -4.87%, 总亏损: ¥-172,602
+- 主要错误模式: "买入失误" 6次（5/12批次，均在急跌中买入）
+- 改进: 新增飞刀过滤（3日跌幅>6%不买入）
+
+**改进实施 (3项):**
+1. ✅ **🔴 测试交易过滤** (trade_tracker.py) — _is_test_trade() + _filter_real_trades()
+   - 排除test_sell/test_full/manual等非策略交易
+   - 修正后: 真实胜率13.3%（非23.5%）, 均收益-4.87%（非-3.25%）
+   - 影响: Kelly仓位管理和策略报告更准确
+2. ✅ **🟡 飞刀过滤** (run_bot.py) — 3日累计跌幅>6%不买入
+   - GitHub学习: Ncohen10/StockAlgorithm mean reversion concept
+   - 复盘驱动: 万科A买入后-9.5%/5d, 长春高新-19.35%/10d
+   - 补充6b连续下跌检查: 不单调下跌也能捕获急跌
+3. ✅ **🟢 IC追踪格式健壮性** (factor_tracker.py) — float() cast before f-string
+   - 修复: 'Unknown format code f for object of type str' 偶发错误
+   - 防止单个异常值导致整个IC追踪周期失败
+
+**GitHub学习:**
+- microsoft/qlib (18k⭐): RD-Agent自动因子挖掘 — 后续可探索LLM驱动因子发现
+- Ncohen10/StockAlgorithm: mean reversion策略 — 飞刀过滤灵感来源
+- Qbot (17k⭐): 确认多因子+ML方向一致
+
+- commit: 694f9a5
+
+
 ### Phase 1: 稳定性 ✅
 - [x] Bot崩溃自动重启
 - [x] pidfile锁机制
