@@ -2,14 +2,14 @@
   "updated": "2026-06-16",
   "stats": {
     "latest_date": "2026-06-16",
-    "nav": 0.8248,
-    "total_return": -17.52,
-    "max_drawdown": -17.52,
-    "holdings_count": 2,
-    "total_trades": 47,
+    "nav": 0.8228,
+    "total_return": -17.72,
+    "max_drawdown": -17.72,
+    "holdings_count": 3,
+    "total_trades": 49,
     "initial_capital": 1000000,
-    "current_value": 824841.0,
-    "cash": 695703.0
+    "current_value": 826057.0,
+    "cash": 436364.0
   },
   "nav_history": [
     {
@@ -107,6 +107,12 @@
       "nav": 0.8248,
       "market_value": 129138.0,
       "holdings_count": 2
+    },
+    {
+      "date": "2026-06-17",
+      "nav": 0.8228,
+      "market_value": 386457.0,
+      "holdings_count": 3
     }
   ],
   "hs300_benchmark": [
@@ -203,12 +209,12 @@
     {
       "code": "600160",
       "name": "巨化股份",
-      "shares": 1500,
-      "cost_price": 47.76,
+      "shares": 3100,
+      "cost_price": 46.8,
       "current_price": 46.7,
-      "market_value": 70050.0,
-      "pnl_pct": -2.22,
-      "weight": 54.2
+      "market_value": 144770.0,
+      "pnl_pct": -0.21,
+      "weight": 37.1
     },
     {
       "code": "601058",
@@ -218,10 +224,38 @@
       "current_price": 12.31,
       "market_value": 59088.0,
       "pnl_pct": -2.46,
-      "weight": 45.8
+      "weight": 15.5
+    },
+    {
+      "code": "600958",
+      "name": "东方证券",
+      "shares": 19500,
+      "cost_price": 9.52,
+      "current_price": 9.53,
+      "market_value": 185835.0,
+      "pnl_pct": 0.11,
+      "weight": 47.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-17 09:40",
+      "code": "600160",
+      "name": "巨化股份",
+      "action": "buy",
+      "shares": 1600,
+      "price": 45.9,
+      "reason": "add_score0_sig66"
+    },
+    {
+      "date": "2026-06-17 09:35",
+      "code": "600958",
+      "name": "东方证券",
+      "action": "buy",
+      "shares": 19500,
+      "price": 9.52,
+      "reason": "auto_buy"
+    },
     {
       "date": "2026-06-16 10:05",
       "code": "601058",
@@ -472,24 +506,6 @@
       "action": "buy",
       "shares": 6100,
       "price": 5.06,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 09:50",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "buy",
-      "shares": 7000,
-      "price": 11.28,
-      "reason": "add_score0_sig84"
-    },
-    {
-      "date": "2026-06-11 09:45",
-      "code": "002142",
-      "name": "宁波银行",
-      "action": "buy",
-      "shares": 2600,
-      "price": 32.6,
       "reason": "auto_buy"
     }
   ]
