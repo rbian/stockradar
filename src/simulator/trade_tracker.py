@@ -35,6 +35,28 @@ def _save(path: Path, data):
 
 
 # ============================================================
+# 测试/手动交易过滤 — 不计入策略统计
+# ============================================================
+
+_TEST_REASONS = {'test', 'test_sell', 'test_full', 'test_buy', 'manual', 'manual_sell', 'manual_buy'}
+
+def _is_test_trade(trade: dict) -> bool:
+    """判断是否为测试/手动交易（不计入策略统计）"""
+    reason = str(trade.get('reason', '')).lower().strip()
+    if reason in _TEST_REASONS:
+        return True
+    # 检测 reason 中包含 test 前缀
+    if reason.startswith('test'):
+        return True
+    return False
+
+
+def _filter_real_trades(trades: list) -> list:
+    """过滤掉测试交易，只返回真实策略交易"""
+    return [t for t in trades if not _is_test_trade(t)]
+
+
+# ============================================================
 # 1. 记录已平仓交易
 # ============================================================
 
@@ -107,8 +129,9 @@ def record_trade(code: str, name: str, action: str, buy_price: float, sell_price
     # 只保留最近500笔
     log["trades"] = log["trades"][-500:]
     
-    # 更新元数据
-    all_trades = log["trades"]
+    # 更新元数据 — 排除测试交易，确保策略统计准确
+    all_trades = _filter_real_trades(log["trades"])
+    test_count = len(log["trades"]) - len(all_trades)
     wins = [t for t in all_trades if t["is_win"]]
     log["metadata"] = {
         "total_trades": len(all_trades),
@@ -119,6 +142,7 @@ def record_trade(code: str, name: str, action: str, buy_price: float, sell_price
         "total_pnl": round(sum(t["net_pnl"] for t in all_trades), 2),
         "best_trade": max((t["return_pct"] for t in all_trades), default=0),
         "worst_trade": min((t["return_pct"] for t in all_trades), default=0),
+        "test_trades_excluded": test_count,
         "updated": datetime.now().isoformat(),
     }
     
@@ -185,7 +209,7 @@ def generate_strategy_report() -> dict:
     trade_log = _load(TRADE_LOG, {"trades": [], "metadata": {}})
     daily = _load(DAILY_STATS, {"days": []})
     
-    trades = trade_log["trades"]
+    trades = _filter_real_trades(trade_log["trades"])
     
     report = {
         "generated_at": datetime.now().isoformat(),
@@ -346,8 +370,9 @@ def get_status() -> str:
     
     lines = ["📊 StockRadar 策略状态"]
     
-    # 基本数据
-    trades = trade_log.get("trades", [])
+    # 基本数据 — 过滤测试交易
+    all_raw_trades = trade_log.get("trades", [])
+    trades = _filter_real_trades(all_raw_trades)
     meta = trade_log.get("metadata", {})
     lines.append(f"已平仓: {len(trades)}笔 | 胜率: {meta.get('win_rate', '?')}% | "
                  f"均收益: {meta.get('avg_return', '?')}% | 总盈亏: ¥{meta.get('total_pnl', '?')}")

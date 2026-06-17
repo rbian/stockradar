@@ -1112,6 +1112,14 @@ def main():
                         if all(close.iloc[-i] < close.iloc[-i-1] for i in range(1, min(6, len(close)))):
                             continue  # 连续下跌中
 
+                    # 6b2: 飞刀过滤 — 3日累计跌幅>6%不买入（GitHub学习: mean reversion guard）
+                    # 复盘驱动: 万科A买入后-9.5%/5d, 长春高新-19.35%/10d, 均在买入前已处于急跌中
+                    # 连续下跌检查(6b)只能捕获单调下跌, 不捕获"大跌+反弹+大跌"模式
+                    if len(close) >= 4:
+                        _ret_3d = (close.iloc[-1] / close.iloc[-3] - 1)
+                        if _ret_3d < -0.06:
+                            continue  # 3日跌幅超6%, 飞刀风险
+
                     # 6c: 成交额过低（日均<5000万）→ 流动性差
                     vol = stock_data.get('volume', pd.Series(dtype=float))
                     if len(vol) >= 5:

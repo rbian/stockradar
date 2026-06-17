@@ -348,5 +348,155 @@
     "pnl": 0,
     "reason": "add_score0_sig85",
     "date": "2026-06-12 09:35"
+  },
+  {
+    "code": "601838",
+    "action": "buy",
+    "price": 19.97,
+    "shares": 500,
+    "amount": 9985.0,
+    "pnl": 0,
+    "reason": "add_score0_sig77",
+    "date": "2026-06-15 09:35"
+  },
+  {
+    "code": "002142",
+    "action": "buy",
+    "price": 32.68,
+    "shares": 300,
+    "amount": 9804.0,
+    "pnl": 0,
+    "reason": "add_score0_sig78",
+    "date": "2026-06-15 09:40"
+  },
+  {
+    "code": "000333",
+    "action": "buy",
+    "price": 81.73,
+    "shares": 100,
+    "amount": 8173.0,
+    "pnl": 0,
+    "reason": "add_score0_sig73",
+    "date": "2026-06-15 09:45"
+  },
+  {
+    "code": "002142",
+    "action": "buy",
+    "price": 31.98,
+    "shares": 300,
+    "amount": 9594.0,
+    "pnl": 0,
+    "reason": "add_score0_sig73",
+    "date": "2026-06-16 09:35"
+  },
+  {
+    "code": "000001",
+    "action": "sell",
+    "price": 11.07,
+    "shares": 26000,
+    "amount": 287820.0,
+    "pnl": -6145.0,
+    "reason": "smart_rebalance",
+    "date": "2026-06-16 09:40"
+  },
+  {
+    "code": "601838",
+    "action": "buy",
+    "price": 19.9,
+    "shares": 2200,
+    "amount": 43780.0,
+    "pnl": 0,
+    "reason": "add_score0_sig71",
+    "date": "2026-06-16 09:45"
+  },
+  {
+    "code": "000333",
+    "action": "sell",
+    "price": 79.54,
+    "shares": 500,
+    "amount": 39770.0,
+    "pnl": -2365.0,
+    "reason": "smart_rebalance",
+    "date": "2026-06-16 09:50"
+  },
+  {
+    "code": "002142",
+    "action": "sell",
+    "price": 31.88,
+    "shares": 5600,
+    "amount": 178528.0,
+    "pnl": -3864.0,
+    "reason": "smart_rebalance",
+    "date": "2026-06-16 09:55"
+  },
+  {
+    "code": "601658",
+    "action": "sell",
+    "price": 5.07,
+    "shares": 40500,
+    "amount": 205335.0,
+    "pnl": -91.0,
+    "reason": "smart_rebalance",
+    "date": "2026-06-16 10:00"
+  },
+  {
+    "code": "601838",
+    "action": "sell",
+    "price": 19.83,
+    "shares": 7700,
+    "amount": 152691.0,
+    "pnl": 0.0,
+    "reason": "smart_rebalance",
+    "date": "2026-06-16 10:05"
+  },
+  {
+    "code": "600160",
+    "action": "buy",
+    "price": 47.76,
+    "shares": 1500,
+    "amount": 71640.0,
+    "pnl": 0.0,
+    "reason": "smart_rebalance",
+    "date": "2026-06-16 10:05"
+  },
+  {
+    "code": "601058",
+    "action": "buy",
+    "price": 12.62,
+    "shares": 4800,
+    "amount": 60576.0,
+    "pnl": 0.0,
+    "reason": "auto_buy",
+    "date": "2026-06-16 10:05"
+  },
+  {
+    "code": "600958",
+    "action": "buy",
+    "price": 9.52,
+    "shares": 19500,
+    "amount": 185640.0,
+    "pnl": 0.0,
+    "reason": "auto_buy",
+    "date": "2026-06-17 09:35"
+  },
+  {
+    "code": "600160",
+    "action": "buy",
+    "price": 45.9,
+    "shares": 1600,
+    "amount": 73440.0,
+    "pnl": 0,
+    "reason": "add_score0_sig66",
+    "date": "2026-06-17 09:40"
+  },
+  {
+    "code": "601985",
+    "action": "buy",
+    "price": 9.3,
+    "shares": 14000,
+    "amount": 130200.0,
+    "pnl": 0.0,
+    "reason": "auto_buy",
+    "date": "2026-06-17 09:40"
   }
 ]

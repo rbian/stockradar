@@ -300,10 +300,14 @@ class FactorTracker:
         if adjustments:
             logger.info(f"因子权重调整 [{date}]: {len(adjustments)} 个因子")
             for name, adj in adjustments.items():
+                # 健壮性: 确保数值类型（JSON恢复可能产生字符串）
+                _ow = float(adj.get('old_weight', 0))
+                _nw = float(adj.get('new_weight', 0))
+                _mult = float(adj.get('multiplier', 0))
                 logger.info(
                     f"  {name}: {adj['action']} "
-                    f"({adj.get('old_weight', 0):.3f} → {adj.get('new_weight', 0):.3f}, "
-                    f"mult={adj.get('multiplier', 0):.3f})"
+                    f"({_ow:.3f} → {_nw:.3f}, "
+                    f"mult={_mult:.3f})"
                 )
 
         # 持久化IC状态到JSON
