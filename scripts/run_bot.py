@@ -490,15 +490,19 @@ def main():
                     return result if return_detail else True
                 drawdown = (current_nav - peak_nav) / peak_nav
                 
-                # Tiered response
+                # Tiered response (2026-06-19: 收紧Tier3+增加Tier3.5深度回撤冻结)
+                # 复盘: 胜率13.3%, 回撤-19.7%, Tier3仍允许买入导致持续亏损
                 if drawdown >= -0.08:
                     result = {'allowed': True, 'scale': 1.0, 'min_signal': 0, 'drawdown': drawdown}
                 elif drawdown >= -0.15:
                     logger.info(f"⚠️ 组合回撤{drawdown:.1%} [Tier2:缩减50%仓位, 信号门槛65]")
                     result = {'allowed': True, 'scale': 0.5, 'min_signal': 65, 'drawdown': drawdown}
+                elif drawdown >= -0.18:
+                    logger.info(f"⚠️ 组合回撤{drawdown:.1%} [Tier3:极小仓位15%, 信号门槛80]")
+                    result = {'allowed': True, 'scale': 0.15, 'min_signal': 80, 'drawdown': drawdown}
                 elif drawdown >= -0.20:
-                    logger.info(f"⚠️ 组合回撤{drawdown:.1%} [Tier3:极小仓位30%, 信号门槛75]")
-                    result = {'allowed': True, 'scale': 0.3, 'min_signal': 75, 'drawdown': drawdown}
+                    logger.info(f"🔴 组合回撤{drawdown:.1%} [Tier3.5:近乎冻结, 信号门槛85]")
+                    result = {'allowed': True, 'scale': 0.05, 'min_signal': 85, 'drawdown': drawdown}
                 else:
                     logger.info(f"🔴 组合回撤{drawdown:.1%} [Tier4:全面阻断] (peak={peak_nav:.4f}, now={current_nav:.4f})")
                     result = {'allowed': False, 'scale': 0, 'min_signal': 999, 'drawdown': drawdown}
