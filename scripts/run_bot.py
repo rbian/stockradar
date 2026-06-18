@@ -1016,11 +1016,20 @@ def main():
                     import pandas as _pd
                     _idx_df = orch.context.read("data.daily_quote")
                     if _idx_df is not None and not _idx_df.empty:
-                        # 取HS300成分股的平均波动率
-                        if 'pct_chg' in _idx_df.columns:
-                            _recent_pct = _idx_df.groupby('code').tail(10).groupby('code')['pct_chg'].std()
+                        # 统一涨跌幅列: 修复pct_chg列名问题
+                        _pct_col = None
+                        for _col in ['pct_chg', 'pctChg', 'change_pct']:
+                            if _col in _idx_df.columns and _idx_df[_col].notna().sum() > len(_idx_df) * 0.5:
+                                _pct_col = _col
+                                break
+                        if _pct_col is None and 'close' in _idx_df.columns:
+                            _idx_df = _idx_df.sort_values(['code', 'date']).copy()
+                            _idx_df['_pct'] = _idx_df.groupby('code')['close'].pct_change() * 100
+                            _pct_col = '_pct'
+                        if _pct_col:
+                            _recent_pct = _idx_df.groupby('code').tail(10).groupby('code')[_pct_col].std()
                             _avg_vol = _recent_pct.median()
-                            if _avg_vol > 2.5:  # 日均振幅>2.5%为高波动
+                            if _avg_vol > 2.5:
                                 vol_regime = "high_vol"
                             elif _avg_vol > 1.8:
                                 vol_regime = "elevated"
