@@ -2,14 +2,14 @@
   "updated": "2026-06-17",
   "stats": {
     "latest_date": "2026-06-17",
-    "nav": 0.8254,
-    "total_return": -17.46,
-    "max_drawdown": -17.46,
-    "holdings_count": 4,
-    "total_trades": 50,
+    "nav": 0.818,
+    "total_return": -18.2,
+    "max_drawdown": -18.2,
+    "holdings_count": 5,
+    "total_trades": 52,
     "initial_capital": 1000000,
-    "current_value": 825409.0,
-    "cash": 306034.0
+    "current_value": 827737.0,
+    "cash": 186430.0
   },
   "nav_history": [
     {
@@ -113,6 +113,12 @@
       "nav": 0.8254,
       "market_value": 519375.0,
       "holdings_count": 4
+    },
+    {
+      "date": "2026-06-18",
+      "nav": 0.818,
+      "market_value": 631607.0,
+      "holdings_count": 5
     }
   ],
   "hs300_benchmark": [
@@ -213,12 +219,12 @@
     {
       "code": "600160",
       "name": "巨化股份",
-      "shares": 3100,
-      "cost_price": 46.8,
+      "shares": 3700,
+      "cost_price": 46.71,
       "current_price": 47.7,
-      "market_value": 147870.0,
-      "pnl_pct": 1.92,
-      "weight": 27.8
+      "market_value": 176490.0,
+      "pnl_pct": 2.12,
+      "weight": 27.0
     },
     {
       "code": "601058",
@@ -228,7 +234,7 @@
       "current_price": 11.8,
       "market_value": 56640.0,
       "pnl_pct": -6.5,
-      "weight": 11.6
+      "weight": 9.5
     },
     {
       "code": "600958",
@@ -238,7 +244,7 @@
       "current_price": 9.47,
       "market_value": 184665.0,
       "pnl_pct": -0.53,
-      "weight": 35.6
+      "weight": 29.0
     },
     {
       "code": "601985",
@@ -248,10 +254,38 @@
       "current_price": 9.3,
       "market_value": 130200.0,
       "pnl_pct": 0.0,
-      "weight": 25.0
+      "weight": 20.3
+    },
+    {
+      "code": "601186",
+      "name": "中国铁建",
+      "shares": 14400,
+      "cost_price": 6.37,
+      "current_price": 6.48,
+      "market_value": 93312.0,
+      "pnl_pct": 1.73,
+      "weight": 14.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-18 09:40",
+      "code": "600160",
+      "name": "巨化股份",
+      "action": "buy",
+      "shares": 600,
+      "price": 46.26,
+      "reason": "add_score0_sig66"
+    },
+    {
+      "date": "2026-06-18 09:35",
+      "code": "601186",
+      "name": "中国铁建",
+      "action": "buy",
+      "shares": 14400,
+      "price": 6.37,
+      "reason": "auto_buy"
+    },
     {
       "date": "2026-06-17 09:40",
       "code": "601985",
@@ -502,24 +536,6 @@
       "action": "buy",
       "shares": 3600,
       "price": 5.07,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 09:55",
-      "code": "002142",
-      "name": "宁波银行",
-      "action": "buy",
-      "shares": 2400,
-      "price": 32.59,
-      "reason": "add_score0_sig80"
-    },
-    {
-      "date": "2026-06-11 09:50",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "buy",
-      "shares": 5000,
-      "price": 11.28,
       "reason": "auto_buy"
     }
   ]
