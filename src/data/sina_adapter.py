@@ -121,6 +121,18 @@ def update_daily_from_sina(
         code = q["code"]
         mask = (updated["code"] == code) & (updated["date"].astype(str).str[:10] == date_str)
 
+        # Compute pre_close from existing data (previous trading day close)
+        code_data = updated[updated["code"] == code].sort_values("date")
+        pre_close = None
+        if not code_data.empty:
+            prev_rows = code_data[code_data["date"].astype(str).str[:10] < date_str]
+            if not prev_rows.empty:
+                pre_close = float(prev_rows.iloc[-1]["close"])
+
+        change_pct = None
+        if pre_close and pre_close > 0 and q["close"] > 0:
+            change_pct = (q["close"] - pre_close) / pre_close * 100
+
         row_data = {
             "code": code,
             "date": q["date"],
@@ -128,6 +140,9 @@ def update_daily_from_sina(
             "high": q["high"],
             "low": q["low"],
             "close": q["close"],
+            "pre_close": pre_close if pre_close else 0,
+            "change_pct": change_pct if change_pct is not None else 0,
+            "pctChg": change_pct if change_pct is not None else 0,
             "volume": q["volume"],
             "amount": q["amount"],
         }
