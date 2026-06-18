@@ -966,31 +966,49 @@ def main():
                     market_regime = "neutral"  # 默认中性
 
                 # 市场广度过滤: 当日下跌股>60%时禁止auto_buy（复盘: 5/12系统性下跌日买入全亏）
+                # 🔴 2026-06-19修复: 原代码检查pct_chg列，实际数据列名为pctChg且全为NaN
+                # 导致市场广度过滤从未生效 — 现在自动从close计算涨跌幅
                 try:
-                    _mb_dq = orch.context.read("data.daily_quote")
-                    if _mb_dq is not None and 'pct_chg' in _mb_dq.columns:
-                        _latest = _mb_dq.groupby('code').tail(1)
-                        _declining = (_latest['pct_chg'] < 0).sum()
-                        _total_mb = len(_latest)
-                        if _total_mb > 100:
-                            _breadth_ratio = _declining / _total_mb
-                            if _breadth_ratio > 0.60:
-                                logger.info(f'auto_buy跳过: 市场广度差({_declining}/{_total_mb}={_breadth_ratio:.0%}下跌)')
-                                return
-                        # 多日市场趋势过滤: 过去3天平均跌幅持续为负 → 系统性下跌中，禁止买入
-                        # GitHub学习: zhou343-de/stock-trader-ai 的"先活下来"理念
-                        # 复盘驱动: 5/12前3天市场已经连续走弱，单日广度过滤不够
-                        _recent_3d = _mb_dq.groupby('code').tail(3)
-                        if len(_recent_3d) >= 100:
-                            _daily_avg_ret = _recent_3d.groupby(_recent_3d['date'] if 'date' in _recent_3d.columns else _recent_3d.index)['pct_chg'].mean()
-                            if len(_daily_avg_ret) >= 3:
-                                _consecutive_neg = all(r < 0 for r in _daily_avg_ret.tail(3))
-                                _avg_3d = _daily_avg_ret.tail(3).mean()
-                                if _consecutive_neg or _avg_3d < -1.0:
-                                    logger.info(f'auto_buy跳过: 3日市场趋势偏弱(连续负收益={_consecutive_neg}, 3日均幅={_avg_3d:.2f}%)')
+                    _mb_dq = orch.context.read("data.daily_quote").copy()
+                    if _mb_dq is not None and not _mb_dq.empty:
+                        # 统一涨跌幅列: 优先用现有列，否则从close计算
+                        _pct_col = None
+                        for _col in ['pct_chg', 'pctChg', 'change_pct']:
+                            if _col in _mb_dq.columns and _mb_dq[_col].notna().sum() > len(_mb_dq) * 0.5:
+                                _pct_col = _col
+                                break
+                        if _pct_col is None and 'close' in _mb_dq.columns:
+                            # 从close计算涨跌幅 (per code)
+                            _mb_dq = _mb_dq.sort_values(['code', 'date'])
+                            _mb_dq['_pct'] = _mb_dq.groupby('code')['close'].pct_change() * 100
+                            _pct_col = '_pct'
+                        elif _pct_col:
+                            _mb_dq[_pct_col] = _mb_dq[_pct_col].fillna(
+                                _mb_dq.groupby('code')['close'].pct_change() * 100
+                            )
+                        if _pct_col:
+                            _latest = _mb_dq.groupby('code').tail(1)
+                            _declining = (_latest[_pct_col] < 0).sum()
+                            _total_mb = len(_latest)
+                            if _total_mb > 100:
+                                _breadth_ratio = _declining / _total_mb
+                                if _breadth_ratio > 0.60:
+                                    logger.info(f'auto_buy跳过: 市场广度差({_declining}/{_total_mb}={_breadth_ratio:.0%}下跌)')
                                     return
-                except Exception:
-                    pass
+                            # 多日市场趋势过滤: 过去3天平均跌幅持续为负 → 系统性下跌中，禁止买入
+                            _recent_3d = _mb_dq.groupby('code').tail(3)
+                            if len(_recent_3d) >= 100:
+                                _daily_avg_ret = _recent_3d.groupby(
+                                    _recent_3d['date'] if 'date' in _recent_3d.columns else _recent_3d.index
+                                )[_pct_col].mean()
+                                if len(_daily_avg_ret) >= 3:
+                                    _consecutive_neg = all(r < 0 for r in _daily_avg_ret.tail(3))
+                                    _avg_3d = _daily_avg_ret.tail(3).mean()
+                                    if _consecutive_neg or _avg_3d < -1.0:
+                                        logger.info(f'auto_buy跳过: 3日市场趋势偏弱(连续负收益={_consecutive_neg}, 3日均幅={_avg_3d:.2f}%)')
+                                        return
+                except Exception as _mb_err:
+                    logger.debug(f'市场广度过滤异常: {_mb_err}')
 
                 # 波动率状态: HS300近期ATR/价格比 → 高波动时提高买入门槛
                 vol_regime = "normal"
