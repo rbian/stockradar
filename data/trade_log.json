@@ -498,5 +498,45 @@
     "pnl": 0.0,
     "reason": "auto_buy",
     "date": "2026-06-17 09:40"
+  },
+  {
+    "code": "601186",
+    "action": "buy",
+    "price": 6.37,
+    "shares": 14400,
+    "amount": 91728.0,
+    "pnl": 0.0,
+    "reason": "auto_buy",
+    "date": "2026-06-18 09:35"
+  },
+  {
+    "code": "600160",
+    "action": "buy",
+    "price": 46.26,
+    "shares": 600,
+    "amount": 27756.0,
+    "pnl": 0,
+    "reason": "add_score0_sig66",
+    "date": "2026-06-18 09:40"
+  },
+  {
+    "code": "000301",
+    "action": "buy",
+    "price": 11.88,
+    "shares": 3500,
+    "amount": 41580.0,
+    "pnl": 0.0,
+    "reason": "auto_buy",
+    "date": "2026-06-18 09:40"
+  },
+  {
+    "code": "601058",
+    "action": "sell",
+    "price": 11.5,
+    "shares": 4800,
+    "amount": 55200.0,
+    "pnl": -5376.0,
+    "reason": "reduce_to_5",
+    "date": "2026-06-19 09:35"
   }
 ]

@@ -326,18 +326,36 @@
       "factors": {},
       "signals": {},
       "recorded_at": "2026-06-16T10:05:05.830393"
+    },
+    {
+      "code": "601058",
+      "name": "赛轮轮胎",
+      "buy_price": 12.62,
+      "sell_price": 11.5,
+      "shares": 4800,
+      "buy_date": "2026-06-16",
+      "sell_date": "2026-06-19",
+      "hold_days": 3,
+      "reason": "reduce_to_5",
+      "gross_pnl": -5376.0,
+      "net_pnl": -5491.78,
+      "return_pct": -8.87,
+      "is_win": false,
+      "factors": {},
+      "signals": {},
+      "recorded_at": "2026-06-19T09:35:05.614092"
     }
   ],
   "metadata": {
-    "total_trades": 15,
+    "total_trades": 16,
     "total_wins": 2,
-    "win_rate": 13.3,
-    "avg_return": -4.87,
-    "avg_hold_days": 5.3,
-    "total_pnl": -172601.93,
+    "win_rate": 12.5,
+    "avg_return": -5.12,
+    "avg_hold_days": 5.2,
+    "total_pnl": -178093.71,
     "best_trade": 3.09,
     "worst_trade": -18.76,
     "test_trades_excluded": 2,
-    "updated": "2026-06-18T00:00:00"
+    "updated": "2026-06-19T09:35:05.614380"
   }
 }

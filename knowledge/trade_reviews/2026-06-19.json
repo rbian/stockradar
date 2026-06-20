@@ -1,0 +1,680 @@
+{
+  "date": "2026-06-19",
+  "total_reviews": 42,
+  "patterns": [
+    {
+      "pattern": "买入失误",
+      "count": 12,
+      "avg_cost": 7.5,
+      "examples": [
+        {
+          "code": "600085",
+          "name": "同仁堂",
+          "date": "2026-05-12",
+          "analysis": "买入后-6.9%，选股失误"
+        },
+        {
+          "code": "000661",
+          "name": "长春高新",
+          "date": "2026-05-12",
+          "analysis": "买入后-6.2%，选股失误"
+        },
+        {
+          "code": "000002",
+          "name": "万科A",
+          "date": "2026-05-12",
+          "analysis": "买入后-9.5%，选股失误"
+        }
+      ]
+    },
+    {
+      "pattern": "买入一般",
+      "count": 1,
+      "avg_cost": 1.9,
+      "examples": [
+        {
+          "code": "000002",
+          "name": "万科A",
+          "date": "2026-06-11",
+          "analysis": "买入后5日跌-1.9%，需观察"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 27.97,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.07,
+        "5d": -6.91,
+        "10d": -8.59,
+        "20d": -14.71
+      },
+      "outcome": "bad",
+      "analysis": "买入后-6.9%，选股失误"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 88.52,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.91,
+        "5d": -6.16,
+        "10d": -19.35,
+        "20d": -28.2
+      },
+      "outcome": "bad",
+      "analysis": "买入后-6.2%，选股失误"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "date": "2026-05-12",
+      "price": 4.04,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.68,
+        "5d": -9.51,
+        "10d": -17.32,
+        "20d": -24.63
+      },
+      "outcome": "bad",
+      "analysis": "买入后-9.5%，选股失误"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "date": "2026-05-13",
+      "price": 4.05,
+      "reason": "smart_rebalance",
+      "pnl": 838.0,
+      "subsequent_returns": {
+        "1d": -3.01,
+        "5d": -15.04,
+        "10d": -17.79,
+        "20d": -23.31
+      },
+      "outcome": "excellent",
+      "analysis": "卖出后-15.0%，成功止盈"
+    },
+    {
+      "code": "603392",
+      "name": "万泰生物",
+      "action": "buy",
+      "date": "2026-05-13",
+      "price": 42.22,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -4.71,
+        "5d": -18.07,
+        "10d": -19.07,
+        "20d": -32.06
+      },
+      "outcome": "bad",
+      "analysis": "买入后-18.1%，选股失误"
+    },
+    {
+      "code": "600085",
+      "name": "同仁堂",
+      "action": "sell",
+      "date": "2026-05-14",
+      "price": 27.62,
+      "reason": "smart_rebalance",
+      "pnl": -4165.0,
+      "subsequent_returns": {
+        "1d": -0.94,
+        "5d": -8.2,
+        "10d": -9.83
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-8.2%，止损正确"
+    },
+    {
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "buy",
+      "date": "2026-05-14",
+      "price": 15.76,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.33,
+        "5d": -8.68,
+        "10d": -17.43
+      },
+      "outcome": "bad",
+      "analysis": "买入后-8.7%，选股失误"
+    },
+    {
+      "code": "300122",
+      "name": "智飞生物",
+      "action": "sell",
+      "date": "2026-05-19",
+      "price": 14.93,
+      "reason": "smart_rebalance",
+      "pnl": -17264.0,
+      "subsequent_returns": {
+        "1d": -10.38,
+        "5d": -10.72,
+        "10d": -15.67
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-10.7%，止损正确"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "action": "buy",
+      "date": "2026-05-19",
+      "price": 5.36,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.61,
+        "5d": -3.17,
+        "10d": -10.99
+      },
+      "outcome": "bad",
+      "analysis": "买入后-3.2%，选股失误"
+    },
+    {
+      "code": "603392",
+      "name": "万泰生物",
+      "action": "sell",
+      "date": "2026-05-27",
+      "price": 34.3,
+      "reason": "stop_loss_full",
+      "pnl": -63360.000000000015,
+      "subsequent_returns": {
+        "1d": -2.92,
+        "5d": -1.93,
+        "10d": -13.71
+      },
+      "outcome": "neutral",
+      "analysis": "卖出后5日-1.9%"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "action": "sell",
+      "date": "2026-05-29",
+      "price": 72.8,
+      "reason": "stop_loss_full",
+      "pnl": -58163.99999999999,
+      "subsequent_returns": {
+        "1d": -2.6,
+        "5d": -10.0,
+        "10d": -11.84
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-10.0%，止损正确"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "action": "sell",
+      "date": "2026-06-04",
+      "price": 5.15,
+      "reason": "smart_rebalance",
+      "pnl": -11990.999999999998,
+      "subsequent_returns": {
+        "1d": 0.2,
+        "5d": -6.14
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-6.1%，止损正确"
+    },
+    {
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 5.08,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 1.96,
+        "5d": -4.71
+      },
+      "outcome": "bad",
+      "analysis": "买入后-4.7%，选股失误"
+    },
+    {
+      "code": "000001",
+      "name": "平安银行",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 11.37,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.53,
+        "5d": -6.9
+      },
+      "outcome": "bad",
+      "analysis": "买入后-6.9%，选股失误"
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 84.9,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.48,
+        "5d": -8.61
+      },
+      "outcome": "bad",
+      "analysis": "买入后-8.6%，选股失误"
+    },
+    {
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 19.74,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 1.57,
+        "5d": -5.57
+      },
+      "outcome": "bad",
+      "analysis": "买入后-5.6%，选股失误"
+    },
+    {
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 32.6,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.46,
+        "5d": -6.3
+      },
+      "outcome": "bad",
+      "analysis": "买入后-6.3%，选股失误"
+    },
+    {
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "date": "2026-06-15",
+      "price": 19.97,
+      "reason": "add_score0_sig77",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.5
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "buy",
+      "date": "2026-06-15",
+      "price": 32.68,
+      "reason": "add_score0_sig78",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.62
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "date": "2026-06-15",
+      "price": 81.73,
+      "reason": "add_score0_sig73",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.43
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "buy",
+      "date": "2026-06-16",
+      "price": 31.98,
+      "reason": "add_score0_sig73",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -0.44
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "000001",
+      "name": "平安银行",
+      "action": "sell",
+      "date": "2026-06-16",
+      "price": 11.07,
+      "reason": "smart_rebalance",
+      "pnl": -6144.9999999999745,
+      "subsequent_returns": {
+        "1d": -1.46
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足，无法评估"
+    },
+    {
+      "code": "601838",
+      "name": "成都银行",
+      "action": "buy",
+      "date": "2026-06-16",
+      "price": 19.9,
+      "reason": "add_score0_sig71",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.54
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "sell",
+      "date": "2026-06-16",
+      "price": 79.54,
+      "reason": "smart_rebalance",
+      "pnl": -2364.999999999995,
+      "subsequent_returns": {
+        "1d": 0.33
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足，无法评估"
+    },
+    {
+      "code": "002142",
+      "name": "宁波银行",
+      "action": "sell",
+      "date": "2026-06-16",
+      "price": 31.88,
+      "reason": "smart_rebalance",
+      "pnl": -3864.0000000000073,
+      "subsequent_returns": {
+        "1d": -0.44
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足，无法评估"
+    },
+    {
+      "code": "601658",
+      "name": "邮储银行",
+      "action": "sell",
+      "date": "2026-06-16",
+      "price": 5.07,
+      "reason": "smart_rebalance",
+      "pnl": -90.99999999998465,
+      "subsequent_returns": {
+        "1d": -1.19
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足，无法评估"
+    },
+    {
+      "code": "601838",
+      "name": "成都银行",
+      "action": "sell",
+      "date": "2026-06-16",
+      "price": 19.83,
+      "reason": "smart_rebalance",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": -1.54
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足，无法评估"
+    },
+    {
+      "code": "600160",
+      "name": "巨化股份",
+      "action": "buy",
+      "date": "2026-06-16",
+      "price": 47.76,
+      "reason": "smart_rebalance",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": 2.14
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "601058",
+      "name": "赛轮轮胎",
+      "action": "buy",
+      "date": "2026-06-16",
+      "price": 12.62,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -4.14
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "600958",
+      "name": "东方证券",
+      "action": "buy",
+      "date": "2026-06-17",
+      "price": 9.52,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.75
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "600160",
+      "name": "巨化股份",
+      "action": "buy",
+      "date": "2026-06-17",
+      "price": 45.9,
+      "reason": "add_score0_sig66",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -7.51
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "601985",
+      "name": "中国核电",
+      "action": "buy",
+      "date": "2026-06-17",
+      "price": 9.3,
+      "reason": "auto_buy",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -1.94
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    },
+    {
+      "code": "000661",
+      "name": "长春高新",
+      "action": "sell",
+      "date": "2026-05-27",
+      "price": 76.16,
+      "reason": "smart_rebalance",
+      "pnl": -45732.0,
+      "subsequent_returns": {
+        "1d": -3.71,
+        "5d": -10.17,
+        "10d": -12.28
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-10.2%，止损正确"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "action": "sell",
+      "date": "2026-05-29",
+      "price": 5.17,
+      "reason": "smart_rebalance",
+      "pnl": -10849.0,
+      "subsequent_returns": {
+        "1d": 0.78,
+        "5d": -4.65,
+        "10d": -9.69
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-4.7%，止损正确"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "action": "sell",
+      "date": "2026-06-02",
+      "price": 5.22,
+      "reason": "smart_rebalance",
+      "pnl": -7994.0,
+      "subsequent_returns": {
+        "1d": -0.77,
+        "5d": -8.08,
+        "10d": -12.88
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-8.1%，止损正确"
+    },
+    {
+      "code": "001391",
+      "name": "国货航",
+      "action": "sell",
+      "date": "2026-06-03",
+      "price": 5.17,
+      "reason": "smart_rebalance",
+      "pnl": -10849.0,
+      "subsequent_returns": {
+        "1d": -2.13,
+        "5d": -10.08,
+        "10d": -14.92
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-10.1%，止损正确"
+    },
+    {
+      "code": "000001",
+      "name": "平安银行",
+      "action": "sell",
+      "date": "2026-06-11",
+      "price": 11.0,
+      "reason": "test_sell",
+      "pnl": 1000.0,
+      "subsequent_returns": {
+        "1d": -0.53,
+        "5d": -6.9
+      },
+      "outcome": "excellent",
+      "analysis": "卖出后-6.9%，成功止盈"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 20.0,
+      "reason": "test",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": 1.28,
+        "5d": -1.92
+      },
+      "outcome": "mediocre",
+      "analysis": "买入后5日跌-1.9%，需观察"
+    },
+    {
+      "code": "000002",
+      "name": "万科A",
+      "action": "sell",
+      "date": "2026-06-11",
+      "price": 19.0,
+      "reason": "stop_half",
+      "pnl": -500.0,
+      "subsequent_returns": {
+        "1d": 1.28,
+        "5d": -1.92
+      },
+      "outcome": "neutral",
+      "analysis": "卖出后5日-1.9%"
+    },
+    {
+      "code": "600000",
+      "name": "浦发银行",
+      "action": "buy",
+      "date": "2026-06-11",
+      "price": 10.0,
+      "reason": "test",
+      "pnl": 0.0,
+      "subsequent_returns": {
+        "1d": 1.26,
+        "5d": -4.82
+      },
+      "outcome": "bad",
+      "analysis": "买入后-4.8%，选股失误"
+    },
+    {
+      "code": "600000",
+      "name": "浦发银行",
+      "action": "sell",
+      "date": "2026-06-11",
+      "price": 9.5,
+      "reason": "stop_half",
+      "pnl": -250.0,
+      "subsequent_returns": {
+        "1d": 1.26,
+        "5d": -4.82
+      },
+      "outcome": "correct_stop",
+      "analysis": "卖出后5日继续跌-4.8%，止损正确"
+    },
+    {
+      "code": "000333",
+      "name": "美的集团",
+      "action": "buy",
+      "date": "2026-06-12",
+      "price": 83.75,
+      "reason": "add_score0_sig85",
+      "pnl": 0,
+      "subsequent_returns": {
+        "1d": -2.76
+      },
+      "outcome": "insufficient_data",
+      "analysis": "数据不足"
+    }
+  ]
+}
