@@ -1743,3 +1743,60 @@
   - 对比: 原Tier3 scale=0.3过于乐观，指数衰减更合理
 
 **数据状态:** 15/20笔已平仓 | 胜率13.3% | 回撤-19.7% | 均收益-4.87%
+
+### 2026-06-22 (周一) 复盘+策略日
+
+**代码审查发现:**
+- 🟢 T+1检查在所有5个卖出路径正确实现（_auto_sell/_smart_rebalance/reduce_to_5/强制换仓/正常调仓）
+- 🟢 佣金(_buy 1+rate / _sell 1-rate)每次交易正确扣除
+- 🟢 _partial_sell: shares=0正确清除持仓, peak_price正确更新
+- 🟢 _add_position: 加权平均成本计算正确, last_add_date正确设置
+- 🟢 乒乓防护: daily_swaps.json + daily_auto_buys.json双重去重
+- 🟡 strategy_report.json 16天stale (06-05→06-22) — 已修复（auto-regen）
+- 🟡 601838可能的T+1边缘case（同日add_position后smart_rebalance卖出）— 已添加安全网
+- 🟢 Bot运行正常(PID 3716472 since Jun 19)，无ERROR
+
+**复盘驱动:**
+- 数据状态: 16/20笔已平仓 | 胜率12.5% | 均收益-5.12% | 总盈亏¥-178K
+- 回撤: -19.8% | Tier3.5冻结中 (signal门槛85)
+- 主要错误模式: "买入失误"12次(avg后续5日跌6.9%)
+- 策略报告建议: 1)提高买入门槛+10 2)smart_rebalance胜率仅11.1%需检查
+
+**改进实施 (4项):**
+1. ✅ **🟡 策略报告自动再生成** (run_bot.py + trade_tracker.py)
+   - 问题: strategy_report.json自06-05起未更新，get_status()和策略决策依赖过期数据
+   - 修复: trade_review cron每日自动调用generate_strategy_report()
+   - 同时修复: factor比较TypeError（enriched/enriched_from等非数值字段导致崩溃）
+   - commit: e1d781a
+
+2. ✅ **🟡 正常调仓T+1安全网** (run_bot.py)
+   - 问题: sell_list在_smart_rebalance开头构建，中间加减仓循环可能修改持仓状态
+   - 修复: 卖出sell_candidate前重新验证buy_date/last_add_date
+   - 背景: 601838于06-16 09:45加仓后10:05被smart_rebalance卖出（T+1违规）
+   - commit: e1d781a
+
+3. ✅ **🟢 动态卖出门槛** (run_bot.py)
+   - 灵感来源: inalpha (⭐133) — factor timing概念，根据当前市场状态动态调整策略
+   - 实现: 回撤>10%时sell threshold 15%→20%，>15%时→25%
+   - 动机: 当前回撤-19.8%，弱势持仓（如600160评分排名19）应更积极清理
+   - commit: e1d781a
+
+4. ✅ **🔴 因子比较类型安全** (trade_tracker.py)
+   - 问题: generate_strategy_report()中t["factors"].get(factor_name, 0) > 0.6，但factor值可能是str/bool
+   - 修复: _safe_factor_val()安全转换，非数值因子跳过
+   - 影响: strategy_report现在可以正常生成（之前崩溃）
+   - commit: e1d781a
+
+**GitHub学习:**
+- **inalpha** (⭐133): "Quant agents that evolve under audit"
+  - 核心概念: factor timing — 按时间序列Rank IC排序因子，用当前最有效的因子timing entries
+  - 我们的实现: 动态卖出门槛根据回撤深度调整，是factor timing在组合层面的应用
+  - 后续可探索: 按近期IC动态调整因子权重（部分已有，但IC历史数据质量待提升）
+  - 审计级工程: 每笔交易可追溯，我们已有trade_tracker+trade_review
+
+**数据状态:** 16/20笔已平仓 | 胜率12.5% | 回撤-19.8% | 均收益-5.12%
+**运行状态:** Bot正常运行(PID 3716472), 5只持仓(600160/600958/601985/601186/000301), 现金¥200K
+**下次TODO:**
+- [ ] 数据达到20笔后正式调参
+- [ ] 考虑提高买入信号门槛+10（策略报告建议，胜率仅12.5%）
+- [ ] smart_rebalance胜率11.1%需深入分析（9笔中8笔亏损）
