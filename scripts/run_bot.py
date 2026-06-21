@@ -355,6 +355,15 @@ def main():
                     n = len(result['reviews'])
                     p = len(result['patterns'])
                     logger.info(f"交易复盘完成: {n}条, {p}个模式")
+                    # 同步生成策略报告（修复: strategy_report.json长期stale导致决策无数据支撑）
+                    try:
+                        from src.simulator.trade_tracker import generate_strategy_report as _gen_rpt
+                        _rpt = _gen_rpt()
+                        _rpt_n = _rpt.get('summary', {}).get('total_trades', 0)
+                        _rpt_wr = _rpt.get('summary', {}).get('win_rate', 0)
+                        logger.info(f"策略报告已更新: {_rpt_n}笔, 胜率{_rpt_wr}%")
+                    except Exception as _rpt_err:
+                        logger.warning(f"策略报告更新失败: {_rpt_err}")
                     # 推送复盘摘要
                     good = sum(1 for r in result['reviews'] if r.get('outcome') in ('excellent', 'good', 'correct_stop'))
                     bad = sum(1 for r in result['reviews'] if r.get('outcome') in ('bad', 'bad_stop'))
@@ -1557,8 +1566,20 @@ def main():
 
                 held = set(tracker.holdings.keys())
                 total_stocks = len(scores)
-                threshold_rank = int(total_stocks * 0.15)  # 前15% (复盘: 20%门槛仍选入差股,5/12全亏→收紧)
-                top_rank = int(total_stocks * 0.1)  # 前10%
+                # 动态卖出门槛: 回撤越深越积极卖出弱势股（灵感: inalpha factor timing）
+                # 正常: 前15%才是"好"，超过前15%就考虑卖
+                # 回撤>10%: 前20%（更积极清理弱势持仓）
+                # 回撤>15%: 前25%（深度回撤时加速止损）
+                _rb_dd = _check_portfolio_drawdown(tracker, return_detail=True)
+                _dd_pct = _rb_dd.get('drawdown', 0)
+                if _dd_pct < -0.15:
+                    _sell_threshold_pct = 0.25
+                elif _dd_pct < -0.10:
+                    _sell_threshold_pct = 0.20
+                else:
+                    _sell_threshold_pct = 0.15
+                threshold_rank = int(total_stocks * _sell_threshold_pct)
+                top_rank = int(total_stocks * 0.1)  # 前10%（买入标准不变）
 
                 # 获取实时价格
                 rt_codes = list(held)
@@ -1940,6 +1961,13 @@ def main():
                     return
                 sell_list.sort(key=lambda x: list(scores.index).index(x[0])+1 if x[0] in scores.index else 999, reverse=True)
                 sell_candidate, sell_reason = sell_list[0]
+
+                # T+1安全网: sell_list在函数开头构建，但中间的加减仓循环可能修改了持仓
+                # 重新验证sell_candidate的T+1状态（复盘: 601838同日加仓后被卖出）
+                _sc_h = tracker.holdings.get(sell_candidate, {})
+                if _sc_h.get('buy_date', '') == today or _sc_h.get('last_add_date', '') == today:
+                    logger.info(f'正常调仓T+1安全网: 跳过{sell_candidate}（今日买入/加仓）')
+                    return
 
                 # 🛡️ 防止买入今天已卖出的股票（防乒乓）
                 _today_sold_codes = set()

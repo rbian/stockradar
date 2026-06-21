@@ -884,5 +884,151 @@
         "stars": 0
       }
     ]
+  },
+  {
+    "date": "2026-06-20",
+    "repos_found": 111,
+    "repos": [
+      {
+        "repo": "RKiding/Awesome-finance-skills",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "skills"
+      },
+      {
+        "repo": "wilsonfreitas/awesome-quant",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "awesome-list"
+      },
+      {
+        "repo": "thumlut/awesome-quant",
+        "relevance_score": 8,
+        "source": "known",
+        "category": "awesome-list"
+      },
+      {
+        "repo": "Dzy-HW-XD/a-share-quant-selector",
+        "description": "A股量化选股系统 - 基于碗口反弹策略的智能选股工具，支持Web界面和钉钉通知",
+        "stars": 204,
+        "language": "Python",
+        "updated": "2026-06-19",
+        "relevance_score": 7,
+        "source": "search:A股 量化选股"
+      },
+      {
+        "repo": "shouldnotappearcalm/a-share-skill",
+        "description": "A股数据分析、量化选股与模拟交易 Skill 集合，支持实时行情、历史K线、技术指标、自定义交易策略与模拟买入、卖出交易账户",
+        "stars": 156,
+        "language": "Python",
+        "updated": "2026-06-20",
+        "relevance_score": 7,
+        "source": "search:A股 量化选股"
+      },
+      {
+        "repo": "ricequant/rqalpha",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "tradingstrategy-ai/getting-started",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "lequant40/portfolio_allocation_js",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "quantopian/alphalens",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "husainm97/quant-lab-alpha",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "tradingstrategy-ai/trading-strategy/",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "LastAncientOne/Stock_Analysis_For_Quant",
+        "relevance_score": 6,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "AI4Finance-Foundation/FinRL",
+        "relevance_score": 5,
+        "source": "known",
+        "category": "rl"
+      },
+      {
+        "repo": "johnbywater/quantdsl",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "jsmidt/QuantPy",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "alpha-miner/Finance-Python",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "goldmansachs/gs-quant",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "google/tf-quant-finance",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "quantsbin/Quantsbin",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      },
+      {
+        "repo": "joseprupi/quantraserver",
+        "relevance_score": 3,
+        "source": "awesome-quant",
+        "description": "",
+        "stars": 0
+      }
+    ]
   }
 ]

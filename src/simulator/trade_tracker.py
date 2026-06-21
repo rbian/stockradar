@@ -274,8 +274,15 @@ def generate_strategy_report() -> dict:
     factor_trades = [t for t in trades if t.get("factors")]
     if factor_trades:
         for factor_name in set(f for t in factor_trades for f in t["factors"]):
-            high_factor = [t for t in factor_trades if t["factors"].get(factor_name, 0) > 0.6]
-            low_factor = [t for t in factor_trades if t["factors"].get(factor_name, 0) <= 0.6]
+            # 安全比较: 因子值可能是非数字(str/bool)，跳过这些
+            def _safe_factor_val(t, name):
+                v = t.get("factors", {}).get(name, 0)
+                try:
+                    return float(v)
+                except (TypeError, ValueError):
+                    return None
+            high_factor = [t for t in factor_trades if _safe_factor_val(t, factor_name) is not None and _safe_factor_val(t, factor_name) > 0.6]
+            low_factor = [t for t in factor_trades if _safe_factor_val(t, factor_name) is not None and _safe_factor_val(t, factor_name) <= 0.6]
             if high_factor and low_factor:
                 high_wr = sum(1 for t in high_factor if t["is_win"]) / len(high_factor) * 100
                 low_wr = sum(1 for t in low_factor if t["is_win"]) / len(low_factor) * 100
