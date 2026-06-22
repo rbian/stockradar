@@ -1,15 +1,15 @@
 {
-  "updated": "2026-06-18",
+  "updated": "2026-06-22",
   "stats": {
-    "latest_date": "2026-06-18",
-    "nav": 0.806,
-    "total_return": -19.4,
-    "max_drawdown": -19.4,
-    "holdings_count": 5,
-    "total_trades": 57,
+    "latest_date": "2026-06-22",
+    "nav": 0.8203,
+    "total_return": -17.97,
+    "max_drawdown": -17.97,
+    "holdings_count": 4,
+    "total_trades": 58,
     "initial_capital": 1000000,
-    "current_value": 797988.0,
-    "cash": 321400.0
+    "current_value": 820268.0,
+    "cash": 448393.0
   },
   "nav_history": [
     {
@@ -128,9 +128,9 @@
     },
     {
       "date": "2026-06-22",
-      "nav": 0.806,
-      "market_value": 484623.0,
-      "holdings_count": 5
+      "nav": 0.8203,
+      "market_value": 371875.0,
+      "holdings_count": 4
     }
   ],
   "hs300_benchmark": [
@@ -229,6 +229,10 @@
     {
       "date": "2026-06-18",
       "nav": 1.0422
+    },
+    {
+      "date": "2026-06-22",
+      "nav": 1.0609
     }
   ],
   "holdings": [
@@ -237,53 +241,52 @@
       "name": "巨化股份",
       "shares": 3700,
       "cost_price": 46.71,
-      "current_price": 44.12,
-      "market_value": 163244.0,
-      "pnl_pct": -5.54,
-      "weight": 34.9
-    },
-    {
-      "code": "601985",
-      "name": "中国核电",
-      "shares": 14000,
-      "cost_price": 9.3,
-      "current_price": 9.12,
-      "market_value": 127680.0,
-      "pnl_pct": -1.94,
-      "weight": 26.3
+      "current_price": 48.53,
+      "market_value": 179561.0,
+      "pnl_pct": 3.9,
+      "weight": 47.3
     },
     {
       "code": "601186",
       "name": "中国铁建",
       "shares": 14400,
       "cost_price": 6.37,
-      "current_price": 6.3,
-      "market_value": 90720.0,
-      "pnl_pct": -1.1,
-      "weight": 18.5
+      "current_price": 6.36,
+      "market_value": 91584.0,
+      "pnl_pct": -0.16,
+      "weight": 25.1
     },
     {
       "code": "000301",
       "name": "东方盛虹",
       "shares": 3500,
       "cost_price": 11.88,
-      "current_price": 11.59,
-      "market_value": 40565.0,
-      "pnl_pct": -2.44,
-      "weight": 8.4
+      "current_price": 12.14,
+      "market_value": 42490.0,
+      "pnl_pct": 2.19,
+      "weight": 11.4
     },
     {
       "code": "600460",
       "name": "士兰微",
       "shares": 1300,
       "cost_price": 45.59,
-      "current_price": 41.83,
-      "market_value": 54379.0,
-      "pnl_pct": -8.25,
-      "weight": 12.0
+      "current_price": 44.8,
+      "market_value": 58240.0,
+      "pnl_pct": -1.73,
+      "weight": 16.2
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-22 10:00",
+      "code": "601985",
+      "name": "中国核电",
+      "action": "sell",
+      "shares": 14000,
+      "price": 9.08,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-06-22 09:55",
       "code": "600460",
@@ -543,15 +546,6 @@
       "action": "buy",
       "shares": 1400,
       "price": 11.32,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:05",
-      "code": "601658",
-      "name": "邮储银行",
-      "action": "buy",
-      "shares": 1600,
-      "price": 5.1,
       "reason": "auto_buy"
     }
   ]
