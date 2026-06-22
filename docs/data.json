@@ -2,14 +2,14 @@
   "updated": "2026-06-18",
   "stats": {
     "latest_date": "2026-06-18",
-    "nav": 0.8001,
-    "total_return": -19.99,
-    "max_drawdown": -19.99,
+    "nav": 0.806,
+    "total_return": -19.4,
+    "max_drawdown": -19.4,
     "holdings_count": 5,
-    "total_trades": 56,
+    "total_trades": 57,
     "initial_capital": 1000000,
-    "current_value": 802723.0,
-    "cash": 376331.0
+    "current_value": 797988.0,
+    "cash": 321400.0
   },
   "nav_history": [
     {
@@ -128,8 +128,8 @@
     },
     {
       "date": "2026-06-22",
-      "nav": 0.8001,
-      "market_value": 423736.0,
+      "nav": 0.806,
+      "market_value": 484623.0,
       "holdings_count": 5
     }
   ],
@@ -240,7 +240,7 @@
       "current_price": 44.12,
       "market_value": 163244.0,
       "pnl_pct": -5.54,
-      "weight": 39.2
+      "weight": 34.9
     },
     {
       "code": "601985",
@@ -250,7 +250,7 @@
       "current_price": 9.12,
       "market_value": 127680.0,
       "pnl_pct": -1.94,
-      "weight": 29.5
+      "weight": 26.3
     },
     {
       "code": "601186",
@@ -260,7 +260,7 @@
       "current_price": 6.3,
       "market_value": 90720.0,
       "pnl_pct": -1.1,
-      "weight": 20.8
+      "weight": 18.5
     },
     {
       "code": "000301",
@@ -270,20 +270,29 @@
       "current_price": 11.59,
       "market_value": 40565.0,
       "pnl_pct": -2.44,
-      "weight": 9.4
+      "weight": 8.4
     },
     {
       "code": "600460",
       "name": "士兰微",
-      "shares": 100,
-      "cost_price": 43.97,
+      "shares": 1300,
+      "cost_price": 45.59,
       "current_price": 41.83,
-      "market_value": 4183.0,
-      "pnl_pct": -4.87,
-      "weight": 1.0
+      "market_value": 54379.0,
+      "pnl_pct": -8.25,
+      "weight": 12.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-22 09:55",
+      "code": "600460",
+      "name": "士兰微",
+      "action": "buy",
+      "shares": 1200,
+      "price": 45.73,
+      "reason": "add_score0_sig72"
+    },
     {
       "date": "2026-06-22 09:35",
       "code": "600460",
@@ -543,15 +552,6 @@
       "action": "buy",
       "shares": 1600,
       "price": 5.1,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:00",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "buy",
-      "shares": 1800,
-      "price": 11.29,
       "reason": "auto_buy"
     }
   ]
