@@ -2,14 +2,14 @@
   "updated": "2026-06-18",
   "stats": {
     "latest_date": "2026-06-18",
-    "nav": 0.8018,
-    "total_return": -19.82,
-    "max_drawdown": -19.82,
+    "nav": 0.8001,
+    "total_return": -19.99,
+    "max_drawdown": -19.99,
     "holdings_count": 5,
-    "total_trades": 54,
+    "total_trades": 56,
     "initial_capital": 1000000,
-    "current_value": 801758.0,
-    "cash": 199954.0
+    "current_value": 802723.0,
+    "cash": 376331.0
   },
   "nav_history": [
     {
@@ -125,6 +125,12 @@
       "nav": 0.8018,
       "market_value": 601804.0,
       "holdings_count": 5
+    },
+    {
+      "date": "2026-06-22",
+      "nav": 0.8001,
+      "market_value": 423736.0,
+      "holdings_count": 5
     }
   ],
   "hs300_benchmark": [
@@ -234,17 +240,7 @@
       "current_price": 44.12,
       "market_value": 163244.0,
       "pnl_pct": -5.54,
-      "weight": 27.8
-    },
-    {
-      "code": "600958",
-      "name": "东方证券",
-      "shares": 19500,
-      "cost_price": 9.52,
-      "current_price": 9.21,
-      "market_value": 179595.0,
-      "pnl_pct": -3.26,
-      "weight": 29.8
+      "weight": 39.2
     },
     {
       "code": "601985",
@@ -254,7 +250,7 @@
       "current_price": 9.12,
       "market_value": 127680.0,
       "pnl_pct": -1.94,
-      "weight": 20.9
+      "weight": 29.5
     },
     {
       "code": "601186",
@@ -264,7 +260,7 @@
       "current_price": 6.3,
       "market_value": 90720.0,
       "pnl_pct": -1.1,
-      "weight": 14.7
+      "weight": 20.8
     },
     {
       "code": "000301",
@@ -274,10 +270,38 @@
       "current_price": 11.59,
       "market_value": 40565.0,
       "pnl_pct": -2.44,
-      "weight": 6.7
+      "weight": 9.4
+    },
+    {
+      "code": "600460",
+      "name": "士兰微",
+      "shares": 100,
+      "cost_price": 43.97,
+      "current_price": 41.83,
+      "market_value": 4183.0,
+      "pnl_pct": -4.87,
+      "weight": 1.0
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-22 09:35",
+      "code": "600460",
+      "name": "士兰微",
+      "action": "buy",
+      "shares": 100,
+      "price": 43.97,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-22 09:35",
+      "code": "600958",
+      "name": "东方证券",
+      "action": "sell",
+      "shares": 19500,
+      "price": 9.28,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-06-19 09:35",
       "code": "601058",
@@ -529,24 +553,6 @@
       "shares": 1800,
       "price": 11.29,
       "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:00",
-      "code": "601658",
-      "name": "邮储银行",
-      "action": "buy",
-      "shares": 2100,
-      "price": 5.08,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:00",
-      "code": "601838",
-      "name": "成都银行",
-      "action": "buy",
-      "shares": 2400,
-      "price": 19.82,
-      "reason": "add_score0_sig81"
     }
   ]
 }
