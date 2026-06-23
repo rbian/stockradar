@@ -2,14 +2,14 @@
   "updated": "2026-06-22",
   "stats": {
     "latest_date": "2026-06-22",
-    "nav": 0.8259,
-    "total_return": -17.41,
-    "max_drawdown": -17.41,
+    "nav": 0.8242,
+    "total_return": -17.58,
+    "max_drawdown": -17.58,
     "holdings_count": 4,
-    "total_trades": 64,
+    "total_trades": 65,
     "initial_capital": 1000000,
-    "current_value": 817874.0,
-    "cash": 394785.0
+    "current_value": 824518.0,
+    "cash": 319139.0
   },
   "nav_history": [
     {
@@ -134,8 +134,8 @@
     },
     {
       "date": "2026-06-23",
-      "nav": 0.8259,
-      "market_value": 431147.0,
+      "nav": 0.8242,
+      "market_value": 505062.0,
       "holdings_count": 4
     }
   ],
@@ -250,7 +250,7 @@
       "current_price": 48.53,
       "market_value": 179561.0,
       "pnl_pct": 3.9,
-      "weight": 41.1
+      "weight": 34.8
     },
     {
       "code": "600460",
@@ -260,7 +260,7 @@
       "current_price": 44.8,
       "market_value": 120960.0,
       "pnl_pct": -1.8,
-      "weight": 29.3
+      "weight": 24.8
     },
     {
       "code": "600999",
@@ -270,20 +270,29 @@
       "current_price": 19.65,
       "market_value": 106110.0,
       "pnl_pct": -3.01,
-      "weight": 26.0
+      "weight": 22.1
     },
     {
       "code": "600362",
       "name": "江西铜业",
-      "shares": 300,
-      "cost_price": 50.48,
+      "shares": 1800,
+      "cost_price": 50.4,
       "current_price": 54.86,
-      "market_value": 16458.0,
-      "pnl_pct": 8.68,
-      "weight": 3.6
+      "market_value": 98748.0,
+      "pnl_pct": 8.85,
+      "weight": 18.3
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-23 10:25",
+      "code": "600362",
+      "name": "江西铜业",
+      "action": "buy",
+      "shares": 1500,
+      "price": 50.38,
+      "reason": "add_score0_sig80"
+    },
     {
       "date": "2026-06-23 10:05",
       "code": "600362",
@@ -544,15 +553,6 @@
       "shares": 500,
       "price": 19.97,
       "reason": "add_score0_sig77"
-    },
-    {
-      "date": "2026-06-11 10:20",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "buy",
-      "shares": 700,
-      "price": 11.3,
-      "reason": "auto_buy"
     }
   ]
 }
