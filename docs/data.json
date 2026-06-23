@@ -2,14 +2,14 @@
   "updated": "2026-06-22",
   "stats": {
     "latest_date": "2026-06-22",
-    "nav": 0.827,
-    "total_return": -17.3,
-    "max_drawdown": -17.3,
+    "nav": 0.8259,
+    "total_return": -17.41,
+    "max_drawdown": -17.41,
     "holdings_count": 4,
-    "total_trades": 62,
+    "total_trades": 64,
     "initial_capital": 1000000,
-    "current_value": 815673.0,
-    "cash": 366552.0
+    "current_value": 817874.0,
+    "cash": 394785.0
   },
   "nav_history": [
     {
@@ -134,8 +134,8 @@
     },
     {
       "date": "2026-06-23",
-      "nav": 0.827,
-      "market_value": 460430.0,
+      "nav": 0.8259,
+      "market_value": 431147.0,
       "holdings_count": 4
     }
   ],
@@ -250,17 +250,7 @@
       "current_price": 48.53,
       "market_value": 179561.0,
       "pnl_pct": 3.9,
-      "weight": 38.7
-    },
-    {
-      "code": "000301",
-      "name": "东方盛虹",
-      "shares": 3500,
-      "cost_price": 11.88,
-      "current_price": 12.14,
-      "market_value": 42490.0,
-      "pnl_pct": 2.19,
-      "weight": 9.3
+      "weight": 41.1
     },
     {
       "code": "600460",
@@ -270,7 +260,7 @@
       "current_price": 44.8,
       "market_value": 120960.0,
       "pnl_pct": -1.8,
-      "weight": 27.6
+      "weight": 29.3
     },
     {
       "code": "600999",
@@ -280,10 +270,38 @@
       "current_price": 19.65,
       "market_value": 106110.0,
       "pnl_pct": -3.01,
-      "weight": 24.5
+      "weight": 26.0
+    },
+    {
+      "code": "600362",
+      "name": "江西铜业",
+      "shares": 300,
+      "cost_price": 50.48,
+      "current_price": 54.86,
+      "market_value": 16458.0,
+      "pnl_pct": 8.68,
+      "weight": 3.6
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-23 10:05",
+      "code": "600362",
+      "name": "江西铜业",
+      "action": "buy",
+      "shares": 300,
+      "price": 50.48,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-23 10:05",
+      "code": "000301",
+      "name": "东方盛虹",
+      "action": "sell",
+      "shares": 3500,
+      "price": 12.41,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-06-23 10:00",
       "code": "600999",
@@ -534,24 +552,6 @@
       "action": "buy",
       "shares": 700,
       "price": 11.3,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:20",
-      "code": "601658",
-      "name": "邮储银行",
-      "action": "buy",
-      "shares": 800,
-      "price": 5.1,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:15",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "buy",
-      "shares": 800,
-      "price": 11.31,
       "reason": "auto_buy"
     }
   ]
