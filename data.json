@@ -2,14 +2,14 @@
   "updated": "2026-06-22",
   "stats": {
     "latest_date": "2026-06-22",
-    "nav": 0.8309,
-    "total_return": -16.91,
-    "max_drawdown": -16.91,
+    "nav": 0.827,
+    "total_return": -17.3,
+    "max_drawdown": -17.3,
     "holdings_count": 4,
-    "total_trades": 61,
+    "total_trades": 62,
     "initial_capital": 1000000,
-    "current_value": 818124.0,
-    "cash": 429918.0
+    "current_value": 815673.0,
+    "cash": 366552.0
   },
   "nav_history": [
     {
@@ -134,8 +134,8 @@
     },
     {
       "date": "2026-06-23",
-      "nav": 0.8309,
-      "market_value": 400968.0,
+      "nav": 0.827,
+      "market_value": 460430.0,
       "holdings_count": 4
     }
   ],
@@ -250,7 +250,7 @@
       "current_price": 48.53,
       "market_value": 179561.0,
       "pnl_pct": 3.9,
-      "weight": 45.0
+      "weight": 38.7
     },
     {
       "code": "000301",
@@ -260,7 +260,7 @@
       "current_price": 12.14,
       "market_value": 42490.0,
       "pnl_pct": 2.19,
-      "weight": 10.8
+      "weight": 9.3
     },
     {
       "code": "600460",
@@ -270,20 +270,29 @@
       "current_price": 44.8,
       "market_value": 120960.0,
       "pnl_pct": -1.8,
-      "weight": 32.1
+      "weight": 27.6
     },
     {
       "code": "600999",
       "name": "招商证券",
-      "shares": 2300,
-      "cost_price": 20.04,
+      "shares": 5400,
+      "cost_price": 20.26,
       "current_price": 19.65,
-      "market_value": 45195.0,
-      "pnl_pct": -1.95,
-      "weight": 12.0
+      "market_value": 106110.0,
+      "pnl_pct": -3.01,
+      "weight": 24.5
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-23 10:00",
+      "code": "600999",
+      "name": "招商证券",
+      "action": "buy",
+      "shares": 3100,
+      "price": 20.42,
+      "reason": "add_score0_sig79"
+    },
     {
       "date": "2026-06-23 09:40",
       "code": "600999",
@@ -543,15 +552,6 @@
       "action": "buy",
       "shares": 800,
       "price": 11.31,
-      "reason": "auto_buy"
-    },
-    {
-      "date": "2026-06-11 10:15",
-      "code": "601658",
-      "name": "邮储银行",
-      "action": "buy",
-      "shares": 1000,
-      "price": 5.09,
       "reason": "auto_buy"
     }
   ]
