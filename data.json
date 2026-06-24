@@ -2,14 +2,14 @@
   "updated": "2026-06-23",
   "stats": {
     "latest_date": "2026-06-23",
-    "nav": 0.8265,
-    "total_return": -17.35,
-    "max_drawdown": -17.35,
+    "nav": 0.8256,
+    "total_return": -17.44,
+    "max_drawdown": -17.44,
     "holdings_count": 4,
-    "total_trades": 67,
+    "total_trades": 68,
     "initial_capital": 1000000,
-    "current_value": 816237.0,
-    "cash": 231476.0
+    "current_value": 815003.0,
+    "cash": 198082.0
   },
   "nav_history": [
     {
@@ -140,8 +140,8 @@
     },
     {
       "date": "2026-06-24",
-      "nav": 0.8265,
-      "market_value": 595058.0,
+      "nav": 0.8256,
+      "market_value": 627512.0,
       "holdings_count": 4
     }
   ],
@@ -260,7 +260,7 @@
       "current_price": 46.85,
       "market_value": 173345.0,
       "pnl_pct": 0.3,
-      "weight": 29.6
+      "weight": 28.0
     },
     {
       "code": "600460",
@@ -270,17 +270,17 @@
       "current_price": 47.04,
       "market_value": 164640.0,
       "pnl_pct": 0.68,
-      "weight": 28.0
+      "weight": 26.5
     },
     {
       "code": "600999",
       "name": "招商证券",
-      "shares": 5400,
-      "cost_price": 20.26,
+      "shares": 7000,
+      "cost_price": 20.39,
       "current_price": 20.1,
-      "market_value": 108540.0,
-      "pnl_pct": -0.79,
-      "weight": 18.7
+      "market_value": 140700.0,
+      "pnl_pct": -1.42,
+      "weight": 23.1
     },
     {
       "code": "600362",
@@ -290,10 +290,19 @@
       "current_price": 49.37,
       "market_value": 138236.0,
       "pnl_pct": 0.2,
-      "weight": 23.6
+      "weight": 22.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-24 09:45",
+      "code": "600999",
+      "name": "招商证券",
+      "action": "buy",
+      "shares": 1600,
+      "price": 20.85,
+      "reason": "add_score0_sig79"
+    },
     {
       "date": "2026-06-24 09:40",
       "code": "600460",
@@ -553,15 +562,6 @@
       "action": "buy",
       "shares": 300,
       "price": 31.98,
-      "reason": "add_score0_sig73"
-    },
-    {
-      "date": "2026-06-15 09:45",
-      "code": "000333",
-      "name": "美的集团",
-      "action": "buy",
-      "shares": 100,
-      "price": 81.73,
       "reason": "add_score0_sig73"
     }
   ]
