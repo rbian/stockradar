@@ -2,14 +2,14 @@
   "updated": "2026-06-23",
   "stats": {
     "latest_date": "2026-06-23",
-    "nav": 0.8169,
-    "total_return": -18.31,
-    "max_drawdown": -18.31,
+    "nav": 0.825,
+    "total_return": -17.5,
+    "max_drawdown": -17.5,
     "holdings_count": 4,
-    "total_trades": 65,
+    "total_trades": 66,
     "initial_capital": 1000000,
-    "current_value": 816898.0,
-    "cash": 319139.0
+    "current_value": 818981.0,
+    "cash": 271852.0
   },
   "nav_history": [
     {
@@ -137,6 +137,12 @@
       "nav": 0.8169,
       "market_value": 497759.0,
       "holdings_count": 4
+    },
+    {
+      "date": "2026-06-24",
+      "nav": 0.825,
+      "market_value": 553152.0,
+      "holdings_count": 4
     }
   ],
   "hs300_benchmark": [
@@ -254,7 +260,7 @@
       "current_price": 46.85,
       "market_value": 173345.0,
       "pnl_pct": 0.3,
-      "weight": 34.8
+      "weight": 31.8
     },
     {
       "code": "600460",
@@ -264,7 +270,7 @@
       "current_price": 47.04,
       "market_value": 127008.0,
       "pnl_pct": 3.11,
-      "weight": 24.8
+      "weight": 22.7
     },
     {
       "code": "600999",
@@ -274,20 +280,29 @@
       "current_price": 20.1,
       "market_value": 108540.0,
       "pnl_pct": -0.79,
-      "weight": 22.1
+      "weight": 20.1
     },
     {
       "code": "600362",
       "name": "江西铜业",
-      "shares": 1800,
-      "cost_price": 50.4,
+      "shares": 2800,
+      "cost_price": 49.27,
       "current_price": 49.37,
-      "market_value": 88866.0,
-      "pnl_pct": -2.04,
-      "weight": 18.3
+      "market_value": 138236.0,
+      "pnl_pct": 0.2,
+      "weight": 25.4
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-24 09:35",
+      "code": "600362",
+      "name": "江西铜业",
+      "action": "buy",
+      "shares": 1000,
+      "price": 47.24,
+      "reason": "add_score0_sig71"
+    },
     {
       "date": "2026-06-23 10:25",
       "code": "600362",
@@ -548,15 +563,6 @@
       "shares": 300,
       "price": 32.68,
       "reason": "add_score0_sig78"
-    },
-    {
-      "date": "2026-06-15 09:35",
-      "code": "601838",
-      "name": "成都银行",
-      "action": "buy",
-      "shares": 500,
-      "price": 19.97,
-      "reason": "add_score0_sig77"
     }
   ]
 }
