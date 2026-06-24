@@ -1,14 +1,14 @@
 {
-  "updated": "2026-06-23",
+  "updated": "2026-06-24",
   "stats": {
-    "latest_date": "2026-06-23",
-    "nav": 0.8241,
-    "total_return": -17.59,
-    "max_drawdown": -17.59,
+    "latest_date": "2026-06-24",
+    "nav": 0.824,
+    "total_return": -17.6,
+    "max_drawdown": -17.6,
     "holdings_count": 4,
     "total_trades": 70,
     "initial_capital": 1000000,
-    "current_value": 818800.0,
+    "current_value": 823951.0,
     "cash": 347240.0
   },
   "nav_history": [
@@ -140,8 +140,8 @@
     },
     {
       "date": "2026-06-24",
-      "nav": 0.8241,
-      "market_value": 476869.0,
+      "nav": 0.824,
+      "market_value": 476711.0,
       "holdings_count": 4
     }
   ],
@@ -249,6 +249,10 @@
     {
       "date": "2026-06-23",
       "nav": 1.0314
+    },
+    {
+      "date": "2026-06-24",
+      "nav": 1.0424
     }
   ],
   "holdings": [
@@ -257,9 +261,9 @@
       "name": "士兰微",
       "shares": 3500,
       "cost_price": 46.72,
-      "current_price": 47.04,
-      "market_value": 164640.0,
-      "pnl_pct": 0.68,
+      "current_price": 50.01,
+      "market_value": 175035.0,
+      "pnl_pct": 7.04,
       "weight": 34.6
     },
     {
@@ -267,9 +271,9 @@
       "name": "招商证券",
       "shares": 7000,
       "cost_price": 20.39,
-      "current_price": 20.1,
-      "market_value": 140700.0,
-      "pnl_pct": -1.42,
+      "current_price": 20.28,
+      "market_value": 141960.0,
+      "pnl_pct": -0.54,
       "weight": 30.2
     },
     {
@@ -277,9 +281,9 @@
       "name": "江西铜业",
       "shares": 2800,
       "cost_price": 49.27,
-      "current_price": 49.37,
-      "market_value": 138236.0,
-      "pnl_pct": 0.2,
+      "current_price": 47.33,
+      "market_value": 132524.0,
+      "pnl_pct": -3.94,
       "weight": 29.2
     },
     {
@@ -287,9 +291,9 @@
       "name": "广发证券",
       "shares": 1200,
       "cost_price": 23.13,
-      "current_price": 23.32,
-      "market_value": 27984.0,
-      "pnl_pct": 0.82,
+      "current_price": 22.66,
+      "market_value": 27192.0,
+      "pnl_pct": -2.03,
       "weight": 5.9
     }
   ],
