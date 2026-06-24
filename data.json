@@ -2,14 +2,14 @@
   "updated": "2026-06-23",
   "stats": {
     "latest_date": "2026-06-23",
-    "nav": 0.8256,
-    "total_return": -17.44,
-    "max_drawdown": -17.44,
+    "nav": 0.8241,
+    "total_return": -17.59,
+    "max_drawdown": -17.59,
     "holdings_count": 4,
-    "total_trades": 68,
+    "total_trades": 70,
     "initial_capital": 1000000,
-    "current_value": 815003.0,
-    "cash": 198082.0
+    "current_value": 818800.0,
+    "cash": 347240.0
   },
   "nav_history": [
     {
@@ -140,8 +140,8 @@
     },
     {
       "date": "2026-06-24",
-      "nav": 0.8256,
-      "market_value": 627512.0,
+      "nav": 0.8241,
+      "market_value": 476869.0,
       "holdings_count": 4
     }
   ],
@@ -253,16 +253,6 @@
   ],
   "holdings": [
     {
-      "code": "600160",
-      "name": "巨化股份",
-      "shares": 3700,
-      "cost_price": 46.71,
-      "current_price": 46.85,
-      "market_value": 173345.0,
-      "pnl_pct": 0.3,
-      "weight": 28.0
-    },
-    {
       "code": "600460",
       "name": "士兰微",
       "shares": 3500,
@@ -270,7 +260,7 @@
       "current_price": 47.04,
       "market_value": 164640.0,
       "pnl_pct": 0.68,
-      "weight": 26.5
+      "weight": 34.6
     },
     {
       "code": "600999",
@@ -280,7 +270,7 @@
       "current_price": 20.1,
       "market_value": 140700.0,
       "pnl_pct": -1.42,
-      "weight": 23.1
+      "weight": 30.2
     },
     {
       "code": "600362",
@@ -290,10 +280,38 @@
       "current_price": 49.37,
       "market_value": 138236.0,
       "pnl_pct": 0.2,
-      "weight": 22.4
+      "weight": 29.2
+    },
+    {
+      "code": "000776",
+      "name": "广发证券",
+      "shares": 1200,
+      "cost_price": 23.13,
+      "current_price": 23.32,
+      "market_value": 27984.0,
+      "pnl_pct": 0.82,
+      "weight": 5.9
     }
   ],
   "trades": [
+    {
+      "date": "2026-06-24 09:50",
+      "code": "000776",
+      "name": "广发证券",
+      "action": "buy",
+      "shares": 1200,
+      "price": 23.13,
+      "reason": "smart_rebalance"
+    },
+    {
+      "date": "2026-06-24 09:50",
+      "code": "600160",
+      "name": "巨化股份",
+      "action": "sell",
+      "shares": 3700,
+      "price": 47.87,
+      "reason": "smart_rebalance"
+    },
     {
       "date": "2026-06-24 09:45",
       "code": "600999",
@@ -545,24 +563,6 @@
       "shares": 2200,
       "price": 19.9,
       "reason": "add_score0_sig71"
-    },
-    {
-      "date": "2026-06-16 09:40",
-      "code": "000001",
-      "name": "平安银行",
-      "action": "sell",
-      "shares": 26000,
-      "price": 11.07,
-      "reason": "smart_rebalance"
-    },
-    {
-      "date": "2026-06-16 09:35",
-      "code": "002142",
-      "name": "宁波银行",
-      "action": "buy",
-      "shares": 300,
-      "price": 31.98,
-      "reason": "add_score0_sig73"
     }
   ]
 }
